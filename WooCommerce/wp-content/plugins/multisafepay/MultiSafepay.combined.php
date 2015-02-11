@@ -1253,6 +1253,7 @@ if (!class_exists('MultiSafepay')) {
 /**
  * Classes used to parse xml data
  */
+if (!class_exists('msp_gc_xmlparser')) {
 class msp_gc_xmlparser {
 
     var $params = array(); //Stores the object representation of XML data
@@ -1381,6 +1382,7 @@ class msp_gc_xmlparser {
     }
 
 }
+}
 
 /**
  * Classes used to generate XML data
@@ -1390,6 +1392,7 @@ class msp_gc_xmlparser {
 /**
  * Generates xml data
  */
+if (!class_exists('msp_gc_XmlBuilder')) {
 class msp_gc_XmlBuilder {
 
     var $xml;
@@ -1457,6 +1460,7 @@ class msp_gc_XmlBuilder {
             return $this->xml;
     }
 
+}
 }
 
 /*
