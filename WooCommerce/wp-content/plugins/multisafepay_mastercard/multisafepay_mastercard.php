@@ -35,7 +35,19 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
                 $this->has_fields = false;
                 $this->paymentMethodCode = "MASTERCARD";
-
+                $this->supports           = array(
+			/*'subscriptions',
+			'products',
+			'subscription_cancellation',
+			'subscription_reactivation',
+			'subscription_suspension',
+			'subscription_amount_changes',
+			'subscription_payment_method_change',
+			'subscription_date_changes',
+			'default_credit_card_form',*/
+			'refunds',
+			//'pre-orders'
+		);
                 add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
                 add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
                 add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_MASTERCARD', 'MULTISAFEPAY_MASTERCARD_Add_Gateway'));
@@ -78,6 +90,41 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                 } else {
                     $this->enabled = 'no';
                 }
+            }
+            
+            
+            public function process_refund(  $order_id,  $amount = null,  $reason = ''  ){
+                
+                $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
+                if ($this->settings2['testmode'] == 'yes'):
+                    $mspurl = true;
+                else :
+                    $mspurl = false;
+                endif;
+
+                $order = new WC_Order($order_id);
+                $currency = $order->get_order_currency();
+                    
+                $msp = new MultiSafepay();
+                $msp->test = $mspurl;
+                $msp->merchant['account_id'] = $this->settings2['accountid'];
+                $msp->merchant['site_id'] = $this->settings2['siteid'];
+                $msp->merchant['site_code'] = $this->settings2['securecode'];
+                $msp->merchant['api_key'] = $this->settings2['apikey'];
+                $msp->transaction['id'] = $order_id;
+                $msp->transaction['currency'] = $currency;
+                $msp->transaction['amount'] = $amount * 100; 
+                $msp->signature = sha1($this->settings2['siteid'] . $this->settings2['securecode'] . $order_id);
+
+                $response = $msp->refundTransaction();
+
+
+                if ($msp->error) {
+                    return new WP_Error( 'multisafepay_ideal', 'Order can\'t be refunded:'.$msp->error_code . ' - ' . $msp->error );
+                } else {
+                    return true;
+                }
+                   return false;
             }
 
             public function GATEWAY_Forms() {
