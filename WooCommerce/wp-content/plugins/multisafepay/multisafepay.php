@@ -222,7 +222,8 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                         'redirect' => $url
                     );
                 } else {
-                    $woocommerce->add_error(__('Payment error:', 'multisafepay') . ' ' . $msp->error);
+                    //$woocommerce->add_error(__('Payment error:', 'multisafepay') . ' ' . $msp->error);
+                    wc_add_notice( __('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error' );
                 }
             }
 
@@ -785,7 +786,8 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                         'redirect' => $url
                     );
                 } else {
-                    $woocommerce->add_error(__('Payment error:', 'multisafepay') . ' ' . $msp->error);
+                    //$woocommerce->add_error(__('Payment error:', 'multisafepay') . ' ' . $msp->error);
+                    wc_add_notice( __('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error' );
                 }
             }
 
