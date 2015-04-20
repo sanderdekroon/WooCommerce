@@ -180,6 +180,10 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                     $mailer = $woocommerce->mailer();
                     $email = $mailer->emails['WC_Email_New_Order'];
                     $email->trigger($order_id);
+                    
+                    $mailer = $woocommerce->mailer();
+                    $email = $mailer->emails['WC_Email_Customer_Processing_Order'];
+                    $email->trigger($order_id);
                 }
 
                 $order = new WC_Order($order_id);

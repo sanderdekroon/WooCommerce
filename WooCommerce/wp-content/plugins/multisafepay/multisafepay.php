@@ -23,7 +23,8 @@ function MULTISAFEPAY_register() {
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     wp_insert_term(__('Awaiting Payment', 'multisafepay'), 'shop_order_status');
 }
-if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+
+if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
     add_action('plugins_loaded', 'WC_MULTISAFEPAY_Load', 0);
 
     function WC_MULTISAFEPAY_Load() {
@@ -66,21 +67,21 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                 $this->id = "MULTISAFEPAY_" . $gateway_codes[$this->pmCode];
                 $this->has_fields = false;
                 $this->paymentMethodCode = $gateway_codes[$this->pmCode];
-                $this->supports           = array(
-			/*'subscriptions',
-			'products',
-			'subscription_cancellation',
-			'subscription_reactivation',
-			'subscription_suspension',
-			'subscription_amount_changes',
-			'subscription_payment_method_change',
-			'subscription_date_changes',
-			'default_credit_card_form',*/
-			'refunds',
-			//'pre-orders'
-		);
-                
-                
+                $this->supports = array(
+                    /* 'subscriptions',
+                      'products',
+                      'subscription_cancellation',
+                      'subscription_reactivation',
+                      'subscription_suspension',
+                      'subscription_amount_changes',
+                      'subscription_payment_method_change',
+                      'subscription_date_changes',
+                      'default_credit_card_form', */
+                    'refunds',
+                        //'pre-orders'
+                );
+
+
                 add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
                 add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
 
@@ -122,10 +123,9 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                     $this->enabled = 'no';
                 }
             }
-            
-            
-            public function process_refund(  $order_id,  $amount = null,  $reason = ''  ){
-                
+
+            public function process_refund($order_id, $amount = null, $reason = '') {
+
                 $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
                 if ($this->settings2['testmode'] == 'yes'):
                     $mspurl = true;
@@ -135,7 +135,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
                 $order = new WC_Order($order_id);
                 $currency = $order->get_order_currency();
-                    
+
                 $msp = new MultiSafepay();
                 $msp->test = $mspurl;
                 $msp->merchant['account_id'] = $this->settings2['accountid'];
@@ -144,21 +144,19 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                 $msp->merchant['api_key'] = $this->settings2['apikey'];
                 $msp->transaction['id'] = $order_id;
                 $msp->transaction['currency'] = $currency;
-                $msp->transaction['amount'] = $amount * 100; 
+                $msp->transaction['amount'] = $amount * 100;
                 $msp->signature = sha1($this->settings2['siteid'] . $this->settings2['securecode'] . $order_id);
 
                 $response = $msp->refundTransaction();
 
 
                 if ($msp->error) {
-                    return new WP_Error( 'multisafepay_ideal', 'Order can\'t be refunded:'.$msp->error_code . ' - ' . $msp->error );
+                    return new WP_Error('multisafepay_ideal', 'Order can\'t be refunded:' . $msp->error_code . ' - ' . $msp->error);
                 } else {
                     return true;
                 }
-                   return false;
+                return false;
             }
-            
-            
 
             public function GATEWAY_Forms() {
                 $this->form_fields = array(
@@ -196,6 +194,10 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                 if ($settings['send_confirmation'] == 'yes') {
                     $mailer = $woocommerce->mailer();
                     $email = $mailer->emails['WC_Email_New_Order'];
+                    $email->trigger($order_id);
+
+                    $mailer = $woocommerce->mailer();
+                    $email = $mailer->emails['WC_Email_Customer_Processing_Order'];
                     $email->trigger($order_id);
                 }
 
@@ -274,7 +276,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                     );
                 } else {
                     //$woocommerce->add_error(__('Payment error:', 'multisafepay') . ' ' . $msp->error);
-                    wc_add_notice( __('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error' );
+                    wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error');
                 }
             }
 
@@ -401,22 +403,22 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                 $this->icon = apply_filters('woocommerce_multisafepay_icon', plugins_url('images/msp.gif', __FILE__));
                 $this->MULTISAFEPAY_Form();
                 $this->init_settings();
-                 $this->supports           = array(
-			/*'subscriptions',
-			'products',
-			'subscription_cancellation',
-			'subscription_reactivation',
-			'subscription_suspension',
-			'subscription_amount_changes',
-			'subscription_payment_method_change',
-			'subscription_date_changes',
-			'default_credit_card_form',*/
-			'refunds',
-			//'pre-orders'
-		);
-                
-                
-                
+                $this->supports = array(
+                    /* 'subscriptions',
+                      'products',
+                      'subscription_cancellation',
+                      'subscription_reactivation',
+                      'subscription_suspension',
+                      'subscription_amount_changes',
+                      'subscription_payment_method_change',
+                      'subscription_date_changes',
+                      'default_credit_card_form', */
+                    'refunds',
+                        //'pre-orders'
+                );
+
+
+
 
                 if ($this->settings['pmtitle'] != "") {
                     $this->title = $this->settings['pmtitle'];
@@ -646,10 +648,9 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                     echo $msp->error;
                 }
             }
-            
-            
-            public function process_refund(  $order_id,  $amount = null,  $reason = ''  ){
-                
+
+            public function process_refund($order_id, $amount = null, $reason = '') {
+
                 $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
                 if ($this->settings2['testmode'] == 'yes'):
                     $mspurl = true;
@@ -659,7 +660,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
                 $order = new WC_Order($order_id);
                 $currency = $order->get_order_currency();
-                    
+
                 $msp = new MultiSafepay();
                 $msp->test = $mspurl;
                 $msp->merchant['account_id'] = $this->settings2['accountid'];
@@ -668,21 +669,19 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                 $msp->merchant['api_key'] = $this->settings2['apikey'];
                 $msp->transaction['id'] = $order_id;
                 $msp->transaction['currency'] = $currency;
-                $msp->transaction['amount'] = $amount * 100; 
+                $msp->transaction['amount'] = $amount * 100;
                 $msp->signature = sha1($this->settings2['siteid'] . $this->settings2['securecode'] . $order_id);
 
                 $response = $msp->refundTransaction();
 
 
                 if ($msp->error) {
-                    return new WP_Error( 'multisafepay_ideal', 'Order can\'t be refunded:'.$msp->error_code . ' - ' . $msp->error );
+                    return new WP_Error('multisafepay_ideal', 'Order can\'t be refunded:' . $msp->error_code . ' - ' . $msp->error);
                 } else {
                     return true;
                 }
-                   return false;
+                return false;
             }
-            
-           
 
             public function get_shipping_packages() {
                 // Packages array for storing 'carts'
@@ -825,6 +824,10 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                     $mailer = $woocommerce->mailer();
                     $email = $mailer->emails['WC_Email_New_Order'];
                     $email->trigger($order_id);
+
+                    $mailer = $woocommerce->mailer();
+                    $email = $mailer->emails['WC_Email_Customer_Processing_Order'];
+                    $email->trigger($order_id);
                 }
 
                 $order = new WC_Order($order_id);
@@ -897,7 +900,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                     );
                 } else {
                     //$woocommerce->add_error(__('Payment error:', 'multisafepay') . ' ' . $msp->error);
-                    wc_add_notice( __('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error' );
+                    wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error');
                 }
             }
 
@@ -1076,11 +1079,11 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                                     }
                                     break;
                                 case 'refunded':
-                                    /*if ($order->get_total() == $amount) {
-                                        $order->update_status('wc-refunded', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
-                                        $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
-                                    }
-                                    $updated = true;*/
+                                    /* if ($order->get_total() == $amount) {
+                                      $order->update_status('wc-refunded', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
+                                      $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
+                                      }
+                                      $updated = true; */
                                     break;
                                 case 'uncleared' :
                                 case 'reserved' :
@@ -1300,7 +1303,8 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
         }
 
-    // Start 
-    new WC_MULTISAFEPAY();
+        // Start 
+        new WC_MULTISAFEPAY();
     }
+
 }
