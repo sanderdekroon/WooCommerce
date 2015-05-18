@@ -89,7 +89,11 @@ if (/* is_shop2() || */ is_woo_checkout() || $settings['enablefco'] || is_admin(
 if ($activate_plugin) {
 
     load_plugin_textdomain('multisafepay', false, dirname(plugin_basename(__FILE__)) . '/');
-    require(realpath(dirname(__FILE__)) . '/MultiSafepay.combined.php');
+    
+    if (!class_exists('MultiSafepay')) {
+        require(realpath(dirname(__FILE__)) . '/MultiSafepay.combined.php');
+    }
+    
     register_activation_hook(__FILE__, 'MULTISAFEPAY_register');
 
     function MULTISAFEPAY_register() {
