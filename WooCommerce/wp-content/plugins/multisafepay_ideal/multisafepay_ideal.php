@@ -121,7 +121,6 @@ if ($activate_plugin) {
                     add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_IDEAL', 'MULTISAFEPAY_IDEAL_Add_Gateway'));
 
                     $output = '';
-                    if(!is_admin()){
                         if ($this->settings2['testmode'] == 'yes'):
                             $mspurl = true;
                         else :
@@ -154,7 +153,7 @@ if ($activate_plugin) {
                             $output .= '<option value="none">No issuers available, check settings</option>';
                         }
                         $output .= '</select>';
-                    }
+                   
 
                     if (file_exists(dirname(__FILE__) . '/images/IDEAL.png')) {
                         $this->icon = apply_filters('woocommerce_multisafepay_ideal_icon', plugins_url('images/IDEAL.png', __FILE__));

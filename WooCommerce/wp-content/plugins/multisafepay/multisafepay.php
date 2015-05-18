@@ -781,9 +781,6 @@ if ($activate_plugin) {
 
                 function checkout_button() {
                     if (get_woocommerce_currency() == 'EUR') {
-
-                            echo get_locale();exit;
-                        
                         $button_locale_code = get_locale();
                         $image = plugins_url('/images/' . $button_locale_code . '/button.png', __FILE__);
 
