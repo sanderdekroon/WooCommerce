@@ -215,11 +215,32 @@ if ($activate_plugin) {
                         ),
                     );
                 }
+                
+                
+                public function write_log($log) {
+                    if (true === WP_DEBUG) {
+                        if (is_array($log) || is_object($log)) {
+                            error_log(print_r($log, true));
+                        } else {
+                            error_log($log);
+                        }
+                    }
+                }
 
                 public function process_payment($order_id) {
                     global $wpdb, $woocommerce;
 
                     $settings = (array) get_option('woocommerce_multisafepay_settings');
+
+                    if ($settings['debug'] == 'yes') {
+                        $debug = true;
+                    } else {
+                        $debug = false;
+                    }
+
+                    if ($debug) {
+                        $this->write_log('MSP->Process payment start');
+                    }
 
                     if ($settings['send_confirmation'] == 'yes') {
                         $mailer = $woocommerce->mailer();
@@ -284,7 +305,7 @@ if ($activate_plugin) {
                     $msp->transaction['currency'] = get_woocommerce_currency();
                     $msp->transaction['amount'] = $order->get_total() * 100;
                     $msp->transaction['description'] = 'Order ' . __('#', '', 'multisafepay') . $ordernumber . ' : ' . get_bloginfo();
-                    $msp->transaction['gateway'] = $gateway;
+                    $msp->transaction['gateway'] = 'MISTERCASH';
                     $msp->plugin_name = 'WooCommerce';
                     $msp->plugin['shop'] = 'WooCommerce';
                     $msp->plugin['shop_version'] = $woocommerce->version;
@@ -298,6 +319,15 @@ if ($activate_plugin) {
 
                     $url = $msp->startTransaction();
 
+                    if ($debug) {
+                        $this->write_log('MSP->transactiondata');
+                        $this->write_log($msp);
+                        $this->write_log('MSP->transaction URL');
+                        $this->write_log($url);
+                        $this->write_log('MSP->End debug');
+                        $this->write_log('--------------------------------------');
+                    }
+                    
                     if (!isset($msp->error)) {
 
                         // Reduce stock levels

@@ -49,7 +49,7 @@ if (!function_exists('is_the_page')) {
         }
 
         if (isset($_GET['action'])) {
-            $action= $_GET['action'];
+            $action = $_GET['action'];
         } else {
             $action = '';
         }
@@ -59,8 +59,8 @@ if (!function_exists('is_the_page')) {
         } else {
             $page_id = 0;
         }
-  
-        if ($page_id == $id || $page == 'multisafepaynotify' || $action =='doFastCheckout') {
+
+        if ($page_id == $id || $page == 'multisafepaynotify' || $action == 'doFastCheckout') {
             return true;
         } else {
             return false;
@@ -121,6 +121,8 @@ if ($activate_plugin) {
                     add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_IDEAL', 'MULTISAFEPAY_IDEAL_Add_Gateway'));
 
                     $output = '';
+
+                    if ((defined('DOING_AJAX') && DOING_AJAX)) {
                         if ($this->settings2['testmode'] == 'yes'):
                             $mspurl = true;
                         else :
@@ -153,7 +155,7 @@ if ($activate_plugin) {
                             $output .= '<option value="none">No issuers available, check settings</option>';
                         }
                         $output .= '</select>';
-                   
+                    }
 
                     if (file_exists(dirname(__FILE__) . '/images/IDEAL.png')) {
                         $this->icon = apply_filters('woocommerce_multisafepay_ideal_icon', plugins_url('images/IDEAL.png', __FILE__));
@@ -233,10 +235,31 @@ if ($activate_plugin) {
                     );
                 }
 
-                public function process_payment($order_id) {
-                    global $wpdb, $woocommerce;
+                public function write_log($log) {
+                    if (true === WP_DEBUG) {
+                        if (is_array($log) || is_object($log)) {
+                            error_log(print_r($log, true));
+                        } else {
+                            error_log($log);
+                        }
+                    }
+                }
 
+                public function process_payment($order_id) {
                     $settings = (array) get_option('woocommerce_multisafepay_settings');
+
+                    
+                    if ($settings['debug'] == 'yes') {
+                        $debug = true;
+                    } else {
+                        $debug = false;
+                    }
+
+                    if ($debug) {
+                        $this->write_log('MSP->Process payment start');
+                    }
+
+                    global $wpdb, $woocommerce;
 
                     if ($settings['send_confirmation'] == 'yes') {
                         $mailer = $woocommerce->mailer();
@@ -319,6 +342,16 @@ if ($activate_plugin) {
                         $url = $msp->startDirectXMLTransaction();
                     } else {
                         $url = $msp->startTransaction();
+                    }
+
+
+                    if ($debug) {
+                        $this->write_log('MSP->transactiondata');
+                        $this->write_log($msp);
+                        $this->write_log('MSP->transaction URL');
+                        $this->write_log($url);
+                        $this->write_log('MSP->End debug');
+                        $this->write_log('--------------------------------------');
                     }
 
 

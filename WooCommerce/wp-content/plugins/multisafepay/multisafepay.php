@@ -39,7 +39,7 @@ if (!function_exists('is_woo_checkout')) {
 if (!function_exists('is_cart_for_fco')) {
 
     function is_cart_for_fco() {
-       return is_the_page(is_woo_page('cart')) || defined('WOOCOMMERCE_CART')? true : false;
+        return is_the_page(is_woo_page('cart')) || defined('WOOCOMMERCE_CART') ? true : false;
     }
 
 }
@@ -55,7 +55,7 @@ if (!function_exists('is_the_page')) {
         }
 
         if (isset($_GET['action'])) {
-            $action= $_GET['action'];
+            $action = $_GET['action'];
         } else {
             $action = '';
         }
@@ -65,8 +65,8 @@ if (!function_exists('is_the_page')) {
         } else {
             $page_id = 0;
         }
-  
-        if ($page_id == $id || $page == 'multisafepaynotify' || $action =='doFastCheckout') {
+
+        if ($page_id == $id || $page == 'multisafepaynotify' || $action == 'doFastCheckout') {
             return true;
         } else {
             return false;
@@ -89,11 +89,11 @@ if (/* is_shop2() || */ is_woo_checkout() || $settings['enablefco'] || is_admin(
 if ($activate_plugin) {
 
     load_plugin_textdomain('multisafepay', false, dirname(plugin_basename(__FILE__)) . '/');
-    
+
     if (!class_exists('MultiSafepay')) {
         require(realpath(dirname(__FILE__)) . '/MultiSafepay.combined.php');
     }
-    
+
     register_activation_hook(__FILE__, 'MULTISAFEPAY_register');
 
     function MULTISAFEPAY_register() {
@@ -201,6 +201,19 @@ if ($activate_plugin) {
                         $this->enabled = 'no';
                     }
                 }
+                
+                
+                public function write_log($log) {
+                    if (true === WP_DEBUG) {
+                        if (is_array($log) || is_object($log)) {
+                            error_log(print_r($log, true));
+                        } else {
+                            error_log($log);
+                        }
+                    }
+                }
+                
+                
 
                 public function process_refund($order_id, $amount = null, $reason = '') {
 
@@ -268,6 +281,16 @@ if ($activate_plugin) {
                     global $wpdb, $woocommerce;
 
                     $settings = (array) get_option('woocommerce_multisafepay_settings');
+
+                    if ($settings['debug'] == 'yes') {
+                        $debug = true;
+                    } else {
+                        $debug = false;
+                    }
+
+                    if ($debug) {
+                        $this->write_log('MSP->Process payment start');
+                    }
 
                     if ($settings['send_confirmation'] == 'yes') {
                         $mailer = $woocommerce->mailer();
@@ -344,6 +367,16 @@ if ($activate_plugin) {
 
                     $url = $msp->startTransaction();
 
+                    if ($debug) {
+                        $this->write_log('MSP->transactiondata');
+                        $this->write_log($msp);
+                        $this->write_log('MSP->transaction URL');
+                        $this->write_log($url);
+                        $this->write_log('MSP->End debug');
+                        $this->write_log('--------------------------------------');
+                    }
+                    
+                    
                     if (!isset($msp->error)) {
                         // Reduce stock levels
                         //$order->reduce_order_stock();
@@ -547,7 +580,7 @@ if ($activate_plugin) {
                 }
 
                 function doFastCheckout() {
-                    
+
                     global $woocommerce;
                     WC()->cart->calculate_totals();
                     $paymentAmount = number_format(WC()->cart->subtotal, 2, '.', '');
@@ -892,11 +925,42 @@ if ($activate_plugin) {
                             'default' => 'yes',
                             'description' => __('Select this to sent the order confirmation before the transaction', 'multisafepay'),
                         ),
+                        'debug' => array(
+                            'title' => __('Enable debugging', 'multisafepay'),
+                            'type' => 'checkbox',
+                            'label' => __('Enable debugging', 'multisafepay'),
+                            'default' => 'yes',
+                            'description' => __('When enabled (and wordpress debug is enabled it will log transactions)', 'multisafepay'),
+                        ),
                     );
+                }
+
+                
+                
+               public function write_log($log) {
+                    if (true === WP_DEBUG) {
+                        if (is_array($log) || is_object($log)) {
+                            error_log(print_r($log, true));
+                        } else {
+                            error_log($log);
+                        }
+                    }
                 }
 
                 public function process_payment($order_id) {
                     global $wpdb, $woocommerce;
+                    
+                    $settings = (array) get_option('woocommerce_multisafepay_settings');
+
+                    if ($settings['debug'] == 'yes') {
+                        $debug = true;
+                    } else {
+                        $debug = false;
+                    }
+
+                    if ($debug) {
+                        $this->write_log('MSP->Process payment start');
+                    }
 
                     if ($this->settings['send_confirmation'] == 'yes') {
                         $mailer = $woocommerce->mailer();
@@ -969,6 +1033,17 @@ if ($activate_plugin) {
                     $msp->transaction['var2'] = $order_id;
                     $url = $msp->startTransaction();
 
+                    
+                    if ($debug) {
+                        $this->write_log('MSP->transactiondata');
+                        $this->write_log($msp);
+                        $this->write_log('MSP->transaction URL');
+                        $this->write_log($url);
+                        $this->write_log('MSP->End debug');
+                        $this->write_log('--------------------------------------');
+                    }
+                    
+                    
                     if (!isset($msp->error)) {
                         // Reduce stock levels
                         //$order->reduce_order_stock();
@@ -987,7 +1062,7 @@ if ($activate_plugin) {
                     global $wpdb, $wp_version, $woocommerce;
                     $redirect = false;
                     $initial_request = false;
-                    
+
                     if (isset($_GET['transactionid'])) {
 
                         if (isset($_GET['type'])) {
