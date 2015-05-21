@@ -47,7 +47,7 @@ if (!function_exists('is_the_page')) {
         }
 
         if (isset($_GET['action'])) {
-            $action= $_GET['action'];
+            $action = $_GET['action'];
         } else {
             $action = '';
         }
@@ -57,8 +57,8 @@ if (!function_exists('is_the_page')) {
         } else {
             $page_id = 0;
         }
-  
-        if ($page_id == $id || $page == 'multisafepaynotify' || $action =='doFastCheckout') {
+
+        if ($page_id == $id || $page == 'multisafepaynotify' || $action == 'doFastCheckout') {
             return true;
         } else {
             return false;
@@ -120,7 +120,7 @@ if ($activate_plugin) {
 
                     $output .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">' . __('Rekeningnummer', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_account" id="account" placeholder=""/>
 				</p><div class="clear"></div>';
-                    
+
                     $output .= '<p class="form-row form-row-wide">' . __('Met het uitvoeren van deze bestelling gaat u akkoord met de ', 'multisafepay') . '<a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">voorwaarden van MultiFactor.</a>';
 
                     if (file_exists(dirname(__FILE__) . '/images/' . $this->paymentMethodCode . '.png')) {
@@ -233,8 +233,7 @@ if ($activate_plugin) {
                     }
                     return false;
                 }
-                
-                
+
                 public function write_log($log) {
                     if (true === WP_DEBUG) {
                         if (is_array($log) || is_object($log)) {
@@ -346,6 +345,22 @@ if ($activate_plugin) {
                         $msp->gatewayinfo['phone'] = $order->billing_phone;
                     }
 
+
+
+
+                    /**
+                     * Add custom Woo cart fees as line items
+                     * 
+                     * TODO check tax on fee if can be added
+                     */
+                    foreach (WC()->cart->get_fees() as $fee) {
+                        $c_item = new MspItem($fee->name . " ", '', 1, number_format($fee->amount, 2, '.', ''), 'KG', 0);
+                        $msp->cart->AddItem($c_item);
+                        $json_array = array();
+                        $json_array['fee'] = $fee->name;
+                        $c_item->SetMerchantItemId(json_encode($json_array));
+                        $c_item->SetTaxTableSelector('BTW0');
+                    }
 
 
 
