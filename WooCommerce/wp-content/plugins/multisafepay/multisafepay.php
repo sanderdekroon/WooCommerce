@@ -1234,6 +1234,16 @@ if ($activate_plugin) {
                                         }
                                         break;
                                     case 'refunded':
+                                        
+                                        //We support the refund API from within WooCommerce now, to avoid status updates after the refund API we only update to refunded when using the refund API
+                                        /* if ($order->get_total() == $amount) {
+                                          $order->update_status('wc-refunded', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
+                                          $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
+                                          }
+                                          $updated = true; */
+                                        break;
+                                    case 'partial_refunded':
+                                        //We support the refund API from within WooCommerce now, to avoid status updates after the refund API we only update to refunded when using the refund API
                                         /* if ($order->get_total() == $amount) {
                                           $order->update_status('wc-refunded', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
                                           $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
