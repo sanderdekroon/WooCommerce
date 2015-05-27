@@ -124,7 +124,7 @@ if ($activate_plugin) {
                     }
 
                     $this->settings = (array) get_option("woocommerce_{$this->id}_settings");
-                    if ($this->settings['pmtitle'] != "") {
+                     if (!empty($this->settings['pmtitle'])) {
                         $this->title = $this->settings['pmtitle'];
                         $this->method_title = $this->settings['pmtitle'];
                     } else {
