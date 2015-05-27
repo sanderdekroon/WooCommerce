@@ -1186,7 +1186,8 @@ if ($activate_plugin) {
                                 $view_order_url = $order->get_view_order_url();
                                 $retry_payment_url = $order->get_checkout_payment_url();
 
-                                $amount = $amount / 100;
+                                $amount = $details['transaction']['amount'] / 100;
+                                
                                 if ($order->calculate_totals() != $amount) {
                                     $order->update_status('wc-on-hold', sprintf(__('Validation error: Multisafepay amounts do not match (gross %s).', 'multisafepay'), $amount));
                                     echo 'ok';
@@ -1234,16 +1235,6 @@ if ($activate_plugin) {
                                         }
                                         break;
                                     case 'refunded':
-                                        
-                                        //We support the refund API from within WooCommerce now, to avoid status updates after the refund API we only update to refunded when using the refund API
-                                        /* if ($order->get_total() == $amount) {
-                                          $order->update_status('wc-refunded', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
-                                          $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
-                                          }
-                                          $updated = true; */
-                                        break;
-                                    case 'partial_refunded':
-                                        //We support the refund API from within WooCommerce now, to avoid status updates after the refund API we only update to refunded when using the refund API
                                         /* if ($order->get_total() == $amount) {
                                           $order->update_status('wc-refunded', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
                                           $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
