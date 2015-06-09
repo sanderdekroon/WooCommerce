@@ -201,8 +201,7 @@ if ($activate_plugin) {
                         $this->enabled = 'no';
                     }
                 }
-                
-                
+
                 public function write_log($log) {
                     if (true === WP_DEBUG) {
                         if (is_array($log) || is_object($log)) {
@@ -212,8 +211,6 @@ if ($activate_plugin) {
                         }
                     }
                 }
-                
-                
 
                 public function process_refund($order_id, $amount = null, $reason = '') {
 
@@ -375,8 +372,8 @@ if ($activate_plugin) {
                         $this->write_log('MSP->End debug');
                         $this->write_log('--------------------------------------');
                     }
-                    
-                    
+
+
                     if (!isset($msp->error)) {
                         // Reduce stock levels
                         //$order->reduce_order_stock();
@@ -935,9 +932,7 @@ if ($activate_plugin) {
                     );
                 }
 
-                
-                
-               public function write_log($log) {
+                public function write_log($log) {
                     if (true === WP_DEBUG) {
                         if (is_array($log) || is_object($log)) {
                             error_log(print_r($log, true));
@@ -949,7 +944,7 @@ if ($activate_plugin) {
 
                 public function process_payment($order_id) {
                     global $wpdb, $woocommerce;
-                    
+
                     $settings = (array) get_option('woocommerce_multisafepay_settings');
 
                     if ($settings['debug'] == 'yes') {
@@ -1033,7 +1028,7 @@ if ($activate_plugin) {
                     $msp->transaction['var2'] = $order_id;
                     $url = $msp->startTransaction();
 
-                    
+
                     if ($debug) {
                         $this->write_log('MSP->transactiondata');
                         $this->write_log($msp);
@@ -1042,8 +1037,8 @@ if ($activate_plugin) {
                         $this->write_log('MSP->End debug');
                         $this->write_log('--------------------------------------');
                     }
-                    
-                    
+
+
                     if (!isset($msp->error)) {
                         // Reduce stock levels
                         //$order->reduce_order_stock();
@@ -1187,7 +1182,7 @@ if ($activate_plugin) {
                                 $retry_payment_url = $order->get_checkout_payment_url();
 
                                 $amount = $details['transaction']['amount'] / 100;
-                                
+
                                 if ($order->calculate_totals() != $amount) {
                                     $order->update_status('wc-on-hold', sprintf(__('Validation error: Multisafepay amounts do not match (gross %s).', 'multisafepay'), $amount));
                                     echo 'ok';
@@ -1223,8 +1218,14 @@ if ($activate_plugin) {
                                             $woocommerce->cart->empty_cart();
                                             $order->payment_complete();
 
+                                            $mailer = $woocommerce->mailer();
+                                            if ($this->settings['send_confirmation'] == 'no') {
+                                                $email = $mailer->emails['WC_Email_New_Order'];
+                                                $email->trigger($order->id);
+                                            }
+                                            $email = $mailer->emails['WC_Email_Customer_Processing_Order'];
+                                            $email->trigger($order->id);
                                             if ($this->settings['send_invoice'] == 'yes') {
-                                                $mailer = $woocommerce->mailer();
                                                 $mailer->customer_invoice($order);
                                             }
                                             if ($order->status == 'processing') {
@@ -1333,8 +1334,14 @@ if ($activate_plugin) {
                                             $order->payment_complete();
                                             //$order->reduce_order_stock();
                                             $woocommerce->cart->empty_cart();
+                                            $mailer = $woocommerce->mailer();
+                                            if ($this->settings['send_confirmation'] == 'no') {
+                                                $email = $mailer->emails['WC_Email_New_Order'];
+                                                $email->trigger($order->id);
+                                            }
+                                            $email = $mailer->emails['WC_Email_Customer_Processing_Order'];
+                                            $email->trigger($order->id);
                                             if ($this->settings['send_invoice'] == 'yes') {
-                                                $mailer = $woocommerce->mailer();
                                                 $mailer->customer_invoice($order);
                                             }
                                             if ($order->status == 'processing') {
