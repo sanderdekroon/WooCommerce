@@ -130,7 +130,7 @@ if ($activate_plugin) {
                     }
 
                     $this->settings = (array) get_option("woocommerce_{$this->id}_settings");
-                     if (!empty($this->settings['pmtitle'])) {
+                    if (!empty($this->settings['pmtitle'])) {
                         $this->title = $this->settings['pmtitle'];
                         $this->method_title = $this->settings['pmtitle'];
                     } else {
@@ -354,12 +354,18 @@ if ($activate_plugin) {
                      * TODO check tax on fee if can be added
                      */
                     foreach (WC()->cart->get_fees() as $fee) {
+
                         $c_item = new MspItem($fee->name . " ", '', 1, number_format($fee->amount, 2, '.', ''), 'KG', 0);
                         $msp->cart->AddItem($c_item);
                         $json_array = array();
                         $json_array['fee'] = $fee->name;
                         $c_item->SetMerchantItemId(json_encode($json_array));
-                        $c_item->SetTaxTableSelector('BTW0');
+                        if ($fee->tax > 0) {
+                            $fee_tax_percentage = round($fee->tax / $fee->amount, 2);
+                            $c_item->SetTaxTableSelector($fee_tax_percentage);
+                        } else {
+                            $c_item->SetTaxTableSelector('BTW0');
+                        }
                     }
 
 

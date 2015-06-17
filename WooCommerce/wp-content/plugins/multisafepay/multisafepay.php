@@ -688,12 +688,18 @@ if ($activate_plugin) {
                      * Add custom Woo cart fees as line items
                      */
                     foreach (WC()->cart->get_fees() as $fee) {
+
                         $c_item = new MspItem($fee->name . " ", '', 1, number_format($fee->amount, 2, '.', ''), 'KG', 0);
                         $msp->cart->AddItem($c_item);
                         $json_array = array();
                         $json_array['fee'] = $fee->name;
                         $c_item->SetMerchantItemId(json_encode($json_array));
-                        $c_item->SetTaxTableSelector('BTW0');
+                        if ($fee->tax > 0) {
+                            $fee_tax_percentage = round($fee->tax / $fee->amount, 2);
+                            $c_item->SetTaxTableSelector($fee_tax_percentage);
+                        } else {
+                            $c_item->SetTaxTableSelector('BTW0');
+                        }
                     }
 
                     /*
