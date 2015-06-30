@@ -1189,23 +1189,25 @@ if ($activate_plugin) {
 
                                 $amount = $details['transaction']['amount'] / 100;
 
-                                if ($order->calculate_totals() != $amount) {
+                                
+                                
+                                /*if ($order->calculate_totals() != $amount) {
                                     $order->update_status('wc-on-hold', sprintf(__('Validation error: Multisafepay amounts do not match (gross %s).', 'multisafepay'), $amount));
                                     echo 'ok';
                                     exit;
-                                }
+                                }*/
 
                                 $order->calculate_totals();
 
                                 switch ($status) {
                                     case 'cancelled':
                                         $order->cancel_order();
-                                        $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
+                                        $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                                         $updated = true;
                                         break;
                                     case 'initialized':
                                         $order->update_status('wc-pending');
-                                        $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
+                                        $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                                         $updated = true;
                                         break;
                                     case 'completed':
@@ -1218,7 +1220,7 @@ if ($activate_plugin) {
                                         }
 
                                         if ($order->status != 'processing' && $order->status != 'completed' && $order->status != 'wc-completed') {
-                                            $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
+                                            $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                                             //$order->update_status('wc-processing');
                                             //$order->reduce_order_stock();
                                             $woocommerce->cart->empty_cart();
@@ -1252,15 +1254,15 @@ if ($activate_plugin) {
                                     case 'reserved' :
                                     case 'declined':
                                         $order->update_status('wc-failed', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
-                                        $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
+                                        $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                                         $updated = true;
                                     case 'expired':
                                         $order->update_status('wc-failed', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
-                                        $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
+                                        $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                                         $updated = true;
                                     case 'void' :
                                         $order->cancel_order();
-                                        $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
+                                        $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                                         $updated = true;
                                         break;
                                 }
@@ -1316,12 +1318,12 @@ if ($activate_plugin) {
                                 switch ($status) {
                                     case 'cancelled':
                                         $order->cancel_order();
-                                        $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
+                                        $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                                         $updated = true;
                                         break;
                                     case 'initialized';
                                         $order->update_status('wc-pending');
-                                        $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
+                                        $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                                         $updated = true;
                                         break;
                                     case 'completed':
@@ -1335,7 +1337,7 @@ if ($activate_plugin) {
 
                                         if ($order->status != 'processing' && $order->status != 'completed' && $order->status != 'wc-completed') {
 
-                                            $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
+                                            $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                                             //$order->update_status('wc-processing');
                                             $order->payment_complete();
                                             //$order->reduce_order_stock();
@@ -1360,7 +1362,7 @@ if ($activate_plugin) {
                                     case 'refunded':
                                         if ($order->get_total() == $amount) {
                                             $order->update_status('wc-refunded', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
-                                            $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
+                                            $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                                         }
                                         $updated = true;
                                         break;
@@ -1368,15 +1370,15 @@ if ($activate_plugin) {
                                     case 'reserved' :
                                     case 'declined':
                                         $order->update_status('wc-failed', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
-                                        $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
+                                        $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                                         $updated = true;
                                     case 'expired':
                                         $order->update_status('wc-failed', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
-                                        $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
+                                        $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                                         $updated = true;
                                     case 'void' :
                                         $order->cancel_order();
-                                        $order->add_order_note(sprintf(__('Multisafepay payment status', 'multisafepay'), $status));
+                                        $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                                         $updated = true;
                                         break;
                                 }
