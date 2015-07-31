@@ -1018,19 +1018,18 @@ class MultiSafepay {
         return $request;
     }
 
-    /*
-     * Creates the signature
-     */
-
-    function createSignature() {
-        $this->signature = md5(
-                $this->transaction['amount'] .
-                $this->transaction['currency'] .
-                $this->merchant['account_id'] .
-                $this->merchant['site_id'] .
-                $this->transaction['id']
-        );
-    }
+   /*
+   * Creates the signature
+   */
+  function createSignature(){
+    $this->signature = md5(
+      $this->xmlEscape($this->transaction['amount']) .
+      $this->xmlEscape($this->transaction['currency']) .
+      $this->xmlEscape($this->merchant['account_id']) .
+      $this->xmlEscape($this->merchant['site_id']) .
+      $this->xmlEscape($this->transaction['id'])
+      );
+  }
 
     /*
      * Sets the customers ip variables
