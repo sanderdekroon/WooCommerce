@@ -43,7 +43,8 @@ class MultiSafepay {
         'user_agent' => '',
         'referrer' => '',
         'bankaccount' => '',
-        'birthday' => ''
+        'birthday' => '',
+        'gender' => ''
     );
     // customer-delivery data
     var $delivery = array(
@@ -83,7 +84,8 @@ class MultiSafepay {
         'birthday' => '',
         'phone' => '',
         'email' => '',
-        'issuer' => ''
+        'issuer' => '',
+        'gender' => '',
     );
     var $plugin = array(
         'shop' => '',
@@ -622,6 +624,7 @@ class MultiSafepay {
         <email>' . $this->xmlEscape($this->customer['email']) . '</email>
 		<referrer>' . $this->xmlEscape($this->customer['referrer']) . '</referrer>
 		<user_agent>' . $this->xmlEscape($this->customer['user_agent']) . '</user_agent>
+          <gender>' . $this->xmlEscape($this->customer['gender']) . '</gender>
       </customer>
 			<customer-delivery>
 				<firstname>' . $this->xmlEscape($this->delivery['firstname']) . '</firstname>
@@ -716,6 +719,7 @@ class MultiSafepay {
 			<email>' . $this->xmlEscape($this->customer['email']) . '</email>
 			<referrer>' . $this->xmlEscape($this->customer['referrer']) . '</referrer>
 			<user_agent>' . $this->xmlEscape($this->customer['user_agent']) . '</user_agent>
+              <gender>' . $this->xmlEscape($this->customer['gender']) . '</gender>
 		  </customer>
 				<customer-delivery>
 					<firstname>' . $this->xmlEscape($this->delivery['firstname']) . '</firstname>
@@ -890,6 +894,7 @@ class MultiSafepay {
 				<user_agent>' . $this->xmlEscape($this->customer['user_agent']) . '</user_agent>
 				<birthday>' . $this->xmlEscape($this->customer['birthday']) . '</birthday>
 				<bankaccount>' . $this->xmlEscape($this->customer['bankaccount']) . '</bankaccount>
+                  <gender>' . $this->xmlEscape($this->customer['gender']) . '</gender>
 			</customer>
 			<customer-delivery>
 				<firstname>' . $this->xmlEscape($this->delivery['firstname']) . '</firstname>
@@ -912,6 +917,7 @@ class MultiSafepay {
 				<referrer>' . $this->xmlEscape($this->gatewayinfo['referrer']) . '</referrer>
 				<user_agent>' . $this->xmlEscape($this->gatewayinfo['user_agent']) . '</user_agent>
 				<birthday>' . $this->xmlEscape($this->gatewayinfo['birthday']) . '</birthday>
+                  <gender>' . $this->xmlEscape($this->gatewayinfo['gender']) . '</gender>
 				<bankaccount>' . $this->xmlEscape($this->gatewayinfo['bankaccount']) . '</bankaccount>
 				<phone>' . $this->xmlEscape($this->gatewayinfo['phone']) . '</phone>
 				<email>' . $this->xmlEscape($this->gatewayinfo['email']) . '</email>
