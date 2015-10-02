@@ -430,7 +430,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
         add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
         add_action('woocommerce_update_options_payment_gateways_MULTISAFEPAY', array($this, 'process_admin_options'));
-        add_action('init', array($this, 'MULTISAFEPAY_Response'), 8);
+        add_action('init', array($this, 'MULTISAFEPAY_Response'), 12);
 
         $this->id = 'MULTISAFEPAY';
         $this->has_fields = false;
