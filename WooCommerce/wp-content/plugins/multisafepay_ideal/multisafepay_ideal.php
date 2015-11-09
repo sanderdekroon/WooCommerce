@@ -56,42 +56,25 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_IDEAL', 'MULTISAFEPAY_IDEAL_Add_Gateway'));
 
         $output = '';
-
-        if ((defined('DOING_AJAX') && DOING_AJAX)) {
-          if ($this->settings2['testmode'] == 'yes'):
-            $mspurl = true;
-          else :
-            $mspurl = false;
-          endif;
-
-
-          $msp = new MultiSafepay();
-          $msp->test = $mspurl;
-          $msp->merchant['account_id'] = $this->settings2['accountid'];
-          $msp->merchant['site_id'] = $this->settings2['siteid'];
-          $msp->merchant['site_code'] = $this->settings2['securecode'];
-
-          $iDealIssuers = $msp->getIdealIssuers();
-
-          $output .= "<select name='IDEAL_issuer' style='width:164px; padding: 2px; margin-left: 7px;'>";
-          $output .= '<option>Kies uw bank</option>';
-
-          if ($iDealIssuers['issuers']) {
-            if ($this->settings2['testmode'] == 'yes') {
-              foreach ($iDealIssuers['issuers'] as $issuer) {
-                $output .= '<option value="' . $issuer['code']['VALUE'] . '">' . $issuer['description']['VALUE'] . '</option>';
-              }
-            } else {
-              foreach ($iDealIssuers['issuers']['issuer'] as $issuer) {
-                $output .= '<option value="' . $issuer['code']['VALUE'] . '">' . $issuer['description']['VALUE'] . '</option>';
-              }
-            }
-          } else {
-            $output .= '<option value="none">No issuers available, check settings</option>';
-          }
-          $output .= '</select>';
-        }
-
+        $output .= "<select name='IDEAL_issuer' style='width:164px; padding: 2px; margin-left: 7px;'>";
+		$output .= '<option>Kies uw bank</option>';
+		
+		if ($this->settings2['testmode'] != 'yes') {
+			$output .= '<option value="0031">ABN AMRO</option>'; 
+			$output .= '<option value="0751">SNS Bank</option>'; 
+			$output .= '<option value="0721">ING</option>';
+			$output .= '<option value="0021">Rabobank</option>';
+			$output .= '<option value="0761">ASN Bank</option>';
+			$output .= '<option value="0771">Regio Bank</option>';
+			$output .= '<option value="0511">Triodos Bank</option>';
+			$output .= '<option value="0161">Van Lanschot Bankiers</option>';
+			$output .= '<option value="0801">Knab</option>';
+			}else{
+				$output .= '<option value="3151">Test Bank</option>'; 
+			}
+        $output .= '</select>';
+          
+        
         if (file_exists(dirname(__FILE__) . '/images/IDEAL.png')) {
           $this->icon = apply_filters('woocommerce_multisafepay_ideal_icon', plugins_url('images/IDEAL.png', __FILE__));
         } else {
