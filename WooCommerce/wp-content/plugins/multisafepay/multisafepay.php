@@ -50,6 +50,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             'GEZONDHEIDSBON' => 'Gezondheidsbon',
             'LIEF' => 'Lief cadeaukaart',
             'DEGROTESPEELGOEDWINKEL' => 'De grote speelgoed winkel',
+            'GOODCARD' => 'GoodCard',
         );
         $gateway_codes = array(
             '0' => 'BABYGIFTCARD',
@@ -64,6 +65,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             '9' => 'GEZONDHEIDSBON',
             '10' => 'LIEF',
             '11' => 'DEGROTESPEELGOEDWINKEL',
+            '12' => 'GOODCARD',
         );
 
         $this->init_settings();
@@ -385,6 +387,12 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
     class WC_MULTISAFEPAY_Paymentmethod_11 extends WC_MULTISAFEPAY_Paymentmethod {
 
       protected $pmCode = 11;
+
+    }
+    
+     class WC_MULTISAFEPAY_Paymentmethod_12 extends WC_MULTISAFEPAY_Paymentmethod {
+
+      protected $pmCode = 12;
 
     }
 
@@ -1411,6 +1419,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 '9' => 'GEZONDHEIDSBON',
                 '10' => 'LIEF',
                 '11' => 'DEGROTESPEELGOEDWINKEL',
+                '12' => 'GOODCARD',
             );
 
             $i = 0;
