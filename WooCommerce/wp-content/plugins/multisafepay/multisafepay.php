@@ -30,6 +30,7 @@ function MULTISAFEPAY_register() {
 
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
   add_action('plugins_loaded', 'WC_MULTISAFEPAY_Load', 0);
+  
 
   function WC_MULTISAFEPAY_Load() {
 
@@ -439,6 +440,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
         add_action('woocommerce_update_options_payment_gateways_MULTISAFEPAY', array($this, 'process_admin_options'));
         add_action('init', array($this, 'MULTISAFEPAY_Response'), 12);
+        add_action( 'woocommerce_order_status_completed', array($this, 'setToShipped'), 13);
 
         $this->id = 'MULTISAFEPAY';
         $this->has_fields = false;
@@ -497,6 +499,59 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         }
         $this->settings['notifyurl'] = sprintf('%s/index.php?page=multisafepaynotify', get_option('siteurl'));
       }
+      
+      
+      
+      function setToShipped($order_id) {
+	  		$order = new WC_Order($order_id);
+		   	$this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
+		   	
+		   	if ($this->settings2['settoshipped'] == 'yes'){
+		        if ($this->settings2['testmode'] == 'yes'):
+		          $mspurl = true;
+		        else :
+		          $mspurl = false;
+		        endif;
+		
+	
+		        $msp = new MultiSafepay();
+		        $msp->test = $mspurl;
+		        $msp->merchant['account_id'] = $this->settings['accountid'];
+		        $msp->merchant['site_id'] = $this->settings['siteid'];
+		        $msp->merchant['site_code'] = $this->settings['securecode'];
+		        $msp->transaction['id'] = $order_id;
+		        $status = $msp->getStatus();
+		        $details = $msp->details;
+		        
+		        if ($msp->error) {
+			    	return new WP_Error('multisafepay', 'Can\'t receive transaction data to update correct information at MultiSafepay:' . $msp->error_code . ' - ' . $msp->error);
+			    }
+			    
+			    if($details['paymentdetails']['type'] ==  'KLARNA' || $details['paymentdetails']['type'] ==  'PAYAFTER'){
+	
+		        	$msp = new MultiSafepay();
+					$msp->test = $mspurl;
+					$msp->merchant['account_id'] = $this->settings2['accountid'];
+					$msp->merchant['site_id'] = $this->settings2['siteid'];
+					$msp->merchant['site_code'] = $this->settings2['securecode'];
+					$msp->transaction['id'] = $order_id;
+					$msp->transaction['shipdate'] = date('Y-m-d H:i:s');
+		
+					$response = $msp->updateTransaction();
+	
+					if ($msp->error) {
+						return new WP_Error('multisafepay', 'Transaction status can\'t be updated:' . $msp->error_code . ' - ' . $msp->error);
+		        	} else {
+			            if ($details['paymentdetails']['type'] ==  'KLARNA') {
+							$order->add_order_note(__('Klarna Invoice: ') . '<br /><a href="https://online.klarna.com/invoices/' . $details['paymentdetails']['externaltransactionid'] . '.pdf">https://online.klarna.com/invoices/' . $details['paymentdetails']['externaltransactionid'] . '.pdf</a>');
+							echo '<div class="updated"><p>Transaction updated to status shipped.</p></div>';
+			            }
+		        	}
+		        }
+	        }
+		}
+      
+      
 
       function feed() {
         $args = array('post_type' => 'product');
@@ -861,6 +916,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 'label' => __('Sent the order confirmation', 'multisafepay'),
                 'default' => 'yes',
                 'description' => __('Select this to sent the order confirmation before the transaction', 'multisafepay'),
+            ),
+            'settoshipped' => array(
+                'title' => __('Update transaction to Shipped', 'multisafepay'),
+                'type' => 'checkbox',
+                'label' => __('Update transaction to Shipped', 'multisafepay'),
+                'default' => 'yes',
+                'description' => __('Update the transaction to shipped when the orderstatus is set to completed and payment method was Klarna or Pay after Delivery', 'multisafepay'),
             ),
             'debug' => array(
                 'title' => __('Enable debugging', 'multisafepay'),
