@@ -814,7 +814,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
           $image = plugins_url('/images/' . $button_locale_code . '/button.png', __FILE__);
 
           echo '<div id="msp_fastcheckout" >';
-          echo '<a class="checkout-button"  style="width:219px;float: right;clear: both;border:none;margin-bottom:5px;margin-top:5px;" href="' . add_query_arg('action', 'doFastCheckout', add_query_arg('wc-api', 'WC_MULTISAFEPAY', home_url('/'))) . '">';
+          echo '<a class="checkout-button"  style="width:219px;border:none;margin-bottom:15px;" href="' . add_query_arg('action', 'doFastCheckout', add_query_arg('wc-api', 'WC_MULTISAFEPAY', home_url('/'))) . '">';
           echo "<img src='" . $image . "' style='border:none;vertical-align: center;width: 219px;border-radius: 0px;box-shadow: none;padding: 0px;' border='0' alt='" . __('Pay with FastCheckout', 'multisafepay') . "'/>";
           echo "</a>";
           echo '</div>';
