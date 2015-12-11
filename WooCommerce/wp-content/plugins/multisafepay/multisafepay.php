@@ -1247,9 +1247,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
               exit;
             }
           } else {
-	    
+	          
             if ($order->status != 'processing') {
-	            
               switch ($status) {
                 case 'cancelled':
                   $order->cancel_order();
@@ -1260,6 +1259,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                   $order->update_status('wc-pending');
                   $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                   $updated = true;
+                  
                   break;
                 case 'completed':
                   if ($order->get_total() != $amount) {
@@ -1293,6 +1293,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                   } else {
                     $updated = true;
                   }
+                  
+                  if ($status == 'completed' && $details['paymentdetails']['type'] == 'KLARNA') {
+                		$order->add_order_note(__("Klarna Reservation number: ") . $details['paymentdetails']['externaltransactionid']);
+            		}
+                  
                   break;
                 case 'refunded':
                   if ($order->get_total() == $amount) {
@@ -1323,6 +1328,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                   $updated = true;
                   break;
               }
+            }else{
+	            if($status= 'shipped'){
+					$order->add_order_note(__('Klarna Invoice: ') . '<br /><a href="https://online.klarna.com/invoices/' . $details['paymentdetails']['externaltransactionid'] . '.pdf">https://online.klarna.com/invoices/' . $details['paymentdetails']['externaltransactionid'] . '.pdf</a>');
+
+	            }
             }
             $return_url = $order->get_checkout_order_received_url();
             $cancel_url = $order->get_cancel_order_url();
