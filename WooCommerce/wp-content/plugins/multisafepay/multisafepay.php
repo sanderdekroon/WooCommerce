@@ -1177,15 +1177,22 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $updated = true; */
                   break;
                 case 'uncleared' :
+                
+                 	$order->update_status('wc-pending');
+				 	$order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
+				 	$updated = true;
+				 	break;
                 case 'reserved' :
                 case 'declined':
                   $order->update_status('wc-failed', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
                   $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                   $updated = true;
+                  break;
                 case 'expired':
                   $order->update_status('wc-failed', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
                   $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                   $updated = true;
+                  break;
                 case 'void' :
                   $order->cancel_order();
                   $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
@@ -1240,7 +1247,9 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
               exit;
             }
           } else {
+	    
             if ($order->status != 'processing') {
+	            
               switch ($status) {
                 case 'cancelled':
                   $order->cancel_order();
@@ -1293,15 +1302,21 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                   $updated = true;
                   break;
                 case 'uncleared' :
+                 	$order->update_status('pending');
+				 	$order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
+				 	$updated = true;
+				 	break;
                 case 'reserved' :
                 case 'declined':
                   $order->update_status('wc-failed', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
                   $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                   $updated = true;
+                  break;
                 case 'expired':
                   $order->update_status('wc-failed', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
                   $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                   $updated = true;
+                  break;
                 case 'void' :
                   $order->cancel_order();
                   $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
