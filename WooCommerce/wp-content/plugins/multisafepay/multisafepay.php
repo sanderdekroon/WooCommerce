@@ -276,6 +276,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         $msp->customer['country'] = $order->billing_country;
         $msp->customer['state'] = $order->billing_state;
         $msp->parseCustomerAddress($order->billing_address_1);
+        
+        if($msp->customer['housenumber'] == ''){
+			$msp->customer['housenumber'] = $order->billing_address_2;
+		}
+        
         $msp->transaction['id'] = $ordernumber; //$order_id; 
         $msp->transaction['currency'] = get_woocommerce_currency();
         $msp->transaction['amount'] = $order->get_total() * 100;
@@ -1016,6 +1021,9 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         $msp->customer['country'] = $order->billing_country;
         $msp->customer['state'] = $order->billing_state;
         $msp->parseCustomerAddress($order->billing_address_1);
+        if($msp->customer['housenumber'] == ''){
+			$msp->customer['housenumber'] = $order->billing_address_2;
+		}
         $msp->transaction['id'] = $ordernumber; //$order_id; 
         $msp->transaction['currency'] = get_woocommerce_currency();
         $msp->transaction['amount'] = $order->get_total() * 100;
