@@ -1407,9 +1407,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                   break;
               }
             }else{
-	            if($status= 'shipped'){
+	            if($status == 'shipped'){
 					$order->add_order_note(__('Klarna Invoice: ') . '<br /><a href="https://online.klarna.com/invoices/' . $details['paymentdetails']['externaltransactionid'] . '.pdf">https://online.klarna.com/invoices/' . $details['paymentdetails']['externaltransactionid'] . '.pdf</a>');
-
 	            }
             }
             $return_url = $order->get_checkout_order_received_url();
