@@ -61,6 +61,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 		
 		if ($this->settings2['testmode'] != 'yes') {
 			$output .= '<option value="0031">ABN AMRO</option>'; 
+            $output .= '<option value="4371">Bunq</option>';
 			$output .= '<option value="0751">SNS Bank</option>'; 
 			$output .= '<option value="0721">ING</option>';
 			$output .= '<option value="0021">Rabobank</option>';
