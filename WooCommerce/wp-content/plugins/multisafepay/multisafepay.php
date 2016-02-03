@@ -1231,12 +1231,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $order->payment_complete();
 
                     $mailer = $woocommerce->mailer();
-                    if ($this->settings['send_confirmation'] == 'no') {
+                    /*if ($this->settings['send_confirmation'] == 'no') {
                       $email = $mailer->emails['WC_Email_New_Order'];
                       $email->trigger($order->id);
                     }
                     $email = $mailer->emails['WC_Email_Customer_Processing_Order'];
-                    $email->trigger($order->id);
+                    $email->trigger($order->id);*/
+                    
                     if ($this->settings['send_invoice'] == 'yes') {
                       $mailer->customer_invoice($order);
                     }
@@ -1356,12 +1357,12 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     //$order->reduce_order_stock();
                     $woocommerce->cart->empty_cart();
                     $mailer = $woocommerce->mailer();
-                    if ($this->settings['send_confirmation'] == 'no') {
+                    /*if ($this->settings['send_confirmation'] == 'no') {
                       $email = $mailer->emails['WC_Email_New_Order'];
                       $email->trigger($order->id);
                     }
                     $email = $mailer->emails['WC_Email_Customer_Processing_Order'];
-                    $email->trigger($order->id);
+                    $email->trigger($order->id);*/
                     if ($this->settings['send_invoice'] == 'yes') {
                       $mailer->customer_invoice($order);
                     }
