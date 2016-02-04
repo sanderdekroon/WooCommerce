@@ -148,6 +148,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         endif;
 
         $order = new WC_Order($order_id);
+        $ordernumber = ltrim($order->get_order_number(), __('#', '', 'multisafepay'));
+        $ordernumber = ltrim($ordernumber, __('n°', '', 'multisafepay'));
         $currency = $order->get_order_currency();
 
         $msp = new MultiSafepay();
@@ -156,7 +158,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         $msp->merchant['site_id'] = $this->settings2['siteid'];
         $msp->merchant['site_code'] = $this->settings2['securecode'];
         $msp->merchant['api_key'] = $this->settings2['apikey'];
-        $msp->transaction['id'] = $order_id;
+        $msp->transaction['id'] = $ordernumber;//$order_id;
         $msp->transaction['currency'] = $currency;
         $msp->transaction['amount'] = $amount * 100;
         $msp->signature = sha1($this->settings2['siteid'] . $this->settings2['securecode'] . $order_id);
