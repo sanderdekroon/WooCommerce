@@ -20,7 +20,7 @@ if (!class_exists('MultiSafepay')) {
 }
 
 
-if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
+if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins'))) || is_plugin_active_for_network('woocommerce/woocommerce.php')) {
   add_action('plugins_loaded', 'WC_MULTISAFEPAY_DOTPAY_Load', 0);
 
   function WC_MULTISAFEPAY_DOTPAY_Load() {

@@ -17,7 +17,7 @@ load_plugin_textdomain('multisafepay', false, dirname(plugin_basename(__FILE__))
 if (!class_exists('MultiSafepay')) {
   require(realpath(dirname(__FILE__)) . '/../multisafepay/MultiSafepay.combined.php');
 }
-if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
+if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins'))) || is_plugin_active_for_network('woocommerce/woocommerce.php')) {
   add_action('plugins_loaded', 'WC_MULTISAFEPAY_VISA_Load', 0);
 
   function WC_MULTISAFEPAY_VISA_Load() {
