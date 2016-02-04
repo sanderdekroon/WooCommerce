@@ -50,7 +50,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
         add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
         add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_PAYAFTER', 'MULTISAFEPAY_PAYAFTER_Add_Gateway'));
-
+        add_filter( 'woocommerce_available_payment_gateways', 'payafter_filter_gateways', 1);
+        
         $output = '';
         $output = '<p class="form-row form-row-wide  validate-required"><label for="birthday" class="">' . __('Geboortedatum', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_birthday" id="birthday" placeholder="dd-mm-yyyy"/>
 				</p><div class="clear"></div>';
@@ -421,4 +422,16 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
     new WC_MULTISAFEPAY_PAYAFTER();
   }
 
+  function payafter_filter_gateways( $gateways ){
+   		global $woocommerce;
+   		$settings = $gateways['MULTISAFEPAY_PAYAFTER']->settings;
+
+
+   		if($woocommerce->cart->total > $settings['maxamount'] || $woocommerce->cart->total < $settings['minamount']) {
+   			unset($gateways['MULTISAFEPAY_PAYAFTER']);
+ 		}
+
+ 		return $gateways;
+	}
+  
 }
