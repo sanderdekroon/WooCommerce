@@ -1149,7 +1149,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
               $billing_address['address_2'] = $details['customer']['address2'];
               $billing_address['city'] = $details['customer']['city'];
               $billing_address['state'] = $details['customer']['state'];
-              $billing_address['postalcode'] = $details['customer']['zipcode'];
+              $billing_address['postcode'] = $details['customer']['zipcode'];
               $billing_address['country'] = $details['customer']['country'];
               $billing_address['phone'] = $details['customer']['phone1'];
               $billing_address['email'] = $details['customer']['email'];
@@ -1158,7 +1158,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
               $shipping_address['address_2'] = $details['customer-delivery']['address2'];
               $shipping_address['city'] = $details['customer-delivery']['city'];
               $shipping_address['state'] = $details['customer-delivery']['state'];
-              $shipping_address['postalcode'] = $details['customer-delivery']['zipcode'];
+              $shipping_address['postcode'] = $details['customer-delivery']['zipcode'];
               $shipping_address['country'] = $details['customer-delivery']['country'];
               $shipping_address['name'] = $details['customer-delivery']['firstname'] . ' ' . $details['customer-delivery']['lastname'];
 
