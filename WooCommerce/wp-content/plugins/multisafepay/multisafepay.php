@@ -1,7 +1,7 @@
 <?php
 
 /*
-  Plugin Name: Multisafepay
+  Plugin Name: Multisafepay 
   Plugin URI: http://www.multisafepay.com
   Description: Multisafepay Payment Plugin
   Author: Multisafepay
