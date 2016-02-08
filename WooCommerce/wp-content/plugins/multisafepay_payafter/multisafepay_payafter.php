@@ -432,6 +432,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
    		if($woocommerce->cart->total > $settings['maxamount'] || $woocommerce->cart->total < $settings['minamount']) {
    			unset($gateways['MULTISAFEPAY_PAYAFTER']);
  		}
+        
+        if($woocommerce->customer->get_country() !='NL'){
+	 		unset($gateways['MULTISAFEPAY_PAYAFTER']);
+ 		}
 
  		return $gateways;
 	}
