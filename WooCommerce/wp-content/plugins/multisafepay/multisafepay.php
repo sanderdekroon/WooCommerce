@@ -915,14 +915,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 'type' => 'checkbox',
                 'label' => __('Select to send the invoice', 'multisafepay'),
                 'default' => 'yes',
-                'description' => __('The invoice will be sent when a transaction is completed', 'multisafepay'),
+                'description' => __('The invoice will be send when a transaction is completed', 'multisafepay'),
             ),
             'send_confirmation' => array(
                 'title' => __('Sent order confirmation', 'multisafepay'),
                 'type' => 'checkbox',
                 'label' => __('Sent the order confirmation', 'multisafepay'),
                 'default' => 'yes',
-                'description' => __('Select this to sent the order confirmation before the transaction', 'multisafepay'),
+                'description' => __('Enable this setting if WooCommerce doesn\'t send order confirmations to customers', 'multisafepay'),
             ),
             'settoshipped' => array(
                 'title' => __('Update transaction to Shipped', 'multisafepay'),
