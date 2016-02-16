@@ -1112,6 +1112,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
           if (!empty($results)) {
             $order = new WC_Order($results[0]->orderid);
           }
+          
+
 
           if ($details['ewallet']['fastcheckout'] == 'YES' && empty($results)) {
             if (empty($details['ewallet']['id'])) {
@@ -1124,27 +1126,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
               $order = wc_create_order();
               $wpdb->query("INSERT INTO " . $wpdb->prefix . woocommerce_multisafepay . " ( trixid, orderid, status ) VALUES ( '" . $msp->transaction['id'] . "', '" . $order->id . "', '" . $status . "'  )");
 
-              foreach ($details['shopping-cart'] as $product) {
-                $sku = json_decode($product['merchant-item-id']);
-                if (!empty($sku->sku)) {
-                  $product_id = $wpdb->get_var($wpdb->prepare("SELECT post_id FROM $wpdb->postmeta WHERE meta_key='_sku' AND meta_value='%s' LIMIT 1", $sku->sku));
-                  $product_item = new WC_Product($product_id);
-                  $product_item->qty = $product['quantity'];
-                  $order->add_product($product_item, $product['quantity']);
-                } elseif (!empty($sku->cartcoupon)) {
-                  $code = $sku->cartcoupon;
-                  $amount = (float) str_replace('-', '', $product['unit-price']);
-                  $id = $order->add_coupon($code, $amount);
-                  $order->set_total($amount, 'cart_discount');
-                } elseif (!empty($sku->ordercoupon)) {
-                  $code = $sku->ordercoupon;
-                  $amount = (float) str_replace('-', '', $product['unit-price']);
-                  $id = $order->add_coupon($code, $amount);
-                  $order->set_total($amount, 'order_discount');
-                } elseif (!empty($sku->fee)) {
-                  //TODO PROCESS CART FEE
-                }
-              }
+              
 
               $billing_address = array();
               $billing_address['address_1'] = $details['customer']['address1'] . $details['customer']['housenumber'];
@@ -1193,17 +1175,56 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
               $view_order_url = $order->get_view_order_url();
               $retry_payment_url = $order->get_checkout_payment_url();
 
+			  
+
+			  foreach ($details['shopping-cart'] as $product) {
+                $sku = json_decode($product['merchant-item-id']);
+                if (!empty($sku->sku)) {
+                  $product_id = $wpdb->get_var($wpdb->prepare("SELECT post_id FROM $wpdb->postmeta WHERE meta_key='_sku' AND meta_value='%s' LIMIT 1", $sku->sku));
+                  $product_item = new WC_Product($product_id);
+                  $product_item->qty = $product['quantity'];
+                  $order->add_product($product_item, $product['quantity']);
+                } elseif (!empty($sku->cartcoupon)) {
+                  $code = $sku->cartcoupon;
+                  $amount = (float) str_replace('-', '', $product['unit-price']);
+                   update_post_meta( $order->id, '_cart_discount', $amount );
+				   update_post_meta( $order->id, '_order_total', $details['transaction']['amount']/100 );
+				   $tax_percentage= (($details['transaction']['amount']/100) - ($details['order-total']['total']-$details['total-tax']['total']+$details['shipping']['cost'])) / ($details['order-total']['total']-$details['total-tax']['total']+$details['shipping']['cost']);
+				   $applied_discount_tax= round(($amount * (1+$tax_percentage))-$amount,2);
+				   update_post_meta( $order->id, '_cart_discount_tax', $applied_discount_tax );
+				   				   $order->calculate_taxes();
+				   $order_data = get_post_meta($order->id);
+				   $new_order_tax =  round($order_data['_order_tax'][0] - (($amount * (1+$tax_percentage))-$amount),2);
+				   update_post_meta( $order->id, '_order_tax', $new_order_tax );
+				   $id = $order->add_coupon($code, $amount, $applied_discount_tax);
+                } elseif (!empty($sku->ordercoupon)) {
+                  $code = $sku->ordercoupon;
+                  $amount = (float) str_replace('-', '', $product['unit-price']);
+                   update_post_meta( $order->id, '_cart_discount', $amount );
+				   update_post_meta( $order->id, '_order_total', $details['transaction']['amount']/100 );
+				   $tax_percentage= (($details['transaction']['amount']/100) - ($details['order-total']['total']-$details['total-tax']['total']+$details['shipping']['cost'])) / ($details['order-total']['total']-$details['total-tax']['total']+$details['shipping']['cost']);
+				   $applied_discount_tax= round(($amount * (1+$tax_percentage))-$amount,2);
+				   update_post_meta( $order->id, '_cart_discount_tax', $applied_discount_tax );
+				   				   $order->calculate_taxes();
+				   $order_data = get_post_meta($order->id);
+				   $new_order_tax =  round($order_data['_order_tax'][0] - (($amount * (1+$tax_percentage))-$amount),2);
+				   update_post_meta( $order->id, '_order_tax', $new_order_tax );
+				   $id = $order->add_coupon($code, $amount, $applied_discount_tax);
+                } elseif (!empty($sku->fee)) {
+                  //TODO PROCESS CART FEE
+                }
+              }
+              update_post_meta( $order->id, '_order_total', $details['transaction']['amount']/100 );
+              $order->calculate_taxes();
+			  
+			  foreach($order->get_items('tax') as $key =>$value){
+				  $data = wc_get_order_item_meta($key, 'tax_amount');
+				  wc_update_order_item_meta( $key, 'tax_amount', $data-$applied_discount_tax );
+			  }
+			
+
               $amount = $details['transaction']['amount'] / 100;
 
-
-
-              /* if ($order->calculate_totals() != $amount) {
-                $order->update_status('wc-on-hold', sprintf(__('Validation error: Multisafepay amounts do not match (gross %s).', 'multisafepay'), $amount));
-                echo 'ok';
-                exit;
-                } */
-
-              $order->calculate_totals();
 
               switch ($status) {
                 case 'cancelled':
@@ -1220,8 +1241,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                   if ($order->get_total() != $amount) {
                     if ($order->status != 'processing') {
                       $order->update_status('wc-on-hold', sprintf(__('Validation error: Multisafepay amounts do not match (gross %s).', 'multisafepay'), $amount));
-                      echo 'ok';
-                      exit;
+                      $return_url = $order->get_checkout_order_received_url();
+                      
+                      if ($redirect) {
+					  	wp_redirect($return_url);
+                		exit;
+              		}
+                      
                     }
                   }
 
@@ -1346,8 +1372,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                   if ($order->get_total() != $amount) {
                     if ($order->status != 'processing') {
                       $order->update_status('wc-on-hold', sprintf(__('Validation error: Multisafepay amounts do not match (gross %s).', 'multisafepay'), $amount));
-                      echo 'ng';
-                      exit;
+                       if ($redirect) {
+	                       	$return_url = $order->get_checkout_order_received_url();
+					   		wp_redirect($return_url);
+					   		exit;
+            			}
                     }
                   }
 
