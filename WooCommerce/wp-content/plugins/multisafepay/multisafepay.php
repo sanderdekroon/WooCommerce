@@ -1287,7 +1287,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                                     break;
                                 case 'uncleared' :
 
-                                    $order->update_status('wc-pending');
+                                    $order->update_status('wc-on-hold');
                                     $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                                     $updated = true;
                                     break;
@@ -1425,7 +1425,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                                     $updated = true;
                                     break;
                                 case 'uncleared' :
-                                    $order->update_status('pending');
+                                    $order->update_status('wc-on-hold');
                                     $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                                     $updated = true;
                                     break;
