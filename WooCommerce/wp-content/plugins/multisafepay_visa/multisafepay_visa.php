@@ -142,7 +142,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         $msp->transaction['id'] = $ordernumber;//$order_id;
         $msp->transaction['currency'] = $currency;
         $msp->transaction['amount'] = $amount * 100;
-        $msp->signature = sha1($this->settings2['siteid'] . $this->settings2['securecode'] . $order_id);
+        $msp->signature = sha1($this->settings2['siteid'] . $this->settings2['securecode'] . $ordernumber);
 
         $response = $msp->refundTransaction();
 
