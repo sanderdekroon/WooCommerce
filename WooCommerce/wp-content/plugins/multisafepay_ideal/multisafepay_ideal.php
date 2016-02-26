@@ -272,14 +272,15 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
           $this->write_log('MSP->End debug');
           $this->write_log('--------------------------------------');
         }
-
-
+            
         if (!isset($msp->error)) {
           return array(
               'result' => 'success',
               'redirect' => $url
           );
-        } else {
+        } elseif($msp->error_code == "1036"){
+	        wc_add_notice(__('Kies uw bank voor een iDEAL betaling', 'multisafepay'), 'error');
+        }else {
           //$woocommerce->add_error(__('Payment error:', 'multisafepay') . ' ' . $msp->error);
           wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error');
         }
