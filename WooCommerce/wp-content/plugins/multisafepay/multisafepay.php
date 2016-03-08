@@ -28,6 +28,10 @@ function MULTISAFEPAY_register() {
     wp_insert_term(__('Awaiting Payment', 'multisafepay'), 'shop_order_status');
 }
 
+
+if (!function_exists('is_plugin_active_for_network'))
+require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins'))) || is_plugin_active_for_network('woocommerce/woocommerce.php')) {
     add_action('plugins_loaded', 'WC_MULTISAFEPAY_Load', 0);
 

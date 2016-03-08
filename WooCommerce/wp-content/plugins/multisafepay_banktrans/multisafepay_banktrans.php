@@ -18,6 +18,9 @@ load_plugin_textdomain('multisafepay', false, dirname(plugin_basename(__FILE__))
 if (!class_exists('MultiSafepay')) {
     require(realpath(dirname(__FILE__)) . '/../multisafepay/MultiSafepay.combined.php');
 }
+if (!function_exists('is_plugin_active_for_network'))
+require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins'))) || is_plugin_active_for_network('woocommerce/woocommerce.php')) {
     add_action('plugins_loaded', 'WC_MULTISAFEPAY_BANKTRANSFER_Load', 0);
 
