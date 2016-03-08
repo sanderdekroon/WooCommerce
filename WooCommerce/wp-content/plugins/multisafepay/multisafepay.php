@@ -284,7 +284,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 $msp->transaction['id'] = $ordernumber; //$order_id; 
                 $msp->transaction['currency'] = get_woocommerce_currency();
-                $msp->transaction['amount'] = $order->get_total() * 100;
+                $msp->transaction['amount'] = round($order->get_total() * 100);
                 $msp->transaction['description'] = 'Order ' . __('#', '', 'multisafepay') . $ordernumber . ' : ' . get_bloginfo();
                 $msp->transaction['gateway'] = $gateway;
                 $msp->plugin_name = 'WooCommerce';
@@ -1020,6 +1020,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $msp->parseCustomerAddress($order->billing_address_1);
                 if ($msp->customer['housenumber'] == '') {
                     $msp->customer['housenumber'] = $order->billing_address_2;
+                }
+
+                if (isset($_SERVER['HTTP_REFERER'])) {
+                    $msp->customer['referrer'] = $_SERVER['HTTP_REFERER'];
+                }
+                if (isset($_SERVER['HTTP_USER_AGENT'])) {
+                    $msp->customer['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
                 }
                 $msp->transaction['id'] = $ordernumber; //$order_id; 
                 $msp->transaction['currency'] = get_woocommerce_currency();
