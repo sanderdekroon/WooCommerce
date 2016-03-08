@@ -594,7 +594,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $msp->customer['locale'] = $language_locale;
                 $msp->transaction['id'] = uniqid();
                 $msp->transaction['currency'] = get_woocommerce_currency();
-                $msp->transaction['amount'] = WC()->cart->subtotal * 100;
+                $msp->transaction['amount'] = round(WC()->cart->subtotal * 100);
                 $msp->transaction['description'] = 'Woocommerce FCO transaction' . ' : ' . get_bloginfo();
                 $msp->transaction['items'] = $item_list;
                 $msp->customer['referrer'] = $_SERVER['HTTP_REFERER'];
@@ -1023,7 +1023,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 }
                 $msp->transaction['id'] = $ordernumber; //$order_id; 
                 $msp->transaction['currency'] = get_woocommerce_currency();
-                $msp->transaction['amount'] = $order->get_total() * 100;
+                $msp->transaction['amount'] = round($order->get_total() * 100);
                 $msp->transaction['description'] = 'Order ' . __('#', '', 'multisafepay') . $ordernumber . ' : ' . get_bloginfo();
                 $msp->plugin_name = 'WooCommerce';
                 $msp->plugin['shop_version'] = $woocommerce->version;
