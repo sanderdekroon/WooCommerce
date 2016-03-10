@@ -145,9 +145,9 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
                 if ($this->settings2['testmode'] == 'yes'):
-                    $mspurl = true;
+                    $mspurl = 'https://testapi.multisafepay.com/v1/json/';
                 else :
-                    $mspurl = false;
+                    $mspurl = 'https://api.multisafepay.com/v1/json/';
                 endif;
 
                 $order = new WC_Order($order_id);
@@ -155,25 +155,55 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $ordernumber = ltrim($ordernumber, __('n°', '', 'multisafepay'));
                 $currency = $order->get_order_currency();
 
-                $msp = new MultiSafepay();
-                $msp->test = $mspurl;
-                $msp->merchant['account_id'] = $this->settings2['accountid'];
-                $msp->merchant['site_id'] = $this->settings2['siteid'];
-                $msp->merchant['site_code'] = $this->settings2['securecode'];
-                $msp->merchant['api_key'] = $this->settings2['apikey'];
-                $msp->transaction['id'] = $ordernumber; //$order_id;
-                $msp->transaction['currency'] = $currency;
-                $msp->transaction['amount'] = $amount * 100;
-                $msp->signature = sha1($this->settings2['siteid'] . $this->settings2['securecode'] . $ordernumber);
+                require_once dirname(__FILE__) . "/../multisafepay/API/Autoloader.php";
+                $msp = new Client;
+                $msp->setApiKey($this->settings2['apikey']);
+                $msp->setApiUrl($mspurl);
 
-                $response = $msp->refundTransaction();
+                $transactionid = $ordernumber;
 
+                //get the order status
+                $msporder = $msp->orders->get($type = 'orders', $transactionid, $body = array(), $query_string = false);
+                $originalCart = $msporder->shopping_cart;
+                $products = $order->get_items();
+                $refundData = array();
+                $refundData['checkout_data']['items'];
 
-                if ($msp->error) {
-                    return new WP_Error('multisafepay_ideal', 'Order can\'t be refunded:' . $msp->error_code . ' - ' . $msp->error);
-                } else {
-                    return true;
+                foreach ($originalCart->items as $key => $item) {
+                    if ($item->quantity > 0) {
+                        $refundData['checkout_data']['items'][] = $item;
+                    }
+                    foreach ($products as $key => $product) {
+                        $product_id = $product['product_id'];
+                        $item_id = $product['item_id'];
+                        if ($product_id == $item->merchant_item_id) {
+                            $qty_refunded = $order->get_qty_refunded_for_item($key);
+                            if ($qty_refunded > 0) {
+                                if ($item->quantity > 0) {
+                                    $refundItem = (OBJECT) Array();
+                                    $refundItem->name = $item->name;
+                                    $refundItem->description = $item->description;
+                                    $refundItem->unit_price = $item->unit_price;
+                                    $refundItem->quantity = '-'.$qty_refunded;
+                                    $refuntItem->merchant_item_id = $item->merchant_item_id;
+                                    $refundItem->tax_table_selector = $item->tax_table_selector;
+                                    $refundData['checkout_data']['items'][] = $refundItem;
+                                }
+                            }
+                        }
+                    }
                 }
+
+                $endpoint = 'orders/' . $transactionid . '/refunds';
+                try {
+                    $mspreturn = $msp->orders->post($refundData, $endpoint);
+
+                    return true;
+                } catch (Exception $e) {
+
+                    return new WP_Error('multisafepay_ideal', 'Order can\'t be refunded:' . $e->getMessage());
+                }
+
                 return false;
             }
 

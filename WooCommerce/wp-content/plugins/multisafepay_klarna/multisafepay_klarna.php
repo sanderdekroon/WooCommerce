@@ -148,9 +148,9 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
                 if ($this->settings2['testmode'] == 'yes'):
-                    $mspurl = true;
+                    $mspurl = 'https://testapi.multisafepay.com/v1/json/';
                 else :
-                    $mspurl = false;
+                    $mspurl = 'https://api.multisafepay.com/v1/json/';
                 endif;
 
                 $order = new WC_Order($order_id);
@@ -160,8 +160,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 require_once dirname(__FILE__) . "/../multisafepay/API/Autoloader.php";
                 $msp = new Client;
-                $msp->setApiKey($mspurl);
-                $msp->setApiUrl($this->settings2['apikey']);
+                $msp->setApiKey($this->settings2['apikey']);
+                $msp->setApiUrl($mspurl);
 
                 $transactionid = $ordernumber;
 
