@@ -28,9 +28,8 @@ function MULTISAFEPAY_register() {
     wp_insert_term(__('Awaiting Payment', 'multisafepay'), 'shop_order_status');
 }
 
-
 if (!function_exists('is_plugin_active_for_network'))
-require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+    require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins'))) || is_plugin_active_for_network('woocommerce/woocommerce.php')) {
     add_action('plugins_loaded', 'WC_MULTISAFEPAY_Load', 0);
@@ -44,32 +43,54 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $gateway_info = array(
                     'BABYGIFTCARD' => 'Baby giftcard',
                     'BOEKENBON' => 'Boekenbon',
-                    'E-BON' => 'E-bon',
+                    'VVVBON' => 'VVV Bon',
                     'EROTIEKBON' => 'Erotiekbon',
                     'FIJNCADEAU' => 'Fijncadeau',
                     'PARFUMCADEAUKAART' => 'Parfum cadeaukaart',
-                    'PARFUMNL' => 'Parfum nl',
                     'WEBSHOPGIFTCARD' => 'Webshop giftcard',
                     'FASHIONCHEQUE' => 'Fashion Cheque',
                     'GEZONDHEIDSBON' => 'Gezondheidsbon',
                     'LIEF' => 'Lief cadeaukaart',
-                    'DEGROTESPEELGOEDWINKEL' => 'De grote speelgoed winkel',
                     'GOODCARD' => 'GoodCard',
+                    'WIJNCADEAU' => 'WijnCadeau',
+                    'FASHIONGIFTCARD' => 'Fashion Giftcard',
+                    'PODIUM' => 'Podium Cadeaukaart',
+                    'SPORTENFIT' => 'Sport en Fit',
+                    'YOURGIFT' => 'Yourgift',
+                    'NATIONALETUINBON' => 'Nationale tuinbon',
+                    'NATIONALEVERWENCADEAUBON' => 'Nationale verwencadeaubon',
+                    'BEAUTYANDWELLNESS' => 'Beauty and wellness',
+                    'FIETSBON' => 'Fietsbon',
+                    'WELLNESS-GIFTCARD' => 'Wellness giftcard',
+                    'WINKELCHEQUE' => 'Winkelcheque',
+                    'GIVACARD' => 'Givacard',
+                    'BODYBUILDINGKLEDING' => 'Bodybuildkleding',
                 );
                 $gateway_codes = array(
                     '0' => 'BABYGIFTCARD',
                     '1' => 'BOEKENBON',
-                    '2' => 'E-BON',
+                    '2' => 'VVVBON',
                     '3' => 'EROTIEKBON',
                     '4' => 'FIJNCADEAU',
                     '5' => 'PARFUMCADEAUKAART',
-                    '6' => 'PARFUMNL',
-                    '7' => 'WEBSHOPGIFTCARD',
-                    '8' => 'FASHIONCHEQUE',
-                    '9' => 'GEZONDHEIDSBON',
-                    '10' => 'LIEF',
-                    '11' => 'DEGROTESPEELGOEDWINKEL',
-                    '12' => 'GOODCARD',
+                    '6' => 'WEBSHOPGIFTCARD',
+                    '7' => 'FASHIONCHEQUE',
+                    '8' => 'GEZONDHEIDSBON',
+                    '9' => 'LIEF',
+                    '10' => 'GOODCARD',
+                    '11' => 'WIJNCADEAU',
+                    '12' => 'FASHIONGIFTCARD',
+                    '13' => 'PODIUM',
+                    '14' => 'SPORTENFIT',
+                    '15' => 'YOURGIFT',
+                    '16' => 'NATIONALETUINBON',
+                    '17' => 'NATIONALEVERWENCADEAUBON',
+                    '18' => 'BEAUTYANDWELLNESS',
+                    '19' => 'FIETSBON',
+                    '20' => 'WELLNESS-GIFTCARD',
+                    '21' => 'WINKELCHEQUE',
+                    '22' => 'GIVACARD',
+                    '23' => 'BODYBUILDINGKLEDING',
                 );
 
                 $this->init_settings();
@@ -404,6 +425,72 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         class WC_MULTISAFEPAY_Paymentmethod_12 extends WC_MULTISAFEPAY_Paymentmethod {
 
             protected $pmCode = 12;
+
+        }
+
+        class WC_MULTISAFEPAY_Paymentmethod_13 extends WC_MULTISAFEPAY_Paymentmethod {
+
+            protected $pmCode = 13;
+
+        }
+
+        class WC_MULTISAFEPAY_Paymentmethod_14 extends WC_MULTISAFEPAY_Paymentmethod {
+
+            protected $pmCode = 14;
+
+        }
+
+        class WC_MULTISAFEPAY_Paymentmethod_15 extends WC_MULTISAFEPAY_Paymentmethod {
+
+            protected $pmCode = 15;
+
+        }
+
+        class WC_MULTISAFEPAY_Paymentmethod_16 extends WC_MULTISAFEPAY_Paymentmethod {
+
+            protected $pmCode = 16;
+
+        }
+
+        class WC_MULTISAFEPAY_Paymentmethod_17 extends WC_MULTISAFEPAY_Paymentmethod {
+
+            protected $pmCode = 17;
+
+        }
+
+        class WC_MULTISAFEPAY_Paymentmethod_18 extends WC_MULTISAFEPAY_Paymentmethod {
+
+            protected $pmCode = 18;
+
+        }
+
+        class WC_MULTISAFEPAY_Paymentmethod_19 extends WC_MULTISAFEPAY_Paymentmethod {
+
+            protected $pmCode = 19;
+
+        }
+
+        class WC_MULTISAFEPAY_Paymentmethod_20 extends WC_MULTISAFEPAY_Paymentmethod {
+
+            protected $pmCode = 20;
+
+        }
+
+        class WC_MULTISAFEPAY_Paymentmethod_21 extends WC_MULTISAFEPAY_Paymentmethod {
+
+            protected $pmCode = 21;
+
+        }
+
+        class WC_MULTISAFEPAY_Paymentmethod_22 extends WC_MULTISAFEPAY_Paymentmethod {
+
+            protected $pmCode = 22;
+
+        }
+
+        class WC_MULTISAFEPAY_Paymentmethod_23 extends WC_MULTISAFEPAY_Paymentmethod {
+
+            protected $pmCode = 23;
 
         }
 
@@ -1529,17 +1616,28 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         $gateway_codes = array(
                             '0' => 'BABYGIFTCARD',
                             '1' => 'BOEKENBON',
-                            '2' => 'E-BON',
+                            '2' => 'VVVBON',
                             '3' => 'EROTIEKBON',
                             '4' => 'FIJNCADEAU',
                             '5' => 'PARFUMCADEAUKAART',
-                            '6' => 'PARFUMNL',
-                            '7' => 'WEBSHOPGIFTCARD',
-                            '8' => 'FASHIONCHEQUE',
-                            '9' => 'GEZONDHEIDSBON',
-                            '10' => 'LIEF',
-                            '11' => 'DEGROTESPEELGOEDWINKEL',
-                            '12' => 'GOODCARD',
+                            '6' => 'WEBSHOPGIFTCARD',
+                            '7' => 'FASHIONCHEQUE',
+                            '8' => 'GEZONDHEIDSBON',
+                            '9' => 'LIEF',
+                            '10' => 'GOODCARD',
+                            '11' => 'WIJNCADEAU',
+                            '12' => 'FASHIONGIFTCARD',
+                            '13' => 'PODIUM',
+                            '14' => 'SPORTENFIT',
+                            '15' => 'YOURGIFT',
+                            '16' => 'NATIONALETUINBON',
+                            '17' => 'NATIONALEVERWENCADEAUBON',
+                            '18' => 'BEAUTYANDWELLNESS',
+                            '19' => 'FIETSBON',
+                            '20' => 'WELLNESS-GIFTCARD',
+                            '21' => 'WINKELCHEQUE',
+                            '22' => 'GIVACARD',
+                            '23' => 'BODYBUILDINGKLEDING',
                         );
 
                         $i = 0;
