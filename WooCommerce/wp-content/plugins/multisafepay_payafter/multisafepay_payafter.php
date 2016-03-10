@@ -415,8 +415,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'redirect' => $url
                     );
                 } else {
-                    //$woocommerce->add_error(__('Payment error:', 'multisafepay') . ' ' . $msp->error);
-                    wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error');
+                    if ($msp->error_code == '1024') {
+					 	wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error_code.': '.__('We are sorry to inform you that your request for payment after delivery has been denied by Multifactor.<BR /> If you have questions about this rejection, you can checkout the FAQ on the website of Multifactor ', 'multisafepay').'<a href="http://www.multifactor.nl/contact" target="_blank">http://www.multifactor.nl/faq</a>'.__(' You can also contact Multifactor by calling 020-8500533 (at least 2 hours after this rejection) or by sending an email to ', 'multisafepay').' <a href="mailto:support@multifactor.nl">support@multifactor.nl</a>.'.__(' Please retry placing your order and select a different payment method.', 'multisafepay'), 'error');
+					 } else {
+					 	wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error');
+            		}
                 }
             }
 
