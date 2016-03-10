@@ -847,7 +847,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             }
 
             public function process_refund($order_id, $amount = null, $reason = '') {
-
+				global $wpdb;
                 $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
                 if ($this->settings2['testmode'] == 'yes'):
                     $mspurl = true;
@@ -857,17 +857,25 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 $order = new WC_Order($order_id);
                 $currency = $order->get_order_currency();
+                
+                $results = $wpdb->get_results('SELECT * FROM ' . $wpdb->prefix . 'woocommerce_multisafepay WHERE orderid = \'' . $order_id . '\'', OBJECT);
 
+                if (!empty($results)) {
+                      $transactionid=$results[0]->trixid;
+                }else{
+	                $transactionid=$order_id;
+                }
+               
                 $msp = new MultiSafepay();
                 $msp->test = $mspurl;
                 $msp->merchant['account_id'] = $this->settings2['accountid'];
                 $msp->merchant['site_id'] = $this->settings2['siteid'];
                 $msp->merchant['site_code'] = $this->settings2['securecode'];
                 $msp->merchant['api_key'] = $this->settings2['apikey'];
-                $msp->transaction['id'] = $order_id;
+                $msp->transaction['id'] = $transactionid;
                 $msp->transaction['currency'] = $currency;
                 $msp->transaction['amount'] = $amount * 100;
-                $msp->signature = sha1($this->settings2['siteid'] . $this->settings2['securecode'] . $order_id);
+                $msp->signature = sha1($this->settings2['siteid'] . $this->settings2['securecode'] . $transactionid);
 
                 $response = $msp->refundTransaction();
 
