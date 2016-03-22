@@ -396,7 +396,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 //add item data
                 foreach ($order->get_items() as $item) {
-                    $product_tax = $item['line_subtotal_tax'];
+                    $product_tax = $item['line_tax'];
                     $product_tax_percentage = round($product_tax / $item['line_total'], 2);
                     $product_price = $item['line_total'] / $item['qty'];
 
