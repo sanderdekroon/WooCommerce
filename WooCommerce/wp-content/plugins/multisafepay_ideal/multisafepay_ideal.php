@@ -20,7 +20,7 @@ if (!class_exists('MultiSafepay')) {
 }
 
 if (!function_exists('is_plugin_active_for_network'))
-require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+    require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins'))) || is_plugin_active_for_network('woocommerce/woocommerce.php')) {
     add_action('plugins_loaded', 'WC_MULTISAFEPAY_IDEAL_Load', 0);
@@ -36,7 +36,9 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
                 $this->id = "MULTISAFEPAY_IDEAL";
 
-                $this->has_fields = false;
+
+
+
                 $this->paymentMethodCode = "IDEAL";
                 $this->supports = array(
                     /* 'subscriptions',
@@ -57,9 +59,81 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 add_action("woocommerce_update_options_payment_gateways_MULTISAFEPAY_IDEAL", array($this, 'process_admin_options'));
                 add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_IDEAL', 'MULTISAFEPAY_IDEAL_Add_Gateway'));
 
+                /* $output = '';
+                  $output .= "<select name='IDEAL_issuer' style='width:164px; padding: 2px; margin-left: 7px;'>";
+                  $output .= '<option>Kies uw bank</option>';
+
+                  if ($this->settings2['testmode'] != 'yes') {
+                  $output .= '<option value="0031">ABN AMRO</option>';
+                  $output .= '<option value="4371">Bunq</option>';
+                  $output .= '<option value="0751">SNS Bank</option>';
+                  $output .= '<option value="0721">ING</option>';
+                  $output .= '<option value="0021">Rabobank</option>';
+                  $output .= '<option value="0761">ASN Bank</option>';
+                  $output .= '<option value="0771">Regio Bank</option>';
+                  $output .= '<option value="0511">Triodos Bank</option>';
+                  $output .= '<option value="0161">Van Lanschot Bankiers</option>';
+                  $output .= '<option value="0801">Knab</option>';
+                  } else {
+                  $output .= '<option value="3151">Test Bank</option>';
+                  }
+                  $output .= '</select>'; */
+
+
+                if (file_exists(dirname(__FILE__) . '/images/IDEAL.png')) {
+                    $this->icon = apply_filters('woocommerce_multisafepay_ideal_icon', plugins_url('images/IDEAL.png', __FILE__));
+                } else {
+                    $this->icon = '';
+                }
+
+                $this->settings = (array) get_option("woocommerce_{$this->id}_settings");
+
+                if (isset($this->settings['issuers'])) {
+                    if ($this->settings['issuers'] == 'yes') {
+                        $this->has_fields = true;
+                    }
+                }
+
+                if (!empty($this->settings['pmtitle'])) {
+                    $this->title = $this->settings['pmtitle'];
+                    $this->method_title = $this->settings['pmtitle'];
+                } else {
+                    $this->title = "iDEAL";
+                    $this->method_title = "iDEAL";
+                }
+
+                /* if (isset($this->settings['issuers'])) {
+                  if ($this->settings['issuers'] != 'yes') {
+                  $output = '';
+                  }
+                  } */
+
+
+                $this->IDEAL_Forms();
+
+                if (isset($this->settings['description'])) {
+                    if ($this->settings['description'] != '') {
+                        $this->description = $this->settings['description'];
+                    }
+                }
+                //$this->description .= $output;
+
+
+                if (isset($this->settings['enabled'])) {
+                    if ($this->settings['enabled'] == 'yes') {
+                        $this->enabled = 'yes';
+                    } else {
+                        $this->enabled = 'no';
+                    }
+                } else {
+                    $this->enabled = 'no';
+                }
+            }
+
+            public function payment_fields() {
                 $output = '';
                 $output .= "<select name='IDEAL_issuer' style='width:164px; padding: 2px; margin-left: 7px;'>";
-                $output .= '<option>Kies uw bank</option>';
+                $output .= '<option value="">Kies uw bank</option>';
 
                 if ($this->settings2['testmode'] != 'yes') {
                     $output .= '<option value="0031">ABN AMRO</option>';
@@ -76,49 +150,15 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $output .= '<option value="3151">Test Bank</option>';
                 }
                 $output .= '</select>';
+                echo $output;
+            }
 
-
-                if (file_exists(dirname(__FILE__) . '/images/IDEAL.png')) {
-                    $this->icon = apply_filters('woocommerce_multisafepay_ideal_icon', plugins_url('images/IDEAL.png', __FILE__));
-                } else {
-                    $this->icon = '';
+            public function validate_fields() {
+                if (empty($_POST['IDEAL_issuer'])) {
+                    wc_add_notice(__('Fout: ', 'multisafepay') . ' ' . 'U heeft nog geen bank geselecteerd.', 'error');
+                    return false;
                 }
-
-                $this->settings = (array) get_option("woocommerce_{$this->id}_settings");
-                if (!empty($this->settings['pmtitle'])) {
-                    $this->title = $this->settings['pmtitle'];
-                    $this->method_title = $this->settings['pmtitle'];
-                } else {
-                    $this->title = "iDEAL";
-                    $this->method_title = "iDEAL";
-                }
-
-                if (isset($this->settings['issuers'])) {
-                    if ($this->settings['issuers'] != 'yes') {
-                        $output = '';
-                    }
-                }
-
-
-                $this->IDEAL_Forms();
-
-                if (isset($this->settings['description'])) {
-                    if ($this->settings['description'] != '') {
-                        $this->description = $this->settings['description'];
-                    }
-                }
-                $this->description .= $output;
-
-
-                if (isset($this->settings['enabled'])) {
-                    if ($this->settings['enabled'] == 'yes') {
-                        $this->enabled = 'yes';
-                    } else {
-                        $this->enabled = 'no';
-                    }
-                } else {
-                    $this->enabled = 'no';
-                }
+                return true;
             }
 
             public function IDEAL_Forms() {
@@ -261,7 +301,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $msp->transaction['var1'] = $order->order_key;
                 $msp->transaction['var2'] = $order_id;
                 $issuerName = sprintf('%s_issuer', $paymentMethod[1]);
-                $issuerName = sprintf('%s_issuer', $paymentMethod[1]);
+
 
 
                 if (isset($_POST[$issuerName])) {
