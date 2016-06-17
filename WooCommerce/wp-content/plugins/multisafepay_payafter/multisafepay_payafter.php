@@ -471,7 +471,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         $settings = $gateways['MULTISAFEPAY_PAYAFTER']->settings;
 
 
-        if ($woocommerce->cart->total > $settings['maxamount'] || $woocommerce->cart->total < $settings['minamount']) {
+       if(!empty($settings['minamount'])){
+        	if ($woocommerce->cart->total > $settings['maxamount'] || $woocommerce->cart->total < $settings['minamount']) {
             unset($gateways['MULTISAFEPAY_PAYAFTER']);
         }
 

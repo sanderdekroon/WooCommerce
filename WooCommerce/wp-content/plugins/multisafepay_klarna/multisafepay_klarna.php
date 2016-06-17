@@ -437,6 +437,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 if (!$msp->error and $url == false) {
                     $url = $msp->merchant['redirect_url'] . '?transactionid=' . $order_id;
                 }
+                
+   
 
                 if (!isset($msp->error)) {
 
@@ -470,9 +472,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         global $woocommerce;
         $settings = $gateways['MULTISAFEPAY_KLARNA']->settings;
 
-
-        if ($woocommerce->cart->total > $settings['maxamount'] || $woocommerce->cart->total < $settings['minamount']) {
-            unset($gateways['MULTISAFEPAY_KLARNA']);
+		
+		if(!empty($settings['minamount'])){
+        	if ($woocommerce->cart->total > $settings['maxamount'] || $woocommerce->cart->total < $settings['minamount']) {
+        	    unset($gateways['MULTISAFEPAY_KLARNA']);
+        	}
         }
 
         return $gateways;
