@@ -56,7 +56,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 
                 add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
-                add_action("woocommerce_update_options_payment_gateways_MULTISAFEPAY_IDEAL", array($this, 'process_admin_options'));
+                add_action("woocommerce_update_options_payment_gateways_multisafepay_ideal", array($this, 'process_admin_options'));
                 add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_IDEAL', 'MULTISAFEPAY_IDEAL_Add_Gateway'));
 
                 /* $output = '';

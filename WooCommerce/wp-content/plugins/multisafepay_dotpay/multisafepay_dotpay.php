@@ -54,7 +54,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 
                 add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
-                add_action("woocommerce_update_options_payment_gateways_MULTISAFEPAY_DOTPAY", array($this, 'process_admin_options'));
+                add_action("woocommerce_update_options_payment_gateways_multisafepay_dotpay", array($this, 'process_admin_options'));
                 add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_DOTPAY', 'MULTISAFEPAY_DOTPAY_Add_Gateway'));
 
                 $output = '';
