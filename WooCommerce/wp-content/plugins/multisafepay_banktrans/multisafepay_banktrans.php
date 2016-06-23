@@ -34,7 +34,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->init_settings();
                 $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
 
-                $this->id = "MULTISAFEPAY_BANKTRANS";
+                $this->id = "multisafepay_banktrans";
                 $this->has_fields = false;
                 $this->paymentMethodCode = "BANKTRANS";
                 $this->supports = array(

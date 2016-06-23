@@ -95,7 +95,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 $this->init_settings();
                 $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
-                $this->id = "MULTISAFEPAY_" . $gateway_codes[$this->pmCode];
+                $this->id = "multisafepay_" . strtolower($gateway_codes[$this->pmCode]);
                 $this->has_fields = false;
                 $this->paymentMethodCode = $gateway_codes[$this->pmCode];
                 $this->supports = array(
@@ -535,11 +535,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->init_settings();
 
                 add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
-                add_action('woocommerce_update_options_payment_gateways_MULTISAFEPAY', array($this, 'process_admin_options'));
+                add_action('woocommerce_update_options_payment_gateways_multisafepay', array($this, 'process_admin_options'));
                 add_action('init', array($this, 'MULTISAFEPAY_Response'), 12);
                 add_action('woocommerce_order_status_completed', array($this, 'setToShipped'), 13);
 
-                $this->id = 'MULTISAFEPAY';
+                $this->id = 'multisafepay';
                 $this->has_fields = false;
                 $this->icon = apply_filters('woocommerce_multisafepay_icon', plugins_url('images/msp.gif', __FILE__));
                 $this->MULTISAFEPAY_Form();
