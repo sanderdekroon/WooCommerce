@@ -6,7 +6,7 @@
   Description: Multisafepay Payment Plugin
   Author: Multisafepay
   Author URI:http://www.multisafepay.com
-  Version: 2.2.5
+  Version: 2.2.4
 
   Copyright: � 2012 Multisafepay(email : techsupport@multisafepay.com)
   License: GNU General Public License v3.0
@@ -88,11 +88,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 $this->settings = (array) get_option("woocommerce_{$this->id}_settings");
 
-                if (isset($this->settings['issuers'])) {
-                    if ($this->settings['issuers'] == 'yes') {
+                //if (isset($this->settings['issuers'])) {
+                   // if ($this->settings['issuers'] == 'yes') {
                         $this->has_fields = true;
-                    }
-                }
+                    //}
+               // }
 
                 if (!empty($this->settings['pmtitle'])) {
                     $this->title = $this->settings['pmtitle'];
@@ -180,13 +180,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'default' => 'yes',
                         'description' => __('When enabled it will show on during checkout', 'multisafepay'),
                     ),
-                    'issuers' => array(
+                    /*'issuers' => array(
                         'title' => __('Enable iDEAL issuers', 'multisafepay'),
                         'type' => 'checkbox',
                         'label' => __('Enable bank selection on website', 'multisafepay'),
                         'default' => 'yes',
                         'description' => __('Enable of disable the selection of the preferred bank within the website.', 'multisafepay'),
-                    ),
+                    ),*/
                     'description' => array(
                         'title' => __('Gateway Description', 'multisafepay'),
                         'type' => 'text',
@@ -294,18 +294,17 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $msp->plugin_name = 'WooCommerce';
                 $msp->plugin['shop'] = 'WooCommerce';
                 $msp->plugin['shop_version'] = $woocommerce->version;
-                $msp->plugin['plugin_version'] = '2.2.5';
+                $msp->plugin['plugin_version'] = '2.2.4';
                 $msp->plugin['partner'] = '';
-                $msp->version = '(2.2.5)';
+                $msp->version = '(2.2.4)';
                 $msp->transaction['items'] = $html;
                 $msp->transaction['var1'] = $order->order_key;
                 $msp->transaction['var2'] = $order_id;
-                $issuerName = sprintf('%s_issuer', $paymentMethod[1]);
+                
 
 
-
-                if (isset($_POST[$issuerName])) {
-                    $msp->extravars = $_POST[$issuerName];
+                if (isset($_POST['IDEAL_issuer'])) {
+                    $msp->extravars = $_POST['IDEAL_issuer'];
                     $url = $msp->startDirectXMLTransaction();
                 } else {
                     $url = $msp->startTransaction();
