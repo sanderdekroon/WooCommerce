@@ -254,6 +254,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $msp->transaction['amount'] = $order->get_total() * 100;
                 $msp->transaction['description'] = 'Order ' . __('#', '', 'multisafepay') . $ordernumber . ' : ' . get_bloginfo();
                 $msp->transaction['gateway'] = $gateway;
+                $msp->transaction['special'] = true;
                 $msp->plugin_name = 'WooCommerce';
                 $msp->plugin['shop'] = 'WooCommerce';
                 $msp->plugin['shop_version'] = $woocommerce->version;
@@ -267,7 +268,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $issuerName = sprintf('%s_issuer', $paymentMethod[1]);
 
                 $url = $msp->startTransaction();
-
+				if($gateway =="BANKTRANS"){
+					$url =$msp->merchant['redirect_url'];
+				}
+			
                 if ($debug) {
                     $this->write_log('MSP->transactiondata');
                     $this->write_log($msp);

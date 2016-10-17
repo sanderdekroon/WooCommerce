@@ -588,9 +588,14 @@ class MultiSafepay {
         if (!empty($this->issuer)) {
             $issuer = ' issuer="' . $this->xmlEscape($this->issuer) . '"';
         }
+        if ($this->transaction['special']) {
+            $trans_type = 'directtransaction';
+        } else{
+            $trans_type = 'redirecttransaction';
+        }
 
         $request = '<?xml version="1.0" encoding="UTF-8"?>
-    <redirecttransaction ua="' . $this->plugin_name . ' ' . $this->version . '">
+    <' . $trans_type . ' ua="' . $this->plugin_name . ' ' . $this->version . '">
       <merchant>
         <account>' . $this->xmlEscape($this->merchant['account_id']) . '</account>
         <site_id>' . $this->xmlEscape($this->merchant['site_id']) . '</site_id>
@@ -653,7 +658,7 @@ class MultiSafepay {
         <gateway' . $issuer . '>' . $this->xmlEscape($this->transaction['gateway']) . '</gateway>
       </transaction>
       <signature>' . $this->xmlEscape($this->signature) . '</signature>
-    </redirecttransaction>';
+    </' . $trans_type . '>';
 
         return $request;
     }
