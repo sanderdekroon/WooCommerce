@@ -622,7 +622,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         return new WP_Error('multisafepay', 'Can\'t receive transaction data to update correct information at MultiSafepay:' . $msp->error_code . ' - ' . $msp->error);
                     }
 
-                    if ($details['paymentdetails']['type'] == 'KLARNA' || $details['paymentdetails']['type'] == 'PAYAFTER') {
+                    if ($details['paymentdetails']['type'] == 'KLARNA' || $details['paymentdetails']['type'] == 'PAYAFTER'|| $details['paymentdetails']['type'] == 'EINVOICE') {
 
                         $msp = new MultiSafepay();
                         $msp->test = $mspurl;
