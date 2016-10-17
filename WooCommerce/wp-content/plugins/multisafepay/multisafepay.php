@@ -1463,7 +1463,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         }
                     } else {
 
-                        if ($order->status != 'processing') {
+                        if ($order->status != 'processing' && $order->status != 'completed') {
                             switch ($status) {
                                 case 'cancelled':
                                     $order->cancel_order();
