@@ -1,7 +1,7 @@
 <?php
 
 /*
-  Plugin Name: Multisafepay MisterCash
+  Plugin Name: Multisafepay Bancontact
   Plugin URI: http://www.multisafepay.com
   Description: Multisafepay Payment Plugin
   Author: Multisafepay
@@ -21,11 +21,11 @@ if (!function_exists('is_plugin_active_for_network'))
 require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins'))) || is_plugin_active_for_network('woocommerce/woocommerce.php')) {
-    add_action('plugins_loaded', 'WC_MULTISAFEPAY_MISTERCASH_Load', 0);
+    add_action('plugins_loaded', 'WC_MULTISAFEPAY_BANCONTACT_Load', 0);
 
-    function WC_MULTISAFEPAY_MISTERCASH_Load() {
+    function WC_MULTISAFEPAY_BANCONTACT_Load() {
 
-        class WC_MULTISAFEPAY_MISTERCASH extends WC_Payment_Gateway {
+        class WC_MULTISAFEPAY_BANCONTACT extends WC_Payment_Gateway {
 
             public function __construct() {
                 global $woocommerce;
@@ -33,10 +33,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->init_settings();
                 $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
 
-                $this->id = "multisafepay_mistercash";
+                $this->id = "multisafepay_bancontact";
 
                 $this->has_fields = false;
-                $this->paymentMethodCode = "MISTERCASH";
+                $this->paymentMethodCode = "BANCONTACT";
                 $this->supports = array(
                     /* 'subscriptions',
                       'products',
@@ -52,7 +52,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 );
                 add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
                 add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
-                add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_MISTERCASH', 'MULTISAFEPAY_MISTERCASH_Add_Gateway'));
+                add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_BANCONTACT', 'MULTISAFEPAY_BANCONTACT_Add_Gateway'));
 
                 $output = '';
 
@@ -67,8 +67,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $this->title = $this->settings['pmtitle'];
                     $this->method_title = $this->settings['pmtitle'];
                 } else {
-                    $this->title = "MisterCash";
-                    $this->method_title = "MisterCash";
+                    $this->title = "Bancontact";
+                    $this->method_title = "Bancontact";
                 }
 
 
@@ -290,9 +290,9 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 }
             }
 
-            public static function MULTISAFEPAY_MISTERCASH_Add_Gateway($methods) {
+            public static function MULTISAFEPAY_BANCONTACT_Add_Gateway($methods) {
                 global $woocommerce;
-                $methods[] = 'WC_MULTISAFEPAY_MISTERCASH';
+                $methods[] = 'WC_MULTISAFEPAY_BANCONTACT';
 
                 return $methods;
             }
@@ -300,7 +300,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         }
 
         // Start 
-        new WC_MULTISAFEPAY_MISTERCASH();
+        new WC_MULTISAFEPAY_BANCONTACT();
     }
 
 }
