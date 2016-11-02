@@ -6,7 +6,7 @@
   Description: Multisafepay Payment Plugin
   Author: Multisafepay
   Author URI:http://www.multisafepay.com
-  Version: 2.2.6
+  Version: 2.2.7
 
   Copyright: � 2012 Multisafepay(email : techsupport@multisafepay.com)
   License: GNU General Public License v3.0
@@ -223,9 +223,9 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $msp->plugin_name = 'WooCommerce';
                 $msp->plugin['shop'] = 'WooCommerce';
                 $msp->plugin['shop_version'] = $woocommerce->version;
-                $msp->plugin['plugin_version'] = '2.2.6';
+                $msp->plugin['plugin_version'] = '2.2.7';
                 $msp->plugin['partner'] = '';
-                $msp->version = '(2.2.6)';
+                $msp->version = '(2.2.7)';
                 $msp->transaction['items'] = $html;
                 $msp->transaction['var1'] = $order->order_key;
                 $msp->transaction['var2'] = $order_id;
