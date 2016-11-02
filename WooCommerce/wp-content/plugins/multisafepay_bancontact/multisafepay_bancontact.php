@@ -1,7 +1,7 @@
 <?php
 
 /*
-  Plugin Name: Multisafepay Sofort
+  Plugin Name: Multisafepay Bancontact
   Plugin URI: http://www.multisafepay.com
   Description: Multisafepay Payment Plugin
   Author: Multisafepay
@@ -12,6 +12,7 @@
   License: GNU General Public License v3.0
   License URI: http://www.gnu.org/licenses/gpl-3.0.html
  */
+
 load_plugin_textdomain('multisafepay', false, dirname(plugin_basename(__FILE__)) . '/');
 if (!class_exists('MultiSafepay')) {
     require(realpath(dirname(__FILE__)) . '/../multisafepay/MultiSafepay.combined.php');
@@ -20,11 +21,11 @@ if (!function_exists('is_plugin_active_for_network'))
 require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins'))) || is_plugin_active_for_network('woocommerce/woocommerce.php')) {
-    add_action('plugins_loaded', 'WC_MULTISAFEPAY_SOFORT_Load', 0);
+    add_action('plugins_loaded', 'WC_MULTISAFEPAY_BANCONTACT_Load', 0);
 
-    function WC_MULTISAFEPAY_SOFORT_Load() {
+    function WC_MULTISAFEPAY_BANCONTACT_Load() {
 
-        class WC_MULTISAFEPAY_SOFORT extends WC_Payment_Gateway {
+        class WC_MULTISAFEPAY_BANCONTACT extends WC_Payment_Gateway {
 
             public function __construct() {
                 global $woocommerce;
@@ -32,10 +33,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->init_settings();
                 $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
 
-                $this->id = "multisafepay_sofort";
+                $this->id = "multisafepay_bancontact";
 
                 $this->has_fields = false;
-                $this->paymentMethodCode = "DIRECTBANK";
+                $this->paymentMethodCode = "BANCONTACT";
                 $this->supports = array(
                     /* 'subscriptions',
                       'products',
@@ -51,7 +52,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 );
                 add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
                 add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
-                add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_SOFORT', 'MULTISAFEPAY_SOFORT_Add_Gateway'));
+                add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_BANCONTACT', 'MULTISAFEPAY_BANCONTACT_Add_Gateway'));
 
                 $output = '';
 
@@ -66,8 +67,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $this->title = $this->settings['pmtitle'];
                     $this->method_title = $this->settings['pmtitle'];
                 } else {
-                    $this->title = "Sofort";
-                    $this->method_title = "Sofort";
+                    $this->title = "Bancontact";
+                    $this->method_title = "Bancontact";
                 }
 
 
@@ -186,6 +187,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $mailer = $woocommerce->mailer();
                     $email = $mailer->emails['WC_Email_New_Order'];
                     $email->trigger($order_id);
+
                     $mailer = $woocommerce->mailer();
                     $email = $mailer->emails['WC_Email_Customer_Processing_Order'];
                     $email->trigger($order_id);
@@ -194,6 +196,9 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $order = new WC_Order($order_id);
                 $language_locale = get_bloginfo('language');
                 $language_locale = str_replace('-', '_', $language_locale);
+
+                $paymentMethod = explode('_', $order->payment_method);
+                $gateway = strtoupper($paymentMethod[1]);
 
 
                 $html = '<ul>';
@@ -247,7 +252,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $msp->transaction['currency'] = get_woocommerce_currency();
                 $msp->transaction['amount'] = $order->get_total() * 100;
                 $msp->transaction['description'] = 'Order ' . __('#', '', 'multisafepay') . $ordernumber . ' : ' . get_bloginfo();
-                $msp->transaction['gateway'] = 'DIRECTBANK';
+                $msp->transaction['gateway'] = 'MISTERCASH';
                 $msp->plugin_name = 'WooCommerce';
                 $msp->plugin['shop'] = 'WooCommerce';
                 $msp->plugin['shop_version'] = $woocommerce->version;
@@ -258,9 +263,9 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $msp->transaction['var1'] = $order->order_key;
                 $msp->transaction['var2'] = $order_id;
                 $issuerName = sprintf('%s_issuer', $paymentMethod[1]);
-                $issuerName = sprintf('%s_issuer', $paymentMethod[1]);
 
                 $url = $msp->startTransaction();
+
                 if ($debug) {
                     $this->write_log('MSP->transactiondata');
                     $this->write_log($msp);
@@ -269,7 +274,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $this->write_log('MSP->End debug');
                     $this->write_log('--------------------------------------');
                 }
-
 
                 if (!isset($msp->error)) {
 
@@ -286,9 +290,9 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 }
             }
 
-            public static function MULTISAFEPAY_SOFORT_Add_Gateway($methods) {
+            public static function MULTISAFEPAY_BANCONTACT_Add_Gateway($methods) {
                 global $woocommerce;
-                $methods[] = 'WC_MULTISAFEPAY_SOFORT';
+                $methods[] = 'WC_MULTISAFEPAY_BANCONTACT';
 
                 return $methods;
             }
@@ -296,7 +300,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         }
 
         // Start 
-        new WC_MULTISAFEPAY_SOFORT();
+        new WC_MULTISAFEPAY_BANCONTACT();
     }
 
 }

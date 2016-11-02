@@ -43,7 +43,8 @@ class MultiSafepay {
         'user_agent' => '',
         'referrer' => '',
         'bankaccount' => '',
-        'birthday' => ''
+        'birthday' => '',
+        'gender' => ''
     );
     // customer-delivery data
     var $delivery = array(
@@ -83,7 +84,8 @@ class MultiSafepay {
         'birthday' => '',
         'phone' => '',
         'email' => '',
-        'issuer' => ''
+        'issuer' => '',
+        'gender' => '',
     );
     var $plugin = array(
         'shop' => '',
@@ -586,9 +588,14 @@ class MultiSafepay {
         if (!empty($this->issuer)) {
             $issuer = ' issuer="' . $this->xmlEscape($this->issuer) . '"';
         }
+        if ($this->transaction['special']) {
+            $trans_type = 'directtransaction';
+        } else{
+            $trans_type = 'redirecttransaction';
+        }
 
         $request = '<?xml version="1.0" encoding="UTF-8"?>
-    <redirecttransaction ua="' . $this->plugin_name . ' ' . $this->version . '">
+    <' . $trans_type . ' ua="' . $this->plugin_name . ' ' . $this->version . '">
       <merchant>
         <account>' . $this->xmlEscape($this->merchant['account_id']) . '</account>
         <site_id>' . $this->xmlEscape($this->merchant['site_id']) . '</site_id>
@@ -622,6 +629,7 @@ class MultiSafepay {
         <email>' . $this->xmlEscape($this->customer['email']) . '</email>
 		<referrer>' . $this->xmlEscape($this->customer['referrer']) . '</referrer>
 		<user_agent>' . $this->xmlEscape($this->customer['user_agent']) . '</user_agent>
+          <gender>' . $this->xmlEscape($this->customer['gender']) . '</gender>
       </customer>
 			<customer-delivery>
 				<firstname>' . $this->xmlEscape($this->delivery['firstname']) . '</firstname>
@@ -650,7 +658,7 @@ class MultiSafepay {
         <gateway' . $issuer . '>' . $this->xmlEscape($this->transaction['gateway']) . '</gateway>
       </transaction>
       <signature>' . $this->xmlEscape($this->signature) . '</signature>
-    </redirecttransaction>';
+    </' . $trans_type . '>';
 
         return $request;
     }
@@ -716,6 +724,7 @@ class MultiSafepay {
 			<email>' . $this->xmlEscape($this->customer['email']) . '</email>
 			<referrer>' . $this->xmlEscape($this->customer['referrer']) . '</referrer>
 			<user_agent>' . $this->xmlEscape($this->customer['user_agent']) . '</user_agent>
+              <gender>' . $this->xmlEscape($this->customer['gender']) . '</gender>
 		  </customer>
 				<customer-delivery>
 					<firstname>' . $this->xmlEscape($this->delivery['firstname']) . '</firstname>
@@ -890,6 +899,7 @@ class MultiSafepay {
 				<user_agent>' . $this->xmlEscape($this->customer['user_agent']) . '</user_agent>
 				<birthday>' . $this->xmlEscape($this->customer['birthday']) . '</birthday>
 				<bankaccount>' . $this->xmlEscape($this->customer['bankaccount']) . '</bankaccount>
+                  <gender>' . $this->xmlEscape($this->customer['gender']) . '</gender>
 			</customer>
 			<customer-delivery>
 				<firstname>' . $this->xmlEscape($this->delivery['firstname']) . '</firstname>
@@ -912,6 +922,7 @@ class MultiSafepay {
 				<referrer>' . $this->xmlEscape($this->gatewayinfo['referrer']) . '</referrer>
 				<user_agent>' . $this->xmlEscape($this->gatewayinfo['user_agent']) . '</user_agent>
 				<birthday>' . $this->xmlEscape($this->gatewayinfo['birthday']) . '</birthday>
+                  <gender>' . $this->xmlEscape($this->gatewayinfo['gender']) . '</gender>
 				<bankaccount>' . $this->xmlEscape($this->gatewayinfo['bankaccount']) . '</bankaccount>
 				<phone>' . $this->xmlEscape($this->gatewayinfo['phone']) . '</phone>
 				<email>' . $this->xmlEscape($this->gatewayinfo['email']) . '</email>
@@ -1024,11 +1035,11 @@ class MultiSafepay {
 
     function createSignature() {
         $this->signature = md5(
-                $this->transaction['amount'] .
-                $this->transaction['currency'] .
-                $this->merchant['account_id'] .
-                $this->merchant['site_id'] .
-                $this->transaction['id']
+                $this->xmlEscape($this->transaction['amount']) .
+                $this->xmlEscape($this->transaction['currency']) .
+                $this->xmlEscape($this->merchant['account_id']) .
+                $this->xmlEscape($this->merchant['site_id']) .
+                $this->xmlEscape($this->transaction['id'])
         );
     }
 
@@ -1184,9 +1195,9 @@ class MultiSafepay {
      */
 
     function xmlEscape($str) {
-        $ts = array("/[�-�]/", "/�/", "/�/", "/[�-�]/", "/[�-�]/", "/�/", "/�/", "/[�-��]/", "/�/", "/[�-�]/", "/[�-�]/", "/[�-�]/", "/�/", "/�/", "/[�-�]/", "/[�-�]/", "/�/", "/�/", "/[�-��]/", "/�/", "/[�-�]/", "/[�-�]/");
-        $tn = array("A", "AE", "C", "E", "I", "D", "N", "O", "X", "U", "Y", "a", "ae", "c", "e", "i", "d", "n", "o", "x", "u", "y");
-
+       $ts = array("/[À-Å]/","/Æ/","/Ç/","/[È-Ë]/","/[Ì-Ï]/","/Ð/","/Ñ/","/[Ò-ÖØ]/","/×/","/[Ù-Ü]/","/[Ý-ß]/","/[à-å]/","/æ/","/ç/","/[è-ë]/","/[ì-ï]/","/ð/","/ñ/","/[ò-öø]/","/÷/","/[ù-ü]/","/[ý-ÿ]/");
+        $tn = array("A","AE","C","E","I","D","N","O","X","U","Y","a","ae","c","e","i","d","n","o","x","u","y");
+    
         $str = preg_replace($ts, $tn, $str);
         $str = mb_convert_encoding($str, 'UTF-8');
         //$str = htmlspecialchars($string, ENT_QUOTES);
@@ -3220,9 +3231,9 @@ class MspItem {
      * 
      */
     function xmlEscape($str) {
-        $ts = array("/[�-�]/", "/�/", "/�/", "/[�-�]/", "/[�-�]/", "/�/", "/�/", "/[�-��]/", "/�/", "/[�-�]/", "/[�-�]/", "/[�-�]/", "/�/", "/�/", "/[�-�]/", "/[�-�]/", "/�/", "/�/", "/[�-��]/", "/�/", "/[�-�]/", "/[�-�]/");
-        $tn = array("A", "AE", "C", "E", "I", "D", "N", "O", "X", "U", "Y", "a", "ae", "c", "e", "i", "d", "n", "o", "x", "u", "y");
-
+       $ts = array("/[À-Å]/","/Æ/","/Ç/","/[È-Ë]/","/[Ì-Ï]/","/Ð/","/Ñ/","/[Ò-ÖØ]/","/×/","/[Ù-Ü]/","/[Ý-ß]/","/[à-å]/","/æ/","/ç/","/[è-ë]/","/[ì-ï]/","/ð/","/ñ/","/[ò-öø]/","/÷/","/[ù-ü]/","/[ý-ÿ]/");
+        $tn = array("A","AE","C","E","I","D","N","O","X","U","Y","a","ae","c","e","i","d","n","o","x","u","y");
+        
         $str = preg_replace($ts, $tn, $str);
         $str = mb_convert_encoding($str, 'UTF-8');
         //$str = htmlspecialchars($string, ENT_QUOTES);

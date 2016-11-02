@@ -1,7 +1,7 @@
 <?php
 
 /*
-  Plugin Name: Multisafepay Betaal na Ontvangst
+  Plugin Name: Multisafepay E-invoice
   Plugin URI: http://www.multisafepay.com
   Description: Multisafepay Payment Plugin
   Author: Multisafepay
@@ -21,11 +21,11 @@ if (!function_exists('is_plugin_active_for_network'))
 require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins'))) || is_plugin_active_for_network('woocommerce/woocommerce.php')) {
-    add_action('plugins_loaded', 'WC_MULTISAFEPAY_PAYAFTER_Load', 0);
+    add_action('plugins_loaded', 'WC_MULTISAFEPAY_EINVOICE_Load', 0);
 
-    function WC_MULTISAFEPAY_PAYAFTER_Load() {
+    function WC_MULTISAFEPAY_EINVOICE_Load() {
 
-        class WC_MULTISAFEPAY_PAYAFTER extends WC_Payment_Gateway {
+        class WC_MULTISAFEPAY_EINVOICE extends WC_Payment_Gateway {
 
             public function __construct() {
                 global $woocommerce;
@@ -33,10 +33,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->init_settings();
                 $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
 
-                $this->id = "multisafepay_payafter";
+                $this->id = "multisafepay_einvoice";
 
                 $this->has_fields = false;
-                $this->paymentMethodCode = "PAYAFTER";
+                $this->paymentMethodCode = "EINVOICE";
                 $this->supports = array(
                     /* 'subscriptions',
                       'products',
@@ -52,14 +52,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 );
                 add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
                 add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
-                add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_PAYAFTER', 'MULTISAFEPAY_PAYAFTER_Add_Gateway'));
-                add_filter('woocommerce_available_payment_gateways', 'payafter_filter_gateways', 1);
+                add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_EINVOICE', 'MULTISAFEPAY_EINVOICE_Add_Gateway'));
+                add_filter('woocommerce_available_payment_gateways', 'einvoice_filter_gateways', 1);
 
                 $output = '';
-                $output = '<p class="form-row form-row-wide  validate-required"><label for="birthday" class="">' . __('Geboortedatum', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_birthday" id="birthday" placeholder="dd-mm-yyyy"/>
+                $output = '<p class="form-row form-row-wide  validate-required"><label for="birthday" class="">' . __('Geboortedatum', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="EINVOICE_birthday" id="birthday" placeholder="dd-mm-yyyy"/>
 				</p><div class="clear"></div>';
 
-                $output .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">' . __('Rekeningnummer', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_account" id="account" placeholder=""/>
+                $output .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">' . __('Rekeningnummer', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="EINVOICE_account" id="account" placeholder=""/>
 				</p><div class="clear"></div>';
 
                 $output .= '<p class="form-row form-row-wide">' . __('Met het uitvoeren van deze bestelling gaat u akkoord met de ', 'multisafepay') . '<a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">voorwaarden van MultiFactor.</a>';
@@ -75,11 +75,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $this->title = $this->settings['pmtitle'];
                     $this->method_title = $this->settings['pmtitle'];
                 } else {
-                    $this->title = "Betaal na Ontvangst";
-                    $this->method_title = "Betaal na Ontvangst";
+                    $this->title = "E-invoice";
+                    $this->method_title = "E-invoice";
                 }
 
-                $this->PAYAFTER_Forms();
+                $this->EINVOICE_Forms();
 
 
                 if (isset($this->settings['description'])) {
@@ -101,14 +101,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 }
             }
 
-            public function PAYAFTER_Forms() {
+            public function EINVOICE_Forms() {
                 $this->form_fields = array(
                     'stepone' => array(
-                        'title' => __('Set-up Pay after Delivery configuration', 'multisafepay'),
+                        'title' => __('Set-up E-invoice configuration', 'multisafepay'),
                         'type' => 'title'
                     ),
                     'enabled' => array(
-                        'title' => __('Enable Pay after Delivery', 'multisafepay'),
+                        'title' => __('Enable E-invoice', 'multisafepay'),
                         'type' => 'checkbox',
                         'label' => __('Enable Multisafepay for processing transactions', 'multisafepay'),
                         'default' => 'yes',
@@ -123,13 +123,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     'minamount' => array(
                         'title' => __('Minimal order amount', 'multisafepay'),
                         'type' => 'text',
-                        'description' => __('The minimal amount for an order to show Pay After Delivery', 'multisafepay'),
+                        'description' => __('The minimal amount for an order to show E-invoice', 'multisafepay'),
                         'css' => 'width: 300px;'
                     ),
                     'maxamount' => array(
                         'title' => __('Max order amount', 'multisafepay'),
                         'type' => 'text',
-                        'description' => __('The max order amount for an order to show Pay After Delivery', 'multisafepay'),
+                        'description' => __('The max order amount for an order to show E-invoice', 'multisafepay'),
                         'css' => 'width: 300px;'
                     ),
                     'description' => array(
@@ -317,12 +317,12 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $issuerName = sprintf('%s_issuer', $paymentMethod[1]);
 
 
-                if ($_POST['PAYAFTER_birthday'] != '' && $_POST['PAYAFTER_account'] != '' && $order->billing_phone != '' && $order->billing_email != '') {
+                if ($_POST['EINVOICE_birthday'] != '' && $_POST['EINVOICE_account'] != '' && $order->billing_phone != '' && $order->billing_email != '') {
                     $msp->transaction['special'] = true;
-                    $msp->gatewayinfo['birthday'] = $_POST['PAYAFTER_birthday'];
-                    $msp->customer['birthday'] = $_POST['PAYAFTER_birthday'];
-                    $msp->gatewayinfo['bankaccount'] = $_POST['PAYAFTER_account'];
-                    $msp->customer['bankaccount'] = $_POST['PAYAFTER_account'];
+                    $msp->gatewayinfo['birthday'] = $_POST['EINVOICE_birthday'];
+                    $msp->customer['birthday'] = $_POST['EINVOICE_birthday'];
+                    $msp->gatewayinfo['bankaccount'] = $_POST['EINVOICE_account'];
+                    $msp->customer['bankaccount'] = $_POST['EINVOICE_account'];
                     $msp->gatewayinfo['email'] = $order->billing_email;
                     $msp->gatewayinfo['phone'] = $order->billing_phone;
                 }
@@ -445,17 +445,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'redirect' => $url
                     );
                 } else {
-                    if ($msp->error_code == '1024') {
-					 	wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error_code.': '.__('We are sorry to inform you that your request for payment after delivery has been denied by Multifactor.<BR /> If you have questions about this rejection, you can checkout the FAQ on the website of Multifactor ', 'multisafepay').'<a href="http://www.multifactor.nl/contact" target="_blank">http://www.multifactor.nl/faq</a>'.__(' You can also contact Multifactor by calling 020-8500533 (at least 2 hours after this rejection) or by sending an email to ', 'multisafepay').' <a href="mailto:support@multifactor.nl">support@multifactor.nl</a>.'.__(' Please retry placing your order and select a different payment method.', 'multisafepay'), 'error');
-					 } else {
-					 	wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error');
-            		}
+                    wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error');
                 }
             }
 
-            public static function MULTISAFEPAY_PAYAFTER_Add_Gateway($methods) {
+            public static function MULTISAFEPAY_EINVOICE_Add_Gateway($methods) {
                 global $woocommerce;
-                $methods[] = 'WC_MULTISAFEPAY_PAYAFTER';
+                $methods[] = 'WC_MULTISAFEPAY_EINVOICE';
 
                 return $methods;
             }
@@ -463,22 +459,22 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         }
 
         // Start 
-        new WC_MULTISAFEPAY_PAYAFTER();
+        new WC_MULTISAFEPAY_EINVOICE();
     }
 
-    function payafter_filter_gateways($gateways) {
+    function einvoice_filter_gateways($gateways) {
         global $woocommerce;
-        $settings = $gateways['MULTISAFEPAY_PAYAFTER']->settings;
+        $settings = $gateways['MULTISAFEPAY_EINVOICE']->settings;
 
 
        if(!empty($settings['minamount'])){
         	if ($woocommerce->cart->total > $settings['maxamount'] || $woocommerce->cart->total < $settings['minamount']) {
-            unset($gateways['MULTISAFEPAY_PAYAFTER']);
+            unset($gateways['MULTISAFEPAY_EINVOICE']);
         }
        }
 
         if ($woocommerce->customer->get_country() != 'NL') {
-            unset($gateways['MULTISAFEPAY_PAYAFTER']);
+            unset($gateways['MULTISAFEPAY_EINVOICE']);
         }
 
         return $gateways;

@@ -1,7 +1,7 @@
 <?php
 
 /*
-  Plugin Name: Multisafepay Sofort
+  Plugin Name: Multisafepay EPS
   Plugin URI: http://www.multisafepay.com
   Description: Multisafepay Payment Plugin
   Author: Multisafepay
@@ -12,6 +12,7 @@
   License: GNU General Public License v3.0
   License URI: http://www.gnu.org/licenses/gpl-3.0.html
  */
+
 load_plugin_textdomain('multisafepay', false, dirname(plugin_basename(__FILE__)) . '/');
 if (!class_exists('MultiSafepay')) {
     require(realpath(dirname(__FILE__)) . '/../multisafepay/MultiSafepay.combined.php');
@@ -20,11 +21,11 @@ if (!function_exists('is_plugin_active_for_network'))
 require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins'))) || is_plugin_active_for_network('woocommerce/woocommerce.php')) {
-    add_action('plugins_loaded', 'WC_MULTISAFEPAY_SOFORT_Load', 0);
+    add_action('plugins_loaded', 'WC_MULTISAFEPAY_EPS_Load', 0);
 
-    function WC_MULTISAFEPAY_SOFORT_Load() {
+    function WC_MULTISAFEPAY_EPS_Load() {
 
-        class WC_MULTISAFEPAY_SOFORT extends WC_Payment_Gateway {
+        class WC_MULTISAFEPAY_EPS extends WC_Payment_Gateway {
 
             public function __construct() {
                 global $woocommerce;
@@ -32,10 +33,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->init_settings();
                 $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
 
-                $this->id = "multisafepay_sofort";
+                $this->id = "multisafepay_eps";
 
                 $this->has_fields = false;
-                $this->paymentMethodCode = "DIRECTBANK";
+                $this->paymentMethodCode = "EPS";
                 $this->supports = array(
                     /* 'subscriptions',
                       'products',
@@ -51,7 +52,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 );
                 add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
                 add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
-                add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_SOFORT', 'MULTISAFEPAY_SOFORT_Add_Gateway'));
+                add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_EPS', 'MULTISAFEPAY_EPS_Add_Gateway'));
 
                 $output = '';
 
@@ -66,8 +67,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $this->title = $this->settings['pmtitle'];
                     $this->method_title = $this->settings['pmtitle'];
                 } else {
-                    $this->title = "Sofort";
-                    $this->method_title = "Sofort";
+                    $this->title = "EPS";
+                    $this->method_title = "EPS";
                 }
 
 
@@ -91,6 +92,34 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 } else {
                     $this->enabled = 'no';
                 }
+            }
+
+            public function GATEWAY_Forms() {
+                $this->form_fields = array(
+                    'stepone' => array(
+                        'title' => __('Gateway Setup', 'multisafepay'),
+                        'type' => 'title'
+                    ),
+                    'enabled' => array(
+                        'title' => __('Enable this gateway', 'multisafepay'),
+                        'type' => 'checkbox',
+                        'label' => __('Enable transaction by using this gateway', 'multisafepay'),
+                        'default' => 'yes',
+                        'description' => __('When enabled it will show on during checkout', 'multisafepay'),
+                    ),
+                    'pmtitle' => array(
+                        'title' => __('Title', 'multisafepay'),
+                        'type' => 'text',
+                        'description' => __('Optional:overwrites the title of the payment method during checkout', 'multisafepay'),
+                        'css' => 'width: 300px;'
+                    ),
+                    'description' => array(
+                        'title' => __('Gateway Description', 'multisafepay'),
+                        'type' => 'text',
+                        'description' => __('This will be shown when selecting the gateway', 'multisafepay'),
+                        'css' => 'width: 300px;'
+                    ),
+                );
             }
 
             public function process_refund($order_id, $amount = null, $reason = '') {
@@ -129,34 +158,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 return false;
             }
 
-            public function GATEWAY_Forms() {
-                $this->form_fields = array(
-                    'stepone' => array(
-                        'title' => __('Gateway Setup', 'multisafepay'),
-                        'type' => 'title'
-                    ),
-                    'enabled' => array(
-                        'title' => __('Enable this gateway', 'multisafepay'),
-                        'type' => 'checkbox',
-                        'label' => __('Enable transaction by using this gateway', 'multisafepay'),
-                        'default' => 'yes',
-                        'description' => __('When enabled it will show on during checkout', 'multisafepay'),
-                    ),
-                    'pmtitle' => array(
-                        'title' => __('Title', 'multisafepay'),
-                        'type' => 'text',
-                        'description' => __('Optional:overwrites the title of the payment method during checkout', 'multisafepay'),
-                        'css' => 'width: 300px;'
-                    ),
-                    'description' => array(
-                        'title' => __('Gateway Description', 'multisafepay'),
-                        'type' => 'text',
-                        'description' => __('This will be shown when selecting the gateway', 'multisafepay'),
-                        'css' => 'width: 300px;'
-                    ),
-                );
-            }
-
             public function write_log($log) {
                 if (true === WP_DEBUG) {
                     if (is_array($log) || is_object($log)) {
@@ -186,6 +187,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $mailer = $woocommerce->mailer();
                     $email = $mailer->emails['WC_Email_New_Order'];
                     $email->trigger($order_id);
+
                     $mailer = $woocommerce->mailer();
                     $email = $mailer->emails['WC_Email_Customer_Processing_Order'];
                     $email->trigger($order_id);
@@ -194,6 +196,9 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $order = new WC_Order($order_id);
                 $language_locale = get_bloginfo('language');
                 $language_locale = str_replace('-', '_', $language_locale);
+
+                $paymentMethod = explode('_', $order->payment_method);
+                $gateway = strtoupper($paymentMethod[1]);
 
 
                 $html = '<ul>';
@@ -247,7 +252,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $msp->transaction['currency'] = get_woocommerce_currency();
                 $msp->transaction['amount'] = $order->get_total() * 100;
                 $msp->transaction['description'] = 'Order ' . __('#', '', 'multisafepay') . $ordernumber . ' : ' . get_bloginfo();
-                $msp->transaction['gateway'] = 'DIRECTBANK';
+                $msp->transaction['gateway'] = $gateway;
                 $msp->plugin_name = 'WooCommerce';
                 $msp->plugin['shop'] = 'WooCommerce';
                 $msp->plugin['shop_version'] = $woocommerce->version;
@@ -269,8 +274,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $this->write_log('MSP->End debug');
                     $this->write_log('--------------------------------------');
                 }
-
-
                 if (!isset($msp->error)) {
 
                     // Reduce stock levels
@@ -286,9 +289,9 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 }
             }
 
-            public static function MULTISAFEPAY_SOFORT_Add_Gateway($methods) {
+            public static function MULTISAFEPAY_EPS_Add_Gateway($methods) {
                 global $woocommerce;
-                $methods[] = 'WC_MULTISAFEPAY_SOFORT';
+                $methods[] = 'WC_MULTISAFEPAY_EPS';
 
                 return $methods;
             }
@@ -296,7 +299,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         }
 
         // Start 
-        new WC_MULTISAFEPAY_SOFORT();
+        new WC_MULTISAFEPAY_EPS();
     }
 
 }

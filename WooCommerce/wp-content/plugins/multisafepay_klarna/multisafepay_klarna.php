@@ -1,7 +1,7 @@
 <?php
 
 /*
-  Plugin Name: Multisafepay Betaal na Ontvangst
+  Plugin Name: Multisafepay Klarna
   Plugin URI: http://www.multisafepay.com
   Description: Multisafepay Payment Plugin
   Author: Multisafepay
@@ -18,14 +18,14 @@ if (!class_exists('MultiSafepay')) {
     require(realpath(dirname(__FILE__)) . '/../multisafepay/MultiSafepay.combined.php');
 }
 if (!function_exists('is_plugin_active_for_network'))
-require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+    require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins'))) || is_plugin_active_for_network('woocommerce/woocommerce.php')) {
-    add_action('plugins_loaded', 'WC_MULTISAFEPAY_PAYAFTER_Load', 0);
+    add_action('plugins_loaded', 'WC_MULTISAFEPAY_KLARNA_Load', 0);
 
-    function WC_MULTISAFEPAY_PAYAFTER_Load() {
+    function WC_MULTISAFEPAY_KLARNA_Load() {
 
-        class WC_MULTISAFEPAY_PAYAFTER extends WC_Payment_Gateway {
+        class WC_MULTISAFEPAY_KLARNA extends WC_Payment_Gateway {
 
             public function __construct() {
                 global $woocommerce;
@@ -33,10 +33,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->init_settings();
                 $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
 
-                $this->id = "multisafepay_payafter";
+                $this->id = "multisafepay_klarna";
 
                 $this->has_fields = false;
-                $this->paymentMethodCode = "PAYAFTER";
+                $this->paymentMethodCode = "KLARNA";
                 $this->supports = array(
                     /* 'subscriptions',
                       'products',
@@ -52,17 +52,20 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 );
                 add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
                 add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
-                add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_PAYAFTER', 'MULTISAFEPAY_PAYAFTER_Add_Gateway'));
-                add_filter('woocommerce_available_payment_gateways', 'payafter_filter_gateways', 1);
+                add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_KLARNA', 'MULTISAFEPAY_KLARNA_Add_Gateway'));
+                add_filter('woocommerce_available_payment_gateways', 'klarna_filter_gateways', 1);
 
                 $output = '';
-                $output = '<p class="form-row form-row-wide  validate-required"><label for="birthday" class="">' . __('Geboortedatum', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_birthday" id="birthday" placeholder="dd-mm-yyyy"/>
+                $output = '<p class="form-row form-row-wide  validate-required"><label for="birthday" class="">' . __('Geboortedatum', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="KLARNA_birthday" id="birthday" placeholder="dd-mm-yyyy"/>
 				</p><div class="clear"></div>';
 
-                $output .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">' . __('Rekeningnummer', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_account" id="account" placeholder=""/>
+                /* $output .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">' . __('Rekeningnummer', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="KLARNA_account" id="account" placeholder=""/>
+                  </p><div class="clear"></div>'; */
+
+                $output .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">' . __('Geslacht', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="radio" name="KLARNA_gender" id="gender" value="male"/> Man <input type="radio" name="KLARNA_gender" id="gender" value="female"/> Vrouw
 				</p><div class="clear"></div>';
 
-                $output .= '<p class="form-row form-row-wide">' . __('Met het uitvoeren van deze bestelling gaat u akkoord met de ', 'multisafepay') . '<a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">voorwaarden van MultiFactor.</a>';
+                //$output .= '<p class="form-row form-row-wide">' . __('Met het uitvoeren van deze bestelling gaat u akkoord met de ', 'multisafepay') . '<a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">voorwaarden van MultiFactor.</a>';
 
                 if (file_exists(dirname(__FILE__) . '/images/' . $this->paymentMethodCode . '.png')) {
                     $this->icon = apply_filters('woocommerce_multisafepay_icon', plugins_url('images/' . $this->paymentMethodCode . '.png', __FILE__));
@@ -75,11 +78,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $this->title = $this->settings['pmtitle'];
                     $this->method_title = $this->settings['pmtitle'];
                 } else {
-                    $this->title = "Betaal na Ontvangst";
-                    $this->method_title = "Betaal na Ontvangst";
+                    $this->title = "Klarna Factuur";
+                    $this->method_title = "Klarna Factuur";
                 }
 
-                $this->PAYAFTER_Forms();
+                $this->KLARNA_Forms();
 
 
                 if (isset($this->settings['description'])) {
@@ -101,14 +104,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 }
             }
 
-            public function PAYAFTER_Forms() {
+            public function KLARNA_Forms() {
                 $this->form_fields = array(
                     'stepone' => array(
-                        'title' => __('Set-up Pay after Delivery configuration', 'multisafepay'),
+                        'title' => __('Set-up Klarna configuration', 'multisafepay'),
                         'type' => 'title'
                     ),
                     'enabled' => array(
-                        'title' => __('Enable Pay after Delivery', 'multisafepay'),
+                        'title' => __('Enable Klarna', 'multisafepay'),
                         'type' => 'checkbox',
                         'label' => __('Enable Multisafepay for processing transactions', 'multisafepay'),
                         'default' => 'yes',
@@ -123,13 +126,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     'minamount' => array(
                         'title' => __('Minimal order amount', 'multisafepay'),
                         'type' => 'text',
-                        'description' => __('The minimal amount for an order to show Pay After Delivery', 'multisafepay'),
+                        'description' => __('The minimal amount for an order to show Klarna', 'multisafepay'),
                         'css' => 'width: 300px;'
                     ),
                     'maxamount' => array(
                         'title' => __('Max order amount', 'multisafepay'),
                         'type' => 'text',
-                        'description' => __('The max order amount for an order to show Pay After Delivery', 'multisafepay'),
+                        'description' => __('The max order amount for an order to show Klarna', 'multisafepay'),
                         'css' => 'width: 300px;'
                     ),
                     'description' => array(
@@ -170,7 +173,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $refundData['checkout_data']['items'];
 
                 foreach ($originalCart->items as $key => $item) {
-                    if ($item->quantity > 0) {
+                    if ($item->unit_price > 0) {
                         $refundData['checkout_data']['items'][] = $item;
                     }
                     foreach ($products as $key => $product) {
@@ -179,12 +182,12 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         if ($product_id == $item->merchant_item_id) {
                             $qty_refunded = $order->get_qty_refunded_for_item($key);
                             if ($qty_refunded > 0) {
-                                if ($item->quantity > 0) {
+                                if ($item->unit_price > 0) {
                                     $refundItem = (OBJECT) Array();
                                     $refundItem->name = $item->name;
                                     $refundItem->description = $item->description;
-                                    $refundItem->unit_price = $item->unit_price;
-                                    $refundItem->quantity = '-'.$qty_refunded;
+                                    $refundItem->unit_price = '-' . $item->unit_price;
+                                    $refundItem->quantity = $qty_refunded;
                                     $refuntItem->merchant_item_id = $item->merchant_item_id;
                                     $refundItem->tax_table_selector = $item->tax_table_selector;
                                     $refundData['checkout_data']['items'][] = $refundItem;
@@ -291,15 +294,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $msp->customer['country'] = $order->billing_country;
                 $msp->customer['state'] = $order->billing_state;
                 $msp->parseCustomerAddress($order->billing_address_1);
+
                 if ($msp->customer['housenumber'] == '') {
                     $msp->customer['housenumber'] = $order->billing_address_2;
                 }
-                if (isset($_SERVER['HTTP_REFERER'])) {
-                    $msp->customer['referrer'] = $_SERVER['HTTP_REFERER'];
-                }
-                if (isset($_SERVER['HTTP_USER_AGENT'])) {
-                    $msp->customer['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
-                }
+
                 $msp->transaction['id'] = $ordernumber; //$order_id; 
                 $msp->transaction['currency'] = get_woocommerce_currency();
                 $msp->transaction['amount'] = $order->get_total() * 100;
@@ -314,15 +313,17 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $msp->transaction['items'] = $html;
                 $msp->transaction['var1'] = $order->order_key;
                 $msp->transaction['var2'] = $order_id;
-                $issuerName = sprintf('%s_issuer', $paymentMethod[1]);
+                //$issuerName = sprintf('%s_issuer', $paymentMethod[1]);
 
 
-                if ($_POST['PAYAFTER_birthday'] != '' && $_POST['PAYAFTER_account'] != '' && $order->billing_phone != '' && $order->billing_email != '') {
-                    $msp->transaction['special'] = true;
-                    $msp->gatewayinfo['birthday'] = $_POST['PAYAFTER_birthday'];
-                    $msp->customer['birthday'] = $_POST['PAYAFTER_birthday'];
-                    $msp->gatewayinfo['bankaccount'] = $_POST['PAYAFTER_account'];
-                    $msp->customer['bankaccount'] = $_POST['PAYAFTER_account'];
+                if ($_POST['KLARNA_birthday'] != '' && $order->billing_phone != '' && $order->billing_email != '') {
+                    $msp->transaction['special'] = false;
+                    $msp->gatewayinfo['birthday'] = $_POST['KLARNA_birthday'];
+                    $msp->customer['birthday'] = $_POST['KLARNA_birthday'];
+                    //$msp->gatewayinfo['bankaccount'] = $_POST['KLARNA_account'];
+                    //$msp->customer['bankaccount'] = $_POST['KLARNA_account'];
+                    $msp->customer['gender'] = $_POST['KLARNA_gender'];
+                    $msp->gatewayinfo['gender'] = $_POST['KLARNA_gender'];
                     $msp->gatewayinfo['email'] = $order->billing_email;
                     $msp->gatewayinfo['phone'] = $order->billing_phone;
                 }
@@ -363,7 +364,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 if ($order->order_shipping > 0) {
                     $c_item = new MspItem('Shipping' . " " . get_woocommerce_currency(), 'Shipping', '1', $order->order_shipping, '0', '0');
                     $msp->cart->AddItem($c_item);
-                    $c_item->SetMerchantItemId('Shipping');
+                    $c_item->SetMerchantItemId('msp-shipping');
                     if ($order->order_shipping_tax > 0) {
                         $c_item->SetTaxTableSelector('shipping_tax');
                     } else {
@@ -421,7 +422,9 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 
                 $url = $msp->startCheckout();
-                if ($debug) {
+
+
+                if (TRUE) {
                     $this->write_log('MSP->transactiondata');
                     $this->write_log($msp);
                     $this->write_log('MSP->transaction URL');
@@ -434,6 +437,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 if (!$msp->error and $url == false) {
                     $url = $msp->merchant['redirect_url'] . '?transactionid=' . $order_id;
                 }
+                
+   
 
                 if (!isset($msp->error)) {
 
@@ -445,17 +450,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'redirect' => $url
                     );
                 } else {
-                    if ($msp->error_code == '1024') {
-					 	wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error_code.': '.__('We are sorry to inform you that your request for payment after delivery has been denied by Multifactor.<BR /> If you have questions about this rejection, you can checkout the FAQ on the website of Multifactor ', 'multisafepay').'<a href="http://www.multifactor.nl/contact" target="_blank">http://www.multifactor.nl/faq</a>'.__(' You can also contact Multifactor by calling 020-8500533 (at least 2 hours after this rejection) or by sending an email to ', 'multisafepay').' <a href="mailto:support@multifactor.nl">support@multifactor.nl</a>.'.__(' Please retry placing your order and select a different payment method.', 'multisafepay'), 'error');
-					 } else {
-					 	wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error');
-            		}
+                    //$woocommerce->add_error(__('Payment error:', 'multisafepay') . ' ' . $msp->error);
+                    wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error');
                 }
             }
 
-            public static function MULTISAFEPAY_PAYAFTER_Add_Gateway($methods) {
+            public static function MULTISAFEPAY_KLARNA_Add_Gateway($methods) {
                 global $woocommerce;
-                $methods[] = 'WC_MULTISAFEPAY_PAYAFTER';
+                $methods[] = 'WC_MULTISAFEPAY_KLARNA';
 
                 return $methods;
             }
@@ -463,22 +465,18 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         }
 
         // Start 
-        new WC_MULTISAFEPAY_PAYAFTER();
+        new WC_MULTISAFEPAY_KLARNA();
     }
 
-    function payafter_filter_gateways($gateways) {
+    function klarna_filter_gateways($gateways) {
         global $woocommerce;
-        $settings = $gateways['MULTISAFEPAY_PAYAFTER']->settings;
+        $settings = $gateways['MULTISAFEPAY_KLARNA']->settings;
 
-
-       if(!empty($settings['minamount'])){
+		
+		if(!empty($settings['minamount'])){
         	if ($woocommerce->cart->total > $settings['maxamount'] || $woocommerce->cart->total < $settings['minamount']) {
-            unset($gateways['MULTISAFEPAY_PAYAFTER']);
-        }
-       }
-
-        if ($woocommerce->customer->get_country() != 'NL') {
-            unset($gateways['MULTISAFEPAY_PAYAFTER']);
+        	    unset($gateways['MULTISAFEPAY_KLARNA']);
+        	}
         }
 
         return $gateways;
