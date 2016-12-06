@@ -6,7 +6,7 @@
   Description: Multisafepay Payment Plugin
   Author: Multisafepay
   Author URI:http://www.multisafepay.com
-  Version: 2.2.4
+  Version: 3.0.0
 
   Copyright: � 2012 Multisafepay(email : techsupport@multisafepay.com)
   License: GNU General Public License v3.0
@@ -60,31 +60,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 $this->settings = (array) get_option("woocommerce_{$this->id}_settings");
 
-                if (!empty($this->settings['pmtitle'])) {
-                    $this->title        = $this->settings['pmtitle'];
-                    $this->method_title = $this->settings['pmtitle'];
-                } else {
-                    $this->title        = $this->paymentMethodCode;
-                    $this->method_title = $this->paymentMethodCode;
-                }
+                $this->title        = !empty($this->settings['pmtitle']) ? $this->settings['pmtitle'] : $this->paymentMethodCode;
+                $this->method_title = $this->title;
 
                 parent::GATEWAY_Forms();
 
-                if (isset($this->settings['description'])) {
-                    if ($this->settings['description'] != '') {
-                        $this->description = $this->settings['description'];
-                    }
-                }
+                $this->description = $this->settings['description'];
+                $this->enabled     = $this->settings['enabled'] == 'yes' ? 'yes': 'no';
 
-                if (isset($this->settings['enabled'])) {
-                    if ($this->settings['enabled'] == 'yes') {
-                        $this->enabled = 'yes';
-                    } else {
-                        $this->enabled = 'no';
-                    }
-                } else {
-                    $this->enabled = 'no';
-                }
             }
 
             public function payment_fields() {

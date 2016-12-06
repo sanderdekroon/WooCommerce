@@ -1,13 +1,13 @@
 <?php
 
 /*
-  Plugin Name: Multisafepay Visa
+  Plugin Name: Multisafepay PayPal
   Plugin URI: http://www.multisafepay.com
   Description: Multisafepay Payment Plugin
   Author: Multisafepay
   Author URI:http://www.multisafepay.com
   Version: 3.0.0
-  
+
   Copyright: � 2012 Multisafepay(email : techsupport@multisafepay.com)
   License: GNU General Public License v3.0
   License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -19,11 +19,11 @@ if (!function_exists('is_plugin_active_for_network'))
     require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins'))) || is_plugin_active_for_network('woocommerce/woocommerce.php')) {
-    add_action('plugins_loaded', 'WC_MULTISAFEPAY_VISA_Load', 0);
+    add_action('plugins_loaded', 'WC_MULTISAFEPAY_PAYPAL_Load', 0);
 
-    function WC_MULTISAFEPAY_VISA_Load() {
+    function WC_MULTISAFEPAY_PAYPAL_Load() {
 
-        class WC_MULTISAFEPAY_VISA extends WC_MULTISAFEPAY {
+        class WC_MULTISAFEPAY_PAYPAL extends WC_MULTISAFEPAY {
 
             public function __construct() {
                 global $woocommerce;
@@ -31,8 +31,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->multisafepay_settings = (array) get_option('woocommerce_multisafepay_settings');
                 $this->debug    = parent::getDebugMode ($this->multisafepay_settings['debug']);
 
-                $this->id                   = "multisafepay_visa";
-                $this->paymentMethodCode    = "Visa";
+                $this->id                   = "multisafepay_paypal";
+                $this->paymentMethodCode    = "PayPal";
                 $this->has_fields           = false;
                 $this->supports             = array(
                                                 /* 'subscriptions',
@@ -45,13 +45,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                                                   'subscription_date_changes',
                                                   'default_credit_card_form',
                                                   'pre-orders'
-                                                */                      
+                                                */
                                                 'refunds',
                                                 );
-                                              
+
                 add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
                 add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
-                add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_VISA', 'MULTISAFEPAY_VISA_Add_Gateway'));
+                add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_PAYPAL', 'MULTISAFEPAY_PAYPAL_Add_Gateway'));
 
                 if (file_exists(dirname(__FILE__) . '/images/' . $this->paymentMethodCode . '.png')) {
                     $this->icon = apply_filters('woocommerce_multisafepay_icon', plugins_url('images/' . $this->paymentMethodCode . '.png', __FILE__));
@@ -75,17 +75,16 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 return parent::process_payment($order_id);
             }
 
-            public static function MULTISAFEPAY_VISA_Add_Gateway($methods) {
+            public static function MULTISAFEPAY_PAYPAL_Add_Gateway($methods) {
                 global $woocommerce;
-                $methods[] = 'WC_MULTISAFEPAY_VISA';
+                $methods[] = 'WC_MULTISAFEPAY_PAYPAL';
 
                 return $methods;
             }
-
         }
 
-        // Start 
-        new WC_MULTISAFEPAY_VISA();
+        // Start
+        new WC_MULTISAFEPAY_PAYPAL();
     }
 
 }
