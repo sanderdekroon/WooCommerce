@@ -32,189 +32,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
     function WC_MULTISAFEPAY_Load() {
 
-        class WC_MULTISAFEPAY_Paymentmethod extends WC_Payment_Gateway {
-            public function __construct() {
-                global $woocommerce;
-                $gateway_info = array(
-                    'BABYGIFTCARD'              => 'Baby giftcard',
-                    'BOEKENBON'                 => 'Boekenbon',
-                    'VVVBON'                    => 'VVV Bon',
-                    'EROTIEKBON'                => 'Erotiekbon',
-                    'FIJNCADEAU'                => 'Fijncadeau',
-                    'PARFUMCADEAUKAART'         => 'Parfum cadeaukaart',
-                    'WEBSHOPGIFTCARD'           => 'Webshop giftcard',
-                    'FASHIONCHEQUE'             => 'Fashion Cheque',
-                    'GEZONDHEIDSBON'            => 'Gezondheidsbon',
-                    'LIEF'                      => 'Lief cadeaukaart',
-                    'GOODCARD'                  => 'GoodCard',
-                    'WIJNCADEAU'                => 'WijnCadeau',
-                    'FASHIONGIFTCARD'           => 'Fashion Giftcard',
-                    'PODIUM'                    => 'Podium Cadeaukaart',
-                    'SPORTENFIT'                => 'Sport en Fit',
-                    'YOURGIFT'                  => 'Yourgift',
-                    'NATIONALETUINBON'          => 'Nationale tuinbon',
-                    'NATIONALEVERWENCADEAUBON'  => 'Nationale verwencadeaubon',
-                    'BEAUTYANDWELLNESS'         => 'Beauty and wellness',
-                    'FIETSBON'                  => 'Fietsbon',
-                    'WELLNESS-GIFTCARD'         => 'Wellness giftcard',
-                    'WINKELCHEQUE'              => 'Winkelcheque',
-                    'GIVACARD'                  => 'Givacard',
-                    'BODYBUILDINGKLEDING'       => 'Bodybuildkleding',
-                );
-                $gateway_codes = array(
-                    '0'  => 'BABYGIFTCARD',
-                    '1'  => 'BOEKENBON',
-                    '2'  => 'VVVBON',
-                    '3'  => 'EROTIEKBON',
-                    '4'  => 'FIJNCADEAU',
-                    '5'  => 'PARFUMCADEAUKAART',
-                    '6'  => 'WEBSHOPGIFTCARD',
-                    '7'  => 'FASHIONCHEQUE',
-                    '8'  => 'GEZONDHEIDSBON',
-                    '9'  => 'LIEF',
-                    '10' => 'GOODCARD',
-                    '11' => 'WIJNCADEAU',
-                    '12' => 'FASHIONGIFTCARD',
-                    '13' => 'PODIUM',
-                    '14' => 'SPORTENFIT',
-                    '15' => 'YOURGIFT',
-                    '16' => 'NATIONALETUINBON',
-                    '17' => 'NATIONALEVERWENCADEAUBON',
-                    '18' => 'BEAUTYANDWELLNESS',
-                    '19' => 'FIETSBON',
-                    '20' => 'WELLNESS-GIFTCARD',
-                    '21' => 'WINKELCHEQUE',
-                    '22' => 'GIVACARD',
-                    '23' => 'BODYBUILDINGKLEDING',
-                );
-
-                $this->init_settings();
-                $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
-                $this->id = "multisafepay_" . strtolower($gateway_codes[$this->pmCode]);
-                $this->has_fields = false;
-                $this->paymentMethodCode = $gateway_codes[$this->pmCode];
-                $this->supports = array(
-                    /* 'subscriptions',
-                      'products',
-                      'subscription_cancellation',
-                      'subscription_reactivation',
-                      'subscription_suspension',
-                      'subscription_amount_changes',
-                      'subscription_payment_method_change',
-                      'subscription_date_changes',
-                      'default_credit_card_form', */
-                    'refunds',
-                        //'pre-orders'
-                );
-
-
-                add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
-                add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
-
-                $output = '';
-
-                if (file_exists(dirname(__FILE__) . '/images/' . $this->paymentMethodCode . '.png')) {
-                    $this->icon = apply_filters('woocommerce_multisafepay_icon', plugins_url('images/' . $this->paymentMethodCode . '.png', __FILE__));
-                } else {
-                    $this->icon = '';
-                }
-
-                $this->settings = (array) get_option("woocommerce_{$this->id}_settings");
-
-                if (!empty($this->settings['pmtitle'])) {
-                    $this->title = $this->settings['pmtitle'];
-                    $this->method_title = $this->settings['pmtitle'];
-                } else {
-                    $this->title = $gateway_info[$gateway_codes[$this->pmCode]];
-                    $this->method_title = $gateway_info[$gateway_codes[$this->pmCode]];
-                }
-
-                $this->GATEWAY_Forms();
-
-                if (isset($this->settings['description'])) {
-                    if ($this->settings['description'] != '') {
-                        $this->description = $this->settings['description'];
-                    }
-                }
-                $this->description .= $output;
-
-
-                if (isset($this->settings['enabled'])) {
-                    if ($this->settings['enabled'] == 'yes') {
-                        $this->enabled = 'yes';
-                    } else {
-                        $this->enabled = 'no';
-                    }
-                } else {
-                    $this->enabled = 'no';
-                }
-            }
-
-            public function GATEWAY_Forms() {
-                $this->form_fields = array(
-                    'stepone' => array(
-                        'title' => __('Gateway Setup', 'multisafepay'),
-                        'type' => 'title'
-                    ),
-                    'enabled' => array(
-                        'title' => __('Enable this gateway', 'multisafepay'),
-                        'type' => 'checkbox',
-                        'label' => __('Enable transaction by using this gateway', 'multisafepay'),
-                        'default' => 'yes',
-                        'description' => __('When enabled it will show on during checkout', 'multisafepay'),
-                    ),
-                    'pmtitle' => array(
-                        'title' => __('Title', 'multisafepay'),
-                        'type' => 'text',
-                        'description' => __('Optional:overwrites the title of the payment method during checkout', 'multisafepay'),
-                        'css' => 'width: 300px;'
-                    ),
-                    'description' => array(
-                        'title' => __('Gateway Description', 'multisafepay'),
-                        'type' => 'text',
-                        'description' => __('This will be shown when selecting the gateway', 'multisafepay'),
-                        'css' => 'width: 300px;'
-                    ),
-                );
-            }
-            
-            public function process_payment($order_id) {
-
-                $this->type = 'redirect';
-                $this->gatewayInfo = '';
-              
-                $paymentMethod = explode('_', $order->payment_method);
-                $this->gateway = strtoupper($paymentMethod[1]);
-
-                return parent::process_payment($order_id);                
-            }
-        }
-
-        class WC_MULTISAFEPAY_Paymentmethod_0  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 0;  }
-        class WC_MULTISAFEPAY_Paymentmethod_1  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 1;  }
-        class WC_MULTISAFEPAY_Paymentmethod_2  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 2;  }
-        class WC_MULTISAFEPAY_Paymentmethod_3  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 3;  }
-        class WC_MULTISAFEPAY_Paymentmethod_4  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 4;  }
-        class WC_MULTISAFEPAY_Paymentmethod_5  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 5;  }
-        class WC_MULTISAFEPAY_Paymentmethod_6  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 6;  }
-        class WC_MULTISAFEPAY_Paymentmethod_7  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 7;  }
-        class WC_MULTISAFEPAY_Paymentmethod_8  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 8;  }
-        class WC_MULTISAFEPAY_Paymentmethod_9  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 9;  }
-        class WC_MULTISAFEPAY_Paymentmethod_10 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 10; }
-        class WC_MULTISAFEPAY_Paymentmethod_11 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 11; }
-        class WC_MULTISAFEPAY_Paymentmethod_12 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 12; }
-        class WC_MULTISAFEPAY_Paymentmethod_13 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 13; }
-        class WC_MULTISAFEPAY_Paymentmethod_14 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 14; }
-        class WC_MULTISAFEPAY_Paymentmethod_15 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 15; }
-        class WC_MULTISAFEPAY_Paymentmethod_16 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 16; }
-        class WC_MULTISAFEPAY_Paymentmethod_17 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 17; }
-        class WC_MULTISAFEPAY_Paymentmethod_18 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 18; }
-        class WC_MULTISAFEPAY_Paymentmethod_19 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 19; }
-        class WC_MULTISAFEPAY_Paymentmethod_20 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 20; }
-        class WC_MULTISAFEPAY_Paymentmethod_21 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 21; }
-        class WC_MULTISAFEPAY_Paymentmethod_22 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 22; }
-        class WC_MULTISAFEPAY_Paymentmethod_23 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 23; }
-
         class WC_MULTISAFEPAY extends WC_Payment_Gateway {
 
             public function install() {
@@ -239,14 +56,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
                 $woocommerce_tables = "
-			CREATE TABLE {$wpdb->prefix}woocommerce_multisafepay (
-	 		 id bigint(20) NOT NULL auto_increment,
-	  		trixid varchar(200) NOT NULL,
-	  		orderid varchar(200) NOT NULL,
-	  		status varchar(200) NOT NULL,
-	  		PRIMARY KEY  (id)
-			) $collate;
-			";
+                    CREATE TABLE {$wpdb->prefix}woocommerce_multisafepay (
+                            id      bigint(20)   NOT NULL auto_increment,
+                            trixid  varchar(200) NOT NULL,
+                            orderid varchar(200) NOT NULL,
+                            status  varchar(200) NOT NULL,
+                            PRIMARY KEY  (id)
+                        ) $collate;
+                    ";
                 dbDelta($woocommerce_tables);
             }
 
@@ -313,6 +130,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->settings['notifyurl'] = sprintf('%s/index.php?page=multisafepaynotify', get_option('siteurl'));
             }
 
+ 
  function setToShipped($order_id) {
                 $order = new WC_Order($order_id);
                 $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
@@ -523,14 +341,16 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     echo '</div>';
                 }
             }
-
+           
+            
             public function MULTISAFEPAY_Form() {
                 $this->form_fields = array(
+
                     'apikey' => array(
                         'title'         => __('API Key', 'multisafepay'),
                         'type'          => 'text',
                         'description'   => __('Copy the API-Key from your MultiSafepay account', 'multisafepay'),
-                        'desc_tip'      => true,
+                        'desc_tip'      => false,
                         'css'           => 'width: 300px;'
                     ),
 
@@ -540,7 +360,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'label'         => __(' ', 'multisafepay'),
                         'default'       => 'yes',
                         'description'   => __('Use Live-account the API-Key is from your MultiSafepay LIVE-account.<br/>Use Test -account if the API-Key is from your MultiSafepay TEST-account.', 'multisafepay'),
-                        'desc_tip'      => true,
+                        'desc_tip'      => false,
                     ),
 
                     'enabled' => array(
@@ -549,14 +369,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'label'         => __(' ', 'multisafepay'),
                         'default'       => 'no',
                         'description'   => __('Only enable if you want to select the payment method on the website from Multisafepay instead of youre own chackout page.', 'multisafepay'),
-                        'desc_tip'      => true,
+                        'desc_tip'      => false,
                     ),
 
                     'pmtitle' => array(
                         'title'         => __('Title', 'multisafepay'),
                         'type'          => 'text',
                         'description'   => __('Optional:overwrites the title of the payment method during checkout', 'multisafepay'),
-                        'desc_tip'      => true,
+                        'desc_tip'      => false,
                         'css'           => 'width: 300px;'
                     ),
 
@@ -565,7 +385,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'type'          => 'text',
                         'description'   => __('This will be shown when selecting the gateway', 'multisafepay'),
                         'css'           => 'width: 300px;',
-                        'desc_tip'      => true,
+                        'desc_tip'      => false,
                     ),
 
               
@@ -573,7 +393,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'title'         => __('Time an order stays active', 'multisafepay'),
                         'type'          => 'text',
                         'description'   => __('Time before unfinished order is set to expired', 'multisafepay'),
-                        'desc_tip'      => true,
+                        'desc_tip'      => false,
                         'css'           => 'width: 50px;'
                     ),
 
@@ -594,7 +414,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'label'         => __(' ', 'multisafepay'),
                         'default'       => 'yes',
                         'description'   => __('The invoice will be sent when a transaction is completed', 'multisafepay'),
-                        'desc_tip'      => true,
+                        'desc_tip'      => false,
                     ),
                     
                     'send_confirmation' => array(
@@ -603,7 +423,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'label'         => __(' ', 'multisafepay'),
                         'default'       => 'yes',
                         'description'   => __('Select this to sent the order confirmation before the transaction', 'multisafepay'),
-                        'desc_tip'      => true,
+                        'desc_tip'      => false,
                     ),
                     
                     'gateways' => array(
@@ -612,7 +432,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'label'         => __(' ', 'multisafepay'),
                         'default'       => 'yes',
                         'description'   => __('This will enable the coupons available within your MultiSafepay account', 'multisafepay'),
-                        'desc_tip'      => true,
+                        'desc_tip'      => false,
                     ),
                     'enablefco' => array(
                         'title'         => __('FastCheckout', 'multisafepay'),
@@ -620,7 +440,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'label'         => __(' ', 'multisafepay'),
                         'default'       => 'yes',
                         'description'   => __('This will enable the FastCheckout button in checkout', 'multisafepay'),
-                        'desc_tip'      => true,
+                        'desc_tip'      => false,
                     ),
                     
                     'debug' => array(
@@ -629,19 +449,44 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'label'         => __(' ', 'multisafepay'),
                         'default'       => 'yes',
                         'description'   => __('When enabled (and wordpress debug is enabled it will log transactions)', 'multisafepay'),
-                        'desc_tip'      => true,
+                        'desc_tip'      => false,
                     ),
 
                     'notifyurl' => array(
                         'title'         => __('Notification url', 'multisafepay'),
                         'type'          => 'text',
                         'description'   => __('Copy&Paste this URL to your website configuration Notification-URL at your Multisafepay dashboard.', 'multisafepay'),
-                        'desc_tip'      => true,
+                        'desc_tip'      => false,
                         'css'           => 'width: 800px;',
                     ),                    
                 );
             }
 				
+            public function GATEWAY_Forms() {
+                $this->form_fields = array(
+                    'enabled' => array(
+                        'title' => __('Enable this gateway', 'multisafepay'),
+                        'type' => 'checkbox',
+                        'label' => __('Enable transaction by using this gateway', 'multisafepay'),
+                        'default' => 'no',
+                        'description' => __('When enabled it will show on during checkout', 'multisafepay'),
+                    ),
+                    'pmtitle' => array(
+                        'title' => __('Title', 'multisafepay'),
+                        'type' => 'text',
+                        'description' => __('Optional:overwrites the title of the payment method during checkout', 'multisafepay'),
+                        'css' => 'width: 300px;'
+                    ),
+                    'description' => array(
+                        'title' => __('Gateway Description', 'multisafepay'),
+                        'type' => 'text',
+                        'description' => __('This will be shown when selecting the gateway', 'multisafepay'),
+                        'css' => 'width: 300px;'
+                    ),
+                );
+            }
+            
+
             public function write_log($log) {
                 if (true === WP_DEBUG) {
                     if (is_array($log) || is_object($log))
@@ -657,7 +502,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 $settings = (array) get_option('woocommerce_multisafepay_settings');
                 $debug = $this->getDebugMode ($settings['debug']);
-                
+
                 if ($debug)
                     $this->write_log('MSP->Process payment start.');
                 
@@ -746,7 +591,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 }
             }
 
-            
             public function Multisafepay_Response() {
                 global $wpdb, $wp_version, $woocommerce;
 
@@ -1537,46 +1381,203 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 global $woocommerce;
                 $methods[] = 'WC_MULTISAFEPAY';
                 $settings = (array) get_option('woocommerce_multisafepay_settings');
-                if (isset($settings['gateways'])) {
-                    if ($settings['gateways'] == 'yes') {
-                        $gateway_codes = array(
-                            '0' => 'BABYGIFTCARD',
-                            '1' => 'BOEKENBON',
-                            '2' => 'VVVBON',
-                            '3' => 'EROTIEKBON',
-                            '4' => 'FIJNCADEAU',
-                            '5' => 'PARFUMCADEAUKAART',
-                            '6' => 'WEBSHOPGIFTCARD',
-                            '7' => 'FASHIONCHEQUE',
-                            '8' => 'GEZONDHEIDSBON',
-                            '9' => 'LIEF',
-                            '10' => 'GOODCARD',
-                            '11' => 'WIJNCADEAU',
-                            '12' => 'FASHIONGIFTCARD',
-                            '13' => 'PODIUM',
-                            '14' => 'SPORTENFIT',
-                            '15' => 'YOURGIFT',
-                            '16' => 'NATIONALETUINBON',
-                            '17' => 'NATIONALEVERWENCADEAUBON',
-                            '18' => 'BEAUTYANDWELLNESS',
-                            '19' => 'FIETSBON',
-                            '20' => 'WELLNESS-GIFTCARD',
-                            '21' => 'WINKELCHEQUE',
-                            '22' => 'GIVACARD',
-                            '23' => 'BODYBUILDINGKLEDING',
-                        );
+                if ($settings['gateways'] == 'yes') {
+                    $gateway_codes = array(
+                        '0' => 'BABYGIFTCARD',
+                        '1' => 'BOEKENBON',
+                        '2' => 'VVVBON',
+                        '3' => 'EROTIEKBON',
+                        '4' => 'FIJNCADEAU',
+                        '5' => 'PARFUMCADEAUKAART',
+                        '6' => 'WEBSHOPGIFTCARD',
+                        '7' => 'FASHIONCHEQUE',
+                        '8' => 'GEZONDHEIDSBON',
+                        '9' => 'LIEF',
+                        '10' => 'GOODCARD',
+                        '11' => 'WIJNCADEAU',
+                        '12' => 'FASHIONGIFTCARD',
+                        '13' => 'PODIUM',
+                        '14' => 'SPORTENFIT',
+                        '15' => 'YOURGIFT',
+                        '16' => 'NATIONALETUINBON',
+                        '17' => 'NATIONALEVERWENCADEAUBON',
+                        '18' => 'BEAUTYANDWELLNESS',
+                        '19' => 'FIETSBON',
+                        '20' => 'WELLNESS-GIFTCARD',
+                        '21' => 'WINKELCHEQUE',
+                        '22' => 'GIVACARD',
+                        '23' => 'BODYBUILDINGKLEDING',
+                    );
 
-                        $i = 0;
-                        foreach ($gateway_codes as $pm) {
-                            $methods[] = "WC_MULTISAFEPAY_Paymentmethod_{$i}";
-                            $i++;
-                        }
+                    $i = 0;
+                    foreach ($gateway_codes as $pm) {
+                        $methods[] = "WC_MULTISAFEPAY_Paymentmethod_{$i}";
+                        $i++;
                     }
                 }
                 return $methods;
             }
 
         }
+
+        class WC_MULTISAFEPAY_Paymentmethod extends WC_MULTISAFEPAY {
+            public function __construct() {
+                global $woocommerce;
+                $gateway_info = array(
+                    'BABYGIFTCARD'              => 'Baby giftcard',
+                    'BOEKENBON'                 => 'Boekenbon',
+                    'VVVBON'                    => 'VVV Bon',
+                    'EROTIEKBON'                => 'Erotiekbon',
+                    'FIJNCADEAU'                => 'Fijncadeau',
+                    'PARFUMCADEAUKAART'         => 'Parfum cadeaukaart',
+                    'WEBSHOPGIFTCARD'           => 'Webshop giftcard',
+                    'FASHIONCHEQUE'             => 'Fashion Cheque',
+                    'GEZONDHEIDSBON'            => 'Gezondheidsbon',
+                    'LIEF'                      => 'Lief cadeaukaart',
+                    'GOODCARD'                  => 'GoodCard',
+                    'WIJNCADEAU'                => 'WijnCadeau',
+                    'FASHIONGIFTCARD'           => 'Fashion Giftcard',
+                    'PODIUM'                    => 'Podium Cadeaukaart',
+                    'SPORTENFIT'                => 'Sport en Fit',
+                    'YOURGIFT'                  => 'Yourgift',
+                    'NATIONALETUINBON'          => 'Nationale tuinbon',
+                    'NATIONALEVERWENCADEAUBON'  => 'Nationale verwencadeaubon',
+                    'BEAUTYANDWELLNESS'         => 'Beauty and wellness',
+                    'FIETSBON'                  => 'Fietsbon',
+                    'WELLNESS-GIFTCARD'         => 'Wellness giftcard',
+                    'WINKELCHEQUE'              => 'Winkelcheque',
+                    'GIVACARD'                  => 'Givacard',
+                    'BODYBUILDINGKLEDING'       => 'Bodybuildkleding',
+                );
+                $gateway_codes = array(
+                    '0'  => 'BABYGIFTCARD',
+                    '1'  => 'BOEKENBON',
+                    '2'  => 'VVVBON',
+                    '3'  => 'EROTIEKBON',
+                    '4'  => 'FIJNCADEAU',
+                    '5'  => 'PARFUMCADEAUKAART',
+                    '6'  => 'WEBSHOPGIFTCARD',
+                    '7'  => 'FASHIONCHEQUE',
+                    '8'  => 'GEZONDHEIDSBON',
+                    '9'  => 'LIEF',
+                    '10' => 'GOODCARD',
+                    '11' => 'WIJNCADEAU',
+                    '12' => 'FASHIONGIFTCARD',
+                    '13' => 'PODIUM',
+                    '14' => 'SPORTENFIT',
+                    '15' => 'YOURGIFT',
+                    '16' => 'NATIONALETUINBON',
+                    '17' => 'NATIONALEVERWENCADEAUBON',
+                    '18' => 'BEAUTYANDWELLNESS',
+                    '19' => 'FIETSBON',
+                    '20' => 'WELLNESS-GIFTCARD',
+                    '21' => 'WINKELCHEQUE',
+                    '22' => 'GIVACARD',
+                    '23' => 'BODYBUILDINGKLEDING',
+                );
+
+                $this->init_settings();
+                $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
+                $this->id = "multisafepay_" . strtolower($gateway_codes[$this->pmCode]);
+                $this->has_fields = false;
+                $this->paymentMethodCode = $gateway_codes[$this->pmCode];
+                $this->supports = array(
+                    /* 'subscriptions',
+                      'products',
+                      'subscription_cancellation',
+                      'subscription_reactivation',
+                      'subscription_suspension',
+                      'subscription_amount_changes',
+                      'subscription_payment_method_change',
+                      'subscription_date_changes',
+                      'default_credit_card_form', */
+                    'refunds',
+                        //'pre-orders'
+                );
+
+
+                add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
+                add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
+
+                $output = '';
+
+                if (file_exists(dirname(__FILE__) . '/images/' . $this->paymentMethodCode . '.png')) {
+                    $this->icon = apply_filters('woocommerce_multisafepay_icon', plugins_url('images/' . $this->paymentMethodCode . '.png', __FILE__));
+                } else {
+                    $this->icon = '';
+                }
+
+                $this->settings = (array) get_option("woocommerce_{$this->id}_settings");
+
+                if (!empty($this->settings['pmtitle'])) {
+                    $this->title = $this->settings['pmtitle'];
+                    $this->method_title = $this->settings['pmtitle'];
+                } else {
+                    $this->title = $gateway_info[$gateway_codes[$this->pmCode]];
+                    $this->method_title = $gateway_info[$gateway_codes[$this->pmCode]];
+                }
+
+                parent::GATEWAY_Forms();
+
+                if (isset($this->settings['description'])) {
+                    if ($this->settings['description'] != '') {
+                        $this->description = $this->settings['description'];
+                    }
+                }
+                $this->description .= $output;
+
+
+                $this->enabled = $this->settings['enabled'] == 'yes' ? 'yes' : 'no';
+
+                if (isset($this->settings['enabled'])) {
+                    if ($this->settings['enabled'] == 'yes') {
+                        $this->enabled = 'yes';
+                    } else {
+                        $this->enabled = 'no';
+                   }
+               } else {
+                    $this->enabled = 'no';
+                }
+            }
+
+            public function process_payment($order_id) {
+
+                $this->type = 'redirect';
+                $this->gatewayInfo = '';
+              
+                $paymentMethod = explode('_', $order->payment_method);
+                $this->gateway = $this->paymentMethodCode;
+
+    
+                return parent::process_payment($order_id);                
+            }
+
+        }
+
+        class WC_MULTISAFEPAY_Paymentmethod_0  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 0;  }
+        class WC_MULTISAFEPAY_Paymentmethod_1  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 1;  }
+        class WC_MULTISAFEPAY_Paymentmethod_2  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 2;  }
+        class WC_MULTISAFEPAY_Paymentmethod_3  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 3;  }
+        class WC_MULTISAFEPAY_Paymentmethod_4  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 4;  }
+        class WC_MULTISAFEPAY_Paymentmethod_5  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 5;  }
+        class WC_MULTISAFEPAY_Paymentmethod_6  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 6;  }
+        class WC_MULTISAFEPAY_Paymentmethod_7  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 7;  }
+        class WC_MULTISAFEPAY_Paymentmethod_8  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 8;  }
+        class WC_MULTISAFEPAY_Paymentmethod_9  extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 9;  }
+        class WC_MULTISAFEPAY_Paymentmethod_10 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 10; }
+        class WC_MULTISAFEPAY_Paymentmethod_11 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 11; }
+        class WC_MULTISAFEPAY_Paymentmethod_12 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 12; }
+        class WC_MULTISAFEPAY_Paymentmethod_13 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 13; }
+        class WC_MULTISAFEPAY_Paymentmethod_14 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 14; }
+        class WC_MULTISAFEPAY_Paymentmethod_15 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 15; }
+        class WC_MULTISAFEPAY_Paymentmethod_16 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 16; }
+        class WC_MULTISAFEPAY_Paymentmethod_17 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 17; }
+        class WC_MULTISAFEPAY_Paymentmethod_18 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 18; }
+        class WC_MULTISAFEPAY_Paymentmethod_19 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 19; }
+        class WC_MULTISAFEPAY_Paymentmethod_20 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 20; }
+        class WC_MULTISAFEPAY_Paymentmethod_21 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 21; }
+        class WC_MULTISAFEPAY_Paymentmethod_22 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 22; }
+        class WC_MULTISAFEPAY_Paymentmethod_23 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 23; }
 
         // Start 
         new WC_MULTISAFEPAY();

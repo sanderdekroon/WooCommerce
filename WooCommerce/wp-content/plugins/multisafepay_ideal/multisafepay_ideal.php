@@ -31,11 +31,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->multisafepay_settings = (array) get_option('woocommerce_multisafepay_settings');
                 $this->debug    = parent::getDebugMode ($this->multisafepay_settings['debug']);
 
-//                $this->init_settings();
-//                $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
-
                 $this->id                   = "multisafepay_ideal";
-                $this->paymentMethodCode    = "IDEAL";
+                $this->paymentMethodCode    = "iDEAL";
                 $this->has_fields           = true;
                 $this->supports             = array(
                                                 'refunds',
@@ -71,7 +68,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $this->method_title = $this->paymentMethodCode;
                 }
 
-                $this->IDEAL_Forms();
+                parent::GATEWAY_Forms();
 
                 if (isset($this->settings['description'])) {
                     if ($this->settings['description'] != '') {
@@ -124,42 +121,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     return false;
                 }
                 return true;
-            }
-
-            public function IDEAL_Forms() {
-                $this->form_fields = array(
-                    'stepone' => array(
-                        'title'         => __('Gateway Setup', 'multisafepay'),
-                        'type'          => 'title'
-                    ),
-                    'enabled' => array(
-                        'title'         => __('Enable this gateway', 'multisafepay'),
-                        'type'          => 'checkbox',
-                        'label'         => __('Enable transaction by using this gateway', 'multisafepay'),
-                        'default'       => 'yes',
-                        'description'   => __('When enabled it will show on during checkout', 'multisafepay'),
-                    ),
-                    'pmtitle' => array(
-                        'title'         => __('Title', 'multisafepay'),
-                        'type'          => 'text',
-                        'description'   => __('Optional:overwrites the title of the payment method during checkout', 'multisafepay'),
-                        'css'           => 'width: 300px;'
-                    ),
-
-                    /*'issuers' => array(
-                        'title'         => __('Enable iDEAL issuers', 'multisafepay'),
-                        'type'          => 'checkbox',
-                        'label'         => __('Enable bank selection on website', 'multisafepay'),
-                        'default'       => 'yes',
-                        'description'   => __('Enable of disable the selection of the preferred bank within the website.', 'multisafepay'),
-                    ),*/
-                    'description' => array(
-                        'title'         => __('Gateway Description', 'multisafepay'),
-                        'type'          => 'text',
-                        'description'   => __('This will be shown when selecting the gateway', 'multisafepay'),
-                        'css'           => 'width: 300px;'
-                    ),
-                );
             }
 
             public function process_payment($order_id) {
