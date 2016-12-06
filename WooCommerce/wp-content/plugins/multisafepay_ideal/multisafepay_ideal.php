@@ -89,7 +89,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 }
 
                 $output  = "<select name='IDEAL_issuer' style='width:164px; padding: 2px; margin-left: 7px;'>";
-                $output .= '<option value="">Kies uw bank</option>';
+                $output .= '<option value="">'. __('Select an issuer', 'multisafepay') . '</option>';
 
                 foreach ($issuers as $issuer) {
                     $output .= '<option value="'.$issuer->code.'">'.$issuer->description.'</option>';
@@ -100,7 +100,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
             public function validate_fields() {
                 if (empty($_POST['IDEAL_issuer'])) {
-                    wc_add_notice(__('Fout: ', 'multisafepay') . ' ' . 'U heeft nog geen bank geselecteerd.', 'error');
+                    wc_add_notice(__('Error: ', 'multisafepay') . ' ' . 'Please select an issuer.', 'error');
                     return false;
                 }
                 return true;

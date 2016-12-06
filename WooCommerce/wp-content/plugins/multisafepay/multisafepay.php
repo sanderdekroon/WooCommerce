@@ -474,13 +474,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     'pmtitle' => array(
                         'title' => __('Title', 'multisafepay'),
                         'type' => 'text',
-                        'description' => __('Optional:overwrites the title of the payment method during checkout', 'multisafepay'),
+                        'description' => __('Optional: Overwrites the title of the payment method during checkout', 'multisafepay'),
                         'css' => 'width: 300px;'
                     ),
                     'description' => array(
                         'title' => __('Gateway Description', 'multisafepay'),
                         'type' => 'text',
-                        'description' => __('This will be shown when selecting the gateway', 'multisafepay'),
+                        'description' => __('Optional: This will be shown when selecting the gateway', 'multisafepay'),
                         'css' => 'width: 300px;'
                     ),
                 );
