@@ -26,7 +26,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         class WC_MULTISAFEPAY_SOFORT extends WC_MULTISAFEPAY {
 
             public function __construct() {
-                global $woocommerce;
+//                global $woocommerce;
 
                 $this->multisafepay_settings = (array) get_option('woocommerce_multisafepay_settings');
                 $this->debug    = parent::getDebugMode ($this->multisafepay_settings['debug']);
@@ -76,7 +76,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             }
 
             public static function MULTISAFEPAY_SOFORT_Add_Gateway($methods) {
-                global $woocommerce;
+//                global $woocommerce;
                 $methods[] = 'WC_MULTISAFEPAY_SOFORT';
                 return $methods;
             }

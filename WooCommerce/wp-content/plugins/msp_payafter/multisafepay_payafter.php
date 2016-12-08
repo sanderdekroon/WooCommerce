@@ -1,12 +1,12 @@
 <?php
 
 /*
-  Plugin Name: Multisafepay Betaal na Ontvangst
+  Plugin Name: Multisafepay Betaal Na Ontvangst
   Plugin URI: http://www.multisafepay.com
   Description: Multisafepay Payment Plugin
   Author: Multisafepay
   Author URI:http://www.multisafepay.com
-  Version: 2.2.7
+  Version: 3.0.0
 
   Copyright: � 2012 Multisafepay(email : techsupport@multisafepay.com)
   License: GNU General Public License v3.0
@@ -14,46 +14,58 @@
  */
 
 load_plugin_textdomain('multisafepay', false, dirname(plugin_basename(__FILE__)) . '/');
-if (!class_exists('MultiSafepay')) {
-    require(realpath(dirname(__FILE__)) . '/../multisafepay/MultiSafepay.combined.php');
-}
+
 if (!function_exists('is_plugin_active_for_network'))
-require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+    require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins'))) || is_plugin_active_for_network('woocommerce/woocommerce.php')) {
     add_action('plugins_loaded', 'WC_MULTISAFEPAY_PAYAFTER_Load', 0);
 
     function WC_MULTISAFEPAY_PAYAFTER_Load() {
 
-        class WC_MULTISAFEPAY_PAYAFTER extends WC_Payment_Gateway {
+        class WC_MULTISAFEPAY_PAYAFTER extends WC_MULTISAFEPAY {
 
             public function __construct() {
-                global $woocommerce;
+//                global $woocommerce;
 
-                $this->init_settings();
-                $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
+                $this->multisafepay_settings = (array) get_option('woocommerce_multisafepay_settings');
+                $this->debug    = parent::getDebugMode ($this->multisafepay_settings['debug']);
 
-                $this->id = "multisafepay_payafter";
+                $this->id                   = "multisafepay_payafter";
+                $this->paymentMethodCode    = "Betaal Na Ontvangst";
+                $this->has_fields           = false;
+                $this->supports             = array(
+                                                /* 'subscriptions',
+                                                  'products',
+                                                  'subscription_cancellation',
+                                                  'subscription_reactivation',
+                                                  'subscription_suspension',
+                                                  'subscription_amount_changes',
+                                                  'subscription_payment_method_change',
+                                                  'subscription_date_changes',
+                                                  'default_credit_card_form',
+                                                  'pre-orders'
+                                                */
+                                                'refunds',
+                                                );
 
-                $this->has_fields = false;
-                $this->paymentMethodCode = "PAYAFTER";
-                $this->supports = array(
-                    /* 'subscriptions',
-                      'products',
-                      'subscription_cancellation',
-                      'subscription_reactivation',
-                      'subscription_suspension',
-                      'subscription_amount_changes',
-                      'subscription_payment_method_change',
-                      'subscription_date_changes',
-                      'default_credit_card_form', */
-                    'refunds',
-                        //'pre-orders'
-                );
                 add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
                 add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
                 add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_PAYAFTER', 'MULTISAFEPAY_PAYAFTER_Add_Gateway'));
                 add_filter('woocommerce_available_payment_gateways', 'payafter_filter_gateways', 1);
+
+                if (file_exists(dirname(__FILE__) . '/images/' . $this->paymentMethodCode . '.png')) {
+                    $this->icon = apply_filters('woocommerce_multisafepay_icon', plugins_url('images/' . $this->paymentMethodCode . '.png', __FILE__));
+                } else {
+                    $this->icon = '';
+                }
+
+                $this->settings = (array) get_option("woocommerce_{$this->id}_settings");
+
+                $this->title        = !empty($this->settings['pmtitle']) ? $this->settings['pmtitle'] : $this->paymentMethodCode;
+                $this->method_title = $this->title;
+
+
 
                 $output = '';
                 $output = '<p class="form-row form-row-wide  validate-required"><label for="birthday" class="">' . __('Geboortedatum', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_birthday" id="birthday" placeholder="dd-mm-yyyy"/>
@@ -64,41 +76,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 $output .= '<p class="form-row form-row-wide">' . __('Met het uitvoeren van deze bestelling gaat u akkoord met de ', 'multisafepay') . '<a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">voorwaarden van MultiFactor.</a>';
 
-                if (file_exists(dirname(__FILE__) . '/images/' . $this->paymentMethodCode . '.png')) {
-                    $this->icon = apply_filters('woocommerce_multisafepay_icon', plugins_url('images/' . $this->paymentMethodCode . '.png', __FILE__));
-                } else {
-                    $this->icon = '';
-                }
-
-                $this->settings = (array) get_option("woocommerce_{$this->id}_settings");
-                if (!empty($this->settings['pmtitle'])) {
-                    $this->title = $this->settings['pmtitle'];
-                    $this->method_title = $this->settings['pmtitle'];
-                } else {
-                    $this->title = "Betaal na Ontvangst";
-                    $this->method_title = "Betaal na Ontvangst";
-                }
-
                 $this->PAYAFTER_Forms();
 
-
-                if (isset($this->settings['description'])) {
-                    if ($this->settings['description'] != '') {
-                        $this->description = $this->settings['description'];
-                    }
-                }
                 $this->description .= $output;
-
-
-                if (isset($this->settings['enabled'])) {
-                    if ($this->settings['enabled'] == 'yes') {
-                        $this->enabled = 'yes';
-                    } else {
-                        $this->enabled = 'no';
-                    }
-                } else {
-                    $this->enabled = 'no';
-                }
+//                $this->description = $this->settings['description'];
+                $this->enabled     = $this->settings['enabled'] == 'yes' ? 'yes': 'no';
             }
 
             public function PAYAFTER_Forms() {
@@ -141,83 +123,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 );
             }
 
-            public function process_refund($order_id, $amount = null, $reason = '') {
-
-                $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
-                if ($this->settings2['testmode'] == 'yes'):
-                    $mspurl = 'https://testapi.multisafepay.com/v1/json/';
-                else :
-                    $mspurl = 'https://api.multisafepay.com/v1/json/';
-                endif;
-
-                $order = new WC_Order($order_id);
-                $ordernumber = ltrim($order->get_order_number(), __('#', '', 'multisafepay'));
-                $ordernumber = ltrim($ordernumber, __('n°', '', 'multisafepay'));
-                $currency = $order->get_order_currency();
-
-                require_once dirname(__FILE__) . "/../multisafepay/API/Autoloader.php";
-                $msp = new Client;
-                $msp->setApiKey($this->settings2['apikey']);
-                $msp->setApiUrl($mspurl);
-
-                $transactionid = $ordernumber;
-
-                //get the order status
-                $msporder = $msp->orders->get($type = 'orders', $transactionid, $body = array(), $query_string = false);
-                $originalCart = $msporder->shopping_cart;
-                $products = $order->get_items();
-                $refundData = array();
-                $refundData['checkout_data']['items'];
-
-                foreach ($originalCart->items as $key => $item) {
-                    if ($item->quantity > 0) {
-                        $refundData['checkout_data']['items'][] = $item;
-                    }
-                    foreach ($products as $key => $product) {
-                        $product_id = $product['product_id'];
-                        $item_id = $product['item_id'];
-                        if ($product_id == $item->merchant_item_id) {
-                            $qty_refunded = $order->get_qty_refunded_for_item($key);
-                            if ($qty_refunded > 0) {
-                                if ($item->quantity > 0) {
-                                    $refundItem = (OBJECT) Array();
-                                    $refundItem->name = $item->name;
-                                    $refundItem->description = $item->description;
-                                    $refundItem->unit_price = $item->unit_price;
-                                    $refundItem->quantity = '-'.$qty_refunded;
-                                    $refuntItem->merchant_item_id = $item->merchant_item_id;
-                                    $refundItem->tax_table_selector = $item->tax_table_selector;
-                                    $refundData['checkout_data']['items'][] = $refundItem;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                $endpoint = 'orders/' . $transactionid . '/refunds';
-                try {
-                    $mspreturn = $msp->orders->post($refundData, $endpoint);
-
-                    return true;
-                } catch (Exception $e) {
-
-                    return new WP_Error('multisafepay_ideal', 'Order can\'t be refunded:' . $e->getMessage());
-                }
-
-                return false;
-            }
-
-            public function write_log($log) {
-                if (true === WP_DEBUG) {
-                    if (is_array($log) || is_object($log)) {
-                        error_log(print_r($log, true));
-                    } else {
-                        error_log($log);
-                    }
-                }
-            }
 
             public function process_payment($order_id) {
+                $this->gateway = $this->paymentMethodCode;
+                return parent::process_payment($order_id);
+            }
+
+
+            public function process_payment2($order_id) {
                 global $wpdb, $woocommerce;
 
                 $settings = (array) get_option('woocommerce_multisafepay_settings');
@@ -300,7 +213,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 if (isset($_SERVER['HTTP_USER_AGENT'])) {
                     $msp->customer['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
                 }
-                $msp->transaction['id'] = $ordernumber; //$order_id; 
+                $msp->transaction['id'] = $ordernumber; //$order_id;
                 $msp->transaction['currency'] = get_woocommerce_currency();
                 $msp->transaction['amount'] = $order->get_total() * 100;
                 $msp->transaction['description'] = 'Order ' . __('#', '', 'multisafepay') . $ordernumber . ' : ' . get_bloginfo();
@@ -332,7 +245,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 /**
                  * Add custom Woo cart fees as line items
-                 * 
+                 *
                  * TODO check tax on fee if can be added
                  */
                 foreach (WC()->cart->get_fees() as $fee) {
@@ -453,8 +366,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 }
             }
 
+
+
             public static function MULTISAFEPAY_PAYAFTER_Add_Gateway($methods) {
-                global $woocommerce;
+//                global $woocommerce;
                 $methods[] = 'WC_MULTISAFEPAY_PAYAFTER';
 
                 return $methods;
@@ -462,26 +377,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
         }
 
-        // Start 
+        // Start
         new WC_MULTISAFEPAY_PAYAFTER();
-    }
-
-    function payafter_filter_gateways($gateways) {
-        global $woocommerce;
-        $settings = $gateways['MULTISAFEPAY_PAYAFTER']->settings;
-
-
-       if(!empty($settings['minamount'])){
-        	if ($woocommerce->cart->total > $settings['maxamount'] || $woocommerce->cart->total < $settings['minamount']) {
-            unset($gateways['MULTISAFEPAY_PAYAFTER']);
-        }
-       }
-
-        if ($woocommerce->customer->get_country() != 'NL') {
-            unset($gateways['MULTISAFEPAY_PAYAFTER']);
-        }
-
-        return $gateways;
     }
 
 }
