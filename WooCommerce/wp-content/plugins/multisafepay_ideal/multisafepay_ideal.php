@@ -34,8 +34,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->id                   = "multisafepay_ideal";
                 $this->paymentMethodCode    = "iDEAL";
                 $this->has_fields           = true;
-                $this->supports             = array(
-                                                'refunds',
+                $this->supports             = ['refunds',
                                                 /* 'subscriptions',
                                                   'products',
                                                   'subscription_cancellation',
@@ -46,7 +45,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                                                   'subscription_date_changes',
                                                   'default_credit_card_form',
                                                   'pre-orders' */
-                                                );
+                                                ];
 
                 add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
                 add_action("woocommerce_update_options_payment_gateways_multisafepay_ideal", array($this, 'process_admin_options'));

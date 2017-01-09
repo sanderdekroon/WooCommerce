@@ -32,7 +32,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->debug    = parent::getDebugMode ($this->multisafepay_settings['debug']);
 
                 $this->id                   = "multisafepay_payafter";
-                $this->paymentMethodCode    = "Betaal Na Ontvangst";
+                $this->paymentMethodCode    = "PAYAFTER";
                 $this->has_fields           = false;
                 $this->supports             = array(
                                                 /* 'subscriptions',
@@ -127,40 +127,57 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 
             public function process_payment($order_id) {
+                $this->type = 'direct';
                 $this->gateway = $this->paymentMethodCode;
+                $this->getGatewayInfo($order_id);
+                $this->getCart($order_id);
+
                 return parent::process_payment($order_id);
             }
 
 
-            public function process_payment2($order_id) {
-                global $wpdb, $woocommerce;
+            private function getGatewayInfo($order_id)
+            {
+                $order = new WC_Order($order_id);
 
+                $this->gatewayInfo = array(
+                    'referrer'    => $_SERVER['HTTP_REFERER'],
+                    'user_agent'  => $_SERVER['HTTP_USER_AGENT'],
+                    'birthday'    => $_POST['PAYAFTER_birthday'],
+                    'bankaccount' => $_POST['PAYAFTER_account'],
+                    'phone'       => $order->billing_phone,
+                    'email'       => $order->billing_email,
+                    'gender'      => ''
+                );
+            }
+
+
+
+            private function getCart($order_id){
 
                 $order = new WC_Order($order_id);
 
+                $this->shopping_cart    = array();
+                $this->checkout_options = array();
+                $this->checkout_options['tax_tables']['default'] = array ( 'shipping_taxed'=> 'true', 'rate' => '0.21');
 
-                $issuerName = sprintf('%s_issuer', $paymentMethod[1]);
+                //Add BTW 0%
+                $this->checkout_options['tax_tables']['alternate'][] = array ('name' => 'BTW-0', 'rules' => array (array ('rate' => '0.00')));
 
+                $tax_array = array('BTW-0');
 
-                if ($_POST['PAYAFTER_birthday'] != '' && $_POST['PAYAFTER_account'] != '' && $order->billing_phone != '' && $order->billing_email != '') {
-                    $msp->transaction['special'] = true;
-                    $msp->gatewayinfo['birthday'] = $_POST['PAYAFTER_birthday'];
-                    $msp->customer['birthday'] = $_POST['PAYAFTER_birthday'];
-                    $msp->gatewayinfo['bankaccount'] = $_POST['PAYAFTER_account'];
-                    $msp->customer['bankaccount'] = $_POST['PAYAFTER_account'];
-                    $msp->gatewayinfo['email'] = $order->billing_email;
-                    $msp->gatewayinfo['phone'] = $order->billing_phone;
-                }
-
-
+/*
+$tmp = $order->get_items('fee');
+$string =  'fee: '. print_r ($tmp, true);
+mail ('Testbestelling-Ronald@Multisafepay.com', 'debug - ' . $_SERVER['SCRIPT_FILENAME'], $string);
 
 
-                /**
-                 * Add custom Woo cart fees as line items
-                 *
-                 * TODO check tax on fee if can be added
-                 */
-                foreach (WC()->cart->get_fees() as $fee) {
+$tmp = $order->get_items('tax');
+$string =  'tax: '. print_r ($tmp, true);
+mail ('Testbestelling-Ronald@Multisafepay.com', 'debug - ' . $_SERVER['SCRIPT_FILENAME'], $string);
+*/
+
+/*                foreach (WC()->cart->get_fees() as $fee) {
 
                     $c_item = new MspItem($fee->name . " ", '', 1, number_format($fee->amount, 2, '.', ''), 'KG', 0);
                     $msp->cart->AddItem($c_item);
@@ -171,111 +188,97 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         $fee_tax_percentage = round($fee->tax / $fee->amount, 2);
                         $c_item->SetTaxTableSelector($fee_tax_percentage);
                     } else {
-                        $c_item->SetTaxTableSelector('BTW0');
+                        $c_item->SetTaxTableSelector('BTW-0');
                     }
                 }
+*/
 
 
+                // Shipping
+                foreach ($order->get_items('shipping') as $shipping) {
 
-                //ADD BTW0
-                $table = new MspAlternateTaxTable();
-                $table->name = 'BTW0';
-                $rule = new MspAlternateTaxRule('0.00');
-                $table->AddAlternateTaxRules($rule);
-                $msp->cart->AddAlternateTaxTables($table);
+                    $taxes = unserialize($shipping['taxes']);
+                    $taxes = array_shift ($taxes);
 
-                //add shipping
-                if ($order->order_shipping > 0) {
-                    $c_item = new MspItem('Shipping' . " " . get_woocommerce_currency(), 'Shipping', '1', $order->order_shipping, '0', '0');
-                    $msp->cart->AddItem($c_item);
-                    $c_item->SetMerchantItemId('Shipping');
-                    if ($order->order_shipping_tax > 0) {
-                        $c_item->SetTaxTableSelector('shipping_tax');
-                    } else {
-                        $c_item->SetTaxTableSelector('BTW0');
-                    }
+                    $tax_table_selector = 'shipping';
+                    $tax_percentage = round($taxes /$shipping['cost'], 2);
 
+                    $method_id = explode (':', $shipping['method_id']);
 
-                    if ($order->order_shipping_tax > 0) {
-                        $shipping_tax = $order->order_shipping_tax;
-                        $shipping_tax_percentage = round($shipping_tax / $order->order_shipping, 2);
-                        $table = new MspAlternateTaxTable();
-                        $table->name = 'shipping_tax';
-                        $rule = new MspAlternateTaxRule($shipping_tax_percentage);
-                        $table->AddAlternateTaxRules($rule);
-                        $msp->cart->AddAlternateTaxTables($table);
+                    $this->shopping_cart['items'][] = array (
+                        'name'  		     => $shipping['type'],
+                        'description' 		 => $shipping['name'],
+                        'unit_price'  		 => $shipping['cost'],
+                        'quantity'    		 => 1,
+                        'merchant_item_id' 	 => $method_id[0],
+                        'tax_table_selector' => $tax_table_selector,
+                        'weight' 		     => array ('unit'=> 0,  'value'=> 'KG')
+                    );
+
+                    if (!in_array($tax_table_selector, $tax_array)) {
+                        array_push($this->checkout_options['tax_tables']['alternate'], array ('name' => $tax_table_selector, 'rules' => array (array ('rate' => $tax_percentage))));
+                        array_push($tax_array, $tax_table_selector);
                     }
                 }
 
 
                 //add coupon discount
-                if ($order->order_discount != 0) {
-                    $c_item = new MspItem('Discount' . " " . get_woocommerce_currency(), 'Discount', '1', -$order->order_discount, '0', '0');
-                    $msp->cart->AddItem($c_item);
-                    $c_item->SetMerchantItemId('discount');
-                    $c_item->SetTaxTableSelector('BTW0');
-                }
+                foreach ($order->get_items('coupon') as $coupon) {
 
-                $tax_array = array();
+                    $tax_table_selector = $coupon['type'];
+                    $tax_percentage = round($coupon['discount_amount_tax'] /$coupon['discount_amount'], 2);
+
+                    $this->shopping_cart['items'][] = array (
+                        'name'  		     => $coupon['type'],
+                        'description' 		 => $coupon['name'],
+                        'unit_price'  		 => -$coupon['discount_amount'],
+                        'quantity'    		 => 1,
+                        'merchant_item_id' 	 => $coupon['type'],
+                        'tax_table_selector' => $tax_table_selector,
+                        'weight' 		     => array ('unit'=> 0,  'value'=> 'KG')
+                    );
+
+                    if (!in_array($tax_table_selector, $tax_array)) {
+                        array_push($this->checkout_options['tax_tables']['alternate'], array ('name' => $tax_table_selector, 'rules' => array (array ('rate' => $tax_percentage))));
+                        array_push($tax_array, $tax_table_selector);
+                    }
+                }
 
                 //add item data
+                $items = "<ul>\n";
                 foreach ($order->get_items() as $item) {
-                    $product_tax = $item['line_tax'];
-                    $product_tax_percentage = round($product_tax / $item['line_total'], 2);
-                    $product_price = $item['line_total'] / $item['qty'];
 
-                    $c_item = new MspItem($item['name'] . " " . get_woocommerce_currency(), '', $item['qty'], $product_price, 'KG', 0);
-                    $msp->cart->AddItem($c_item);
-                    $c_item->SetMerchantItemId($item['product_id']);
+
+                    $items .= "<li>" . $item['qty'].' x : '. $item['name'] . "</li>\n";
+
+                    $tax_percentage = round($item['line_subtotal_tax']   / $item['line_subtotal'], 2);
+                    $product_price          = round($item['line_subtotal'] / $item['qty'], 5);
 
                     if ($item['line_subtotal_tax'] > 0) {
-                        $c_item->SetTaxTableSelector($product_tax_percentage);
+                        $tax_table_selector =  'BTW-'. $tax_percentage*100;
                     } else {
-                        $c_item->SetTaxTableSelector('BTW0');
+                        $tax_table_selector = 'BTW-0';
                     }
 
-                    if ($item['line_subtotal_tax'] > 0 && !in_array($product_tax_percentage, $tax_array)) {
-                        $tax_array = $product_tax_percentage;
-                        $table = new MspAlternateTaxTable();
-                        $table->name = $product_tax_percentage;
-                        $rule = new MspAlternateTaxRule($product_tax_percentage);
-                        $table->AddAlternateTaxRules($rule);
-                        $msp->cart->AddAlternateTaxTables($table);
-                    }
-                }
-
-
-                $url = $msp->startCheckout();
-                if ($debug) {
-                    $this->write_log('MSP->transactiondata');
-                    $this->write_log($msp);
-                    $this->write_log('MSP->transaction URL');
-                    $this->write_log($url);
-                    $this->write_log('MSP->End debug');
-                    $this->write_log('--------------------------------------');
-                }
-
-
-                if (!$msp->error and $url == false) {
-                    $url = $msp->merchant['redirect_url'] . '?transactionid=' . $order_id;
-                }
-
-                if (!isset($msp->error)) {
-
-                    // Reduce stock levels
-                    //$order->reduce_order_stock();
-
-                    return array(
-                        'result' => 'success',
-                        'redirect' => $url
+                    $this->shopping_cart['items'][] = array (
+                        'name'  		     => $item['name'],
+                        'description' 		 => '',
+                        'unit_price'  		 => $product_price,
+                        'quantity'    		 => $item['qty'],
+                        'merchant_item_id' 	 => $item['product_id'],
+                        'tax_table_selector' => $tax_table_selector,
+                        'weight' 		     => array ('unit'=> 0,  'value'=> 'KG')
                     );
-                } else {
-                    if ($msp->error_code == '1024') {
-					 	wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error_code.': '.__('We are sorry to inform you that your request for payment after delivery has been denied by Multifactor.<BR /> If you have questions about this rejection, you can checkout the FAQ on the website of Multifactor ', 'multisafepay').'<a href="http://www.multifactor.nl/contact" target="_blank">http://www.multifactor.nl/faq</a>'.__(' You can also contact Multifactor by calling 020-8500533 (at least 2 hours after this rejection) or by sending an email to ', 'multisafepay').' <a href="mailto:support@multifactor.nl">support@multifactor.nl</a>.'.__(' Please retry placing your order and select a different payment method.', 'multisafepay'), 'error');
-					 } else {
-					 	wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error');
-            		}
+
+
+
+                    if (!in_array($tax_table_selector, $tax_array)) {
+                        array_push($this->checkout_options['tax_tables']['alternate'], array ('name' => $tax_table_selector, 'rules' => array (array ('rate' => $tax_percentage))));
+                        array_push($tax_array, $tax_table_selector);
+                    }
                 }
+
+                $items .= "</ul>\n";
             }
 
 

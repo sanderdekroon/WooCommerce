@@ -19,7 +19,6 @@ load_plugin_textdomain('multisafepay', false, dirname(plugin_basename(__FILE__))
 register_activation_hook(__FILE__, 'MULTISAFEPAY_register');
 
 function MULTISAFEPAY_register() {
-    global $wpdb, $woocommerce;
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     wp_insert_term(__('Awaiting Payment', 'multisafepay'), 'shop_order_status');
 }
@@ -149,7 +148,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $msp->merchant['site_id'] = $this->settings['siteid'];
                     $msp->merchant['site_code'] = $this->settings['securecode'];
                     $msp->transaction['id'] = $order_id;
-                    $status = $msp->getStatus();
+//                    $status = $msp->getStatus();
                     $details = $msp->details;
 
                     if ($msp->error) {
@@ -267,7 +266,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             }
 
  public function process_refund($order_id, $amount = null, $reason = '') {
-				global $wpdb;
+		global $wpdb;
                 $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
                 if ($this->settings2['testmode'] == 'yes'):
                     $mspurl = true;
@@ -298,7 +297,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $msp->signature = sha1($this->settings2['siteid'] . $this->settings2['securecode'] . $transactionid);
 
                 $response = $msp->refundTransaction();
-
 
                 if ($msp->error) {
                     return new WP_Error('multisafepay_ideal', 'Order can\'t be refunded:' . $msp->error_code . ' - ' . $msp->error);
@@ -342,7 +340,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 }
             }
            
-            
             public function MULTISAFEPAY_Form() {
                 $this->form_fields = array(
 
@@ -498,7 +495,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
             public function process_payment($order_id) {
 
-                global $wpdb, $woocommerce;
+                global $woocommerce;
 
                 $settings = (array) get_option('woocommerce_multisafepay_settings');
                 $debug = $this->getDebugMode ($settings['debug']);
@@ -555,7 +552,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                     );
 
-
                 if ($debug)
                     $this->write_log('MSP->transactie.' . print_r ($my_order, true));
                 
@@ -579,9 +575,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $this->write_log('--------------------------------------');
                 }
 
-                
                 if (!$msp->error) {
-
                     return array(
                         'result'    => 'success',
                         'redirect'  => $url                        
@@ -592,7 +586,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             }
 
             public function Multisafepay_Response() {
-                global $wpdb, $wp_version, $woocommerce;
+                global $wpdb, $woocommerce;
 
                 $settings = (array) get_option('woocommerce_multisafepay_settings');
                 $debug    = $this->getDebugMode ($settings['debug']);
@@ -615,7 +609,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         }
                     }
 
-                    $transactionid = $_GET['transactionid'];
+                    $transactionid = filter_input(INPUT_GET, 'transactionid', FILTER_SANITIZE_STRIPPED);
 
                     $msp = new Client();
 
@@ -1069,13 +1063,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             }
             
             public function getLocale() {
-                $locale = get_bloginfo('language');
-                $locale = str_replace('-', '_', $locale);
-                return ($locale);
+                return (str_replace('-', '_', get_bloginfo('language')));
             }
 
             public function OptionalSendConfirmationMail($sendMail, $order_id){
-                global $wpdb, $wp_version, $woocommerce;
+                global $wp_version, $woocommerce;
                 if ($sendMail == 'yes') {
                     $mailer = $woocommerce->mailer();
                     $email = $mailer->emails['WC_Email_New_Order'];
@@ -1098,17 +1090,15 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             
             public function setDelivery ($msp, $order) {
 
-//				$address = property_exists($order, 'billing_address_1') ? $order->shipping_address_1 : '';
-				$address = isset ($order->shipping_address_1) ? $order->shipping_address_1 : '';
-
-				list ($street, $houseNumber) = $msp->parseCustomerAddress($address);
+		$address = isset ($order->shipping_address_1) ? $order->shipping_address_1 : '';
+		list ($street, $houseNumber) = $msp->parseCustomerAddress($address);
 
                 $delivery = array(
                             "locale"          => $this->getLocale(),
                             "ip_address"      => $_SERVER['REMOTE_ADDR'],
                             "forwarded_ip"    => '',
-                            "referrer"		  => $_SERVER['HTTP_REFERER'],
-                            "user_agent"	  => $_SERVER['HTTP_USER_AGENT'],
+                            "referrer"        => $_SERVER['HTTP_REFERER'],
+                            "user_agent"      => $_SERVER['HTTP_USER_AGENT'],
                             "first_name"      => isset($order->shipping_first_name) ? $order->shipping_first_name 	: '',
                             "last_name"       => isset($order->shipping_last_name)  ? $order->shipping_last_name 	: '',
                             "address1"        => $street,	
@@ -1126,15 +1116,15 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
             public function setCustomer ($msp, $order) {
 
-				$address = isset ($order->billing_address_1) ? $order->billing_address_1 : '';
-				list ($street, $houseNumber) = $msp->parseCustomerAddress($address);
+		$address = isset ($order->billing_address_1) ? $order->billing_address_1 : '';
+		list ($street, $houseNumber) = $msp->parseCustomerAddress($address);
 
                 $customer = array(
                             "locale"          => $this->getLocale(),
                             "ip_address"      => $_SERVER['REMOTE_ADDR'],
                             "forwarded_ip"    => '',
-                            "referrer"		  => $_SERVER['HTTP_REFERER'],
-                            "user_agent"	  => $_SERVER['HTTP_USER_AGENT'],
+                            "referrer"        => $_SERVER['HTTP_REFERER'],
+                            "user_agent"      => $_SERVER['HTTP_USER_AGENT'],
                             "first_name"      => isset($order->billing_first_name)	? $order->billing_first_name 	: '',
                             "last_name"       => isset($order->billing_last_name)	? $order->billing_last_name 	: '',
                             "address1"        => $street,	
@@ -1172,7 +1162,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             public function setItemListFCO () {
                 $itemList = '<ul>';
 
-                foreach (WC()->cart->get_cart() as $cart_item_key => $values) {
+                foreach (WC()->cart->get_cart() as $values) {
                     $_product = $values['data'];
                 
                     $name   = html_entity_decode($_product->get_title(), ENT_NOQUOTES, 'UTF-8');
@@ -1186,9 +1176,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     
             public function setCart() {
 
-                $checkout_options['tax_tables']['alternate'] = array ();
-
-                foreach (WC()->cart->get_cart() as $cart_item_key => $values) {
+                $shopping_cart = ARRAY();
+                foreach (WC()->cart->get_cart() as $values) {
 
                     /*
                      * Get product data from WooCommerce
@@ -1199,7 +1188,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $sku    = $_product->get_sku();
                     $name   = html_entity_decode($_product->get_title(), ENT_NOQUOTES, 'UTF-8');
                     $descr  = html_entity_decode(get_post($_product)->post->post_content, ENT_NOQUOTES, 'UTF-8');
-                    
 
                     if ($_product->product_type == 'variation') {
                         $meta = WC()->cart->get_item_data($values, true);
@@ -1227,10 +1215,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'tax_table_selector' => 'Tax-'. $percentage,
                         'weight' 			 => array ('unit'=> '',  'value'=> 'KG')
                     );
-
-                    array_push($checkout_options['tax_tables']['alternate'], array ('name' => 'Tax-'. $percentage, 'rules' => array (array ('rate' => $percentage/100 ))));
-
-               
                 }
                 
                 /**
@@ -1254,7 +1238,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'tax_table_selector' => 'Tax-'. $fee_tax_percentage,
                         'weight' 			 => array ('unit'=> '',  'value'=> 'KG')
                     );
-                    array_push($checkout_options['tax_tables']['alternate'], array ('name' => 'Tax-'. $fee_tax_percentage, 'rules' => array (array ('rate' => $fee_tax_percentage/100 ))));
                 }
 
                 /*
@@ -1263,8 +1246,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 if (WC()->cart->get_cart_discount_total()) {
                     $tax_percentage = 0;
 
-                    
-                    foreach (WC()->cart->get_coupons('cart') as $code => $coupon) {
+                    foreach (WC()->cart->get_coupons('cart') as $code) {
                         $json_array = array();
                         $json_array['cartcoupon'] = $code; 
 
@@ -1277,7 +1259,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                             'tax_table_selector' => 'Tax-'. $tax_percentage,
                             'weight' 			 => array ('unit'=> '',  'value'=> 'KG')
                         );
-                        array_push($checkout_options['tax_tables']['alternate'], array ('name' => 'Tax-'. $tax_percentage, 'rules' => array (array ('rate' => $tax_percentage/100 ))));
                     }
                 }
 
@@ -1286,12 +1267,12 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
             public function setCheckoutOptions(){
 
-				$checkout_options = array ();
-				$checkout_options['no_shipping_method'] = false;
+		$checkout_options = array ();
+		$checkout_options['no_shipping_method'] = false;
                 $checkout_options['tax_tables']['alternate'] = array ();
                 $checkout_options['tax_tables']['default'] = array ('name' => 'Tax-21', 'rules' => array (array ('rate' => 0.21 )));
 
-                foreach (WC()->cart->get_cart() as $cart_item_key => $values) {
+                foreach (WC()->cart->get_cart() as $values) {
                     /* Get product-tax */
                     $_product = $values['data'];
                     
@@ -1319,46 +1300,19 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     array_push($checkout_options['tax_tables']['alternate'], array ('name' => 'Tax-'. $tax_percentage, 'rules' => array (array ('rate' => $tax_percentage/100 ))));
                 }
                 
-                
-                
-                
-				$chosen_methods = WC()->session->get('chosen_shipping_methods');
-                $chosen_shipping = $chosen_methods[0];
+		$chosen_methods = WC()->session->get('chosen_shipping_methods');
+//                $chosen_shipping = $chosen_methods[0];
                 WC()->shipping->calculate_shipping($this->get_shipping_packages());
 
 
-                $tax_shipping 	= false;
-                $shipping_taxes = array();
+//                $tax_shipping 	= false;
+//                $shipping_taxes = array();
 
                 foreach (WC()->shipping->packages[0]['rates'] as $rate) {
-
-/*                  if (!empty($rate->taxes) && !$tax_shipping) {
-                        $tax_shipping = true;
-                        foreach ($rate->taxes as $tax_id => $value) {
-                            $shipping_taxes = WC_Tax::get_shipping_tax_rates($tax_id);
-                            foreach ($shipping_taxes as $ship_tax_rate => $value) {
-                                if ($value['shipping'] == 'yes') {
-                                    $final_ship_rate = $value['rate'] / 100;
-                                    $rule = new MspDefaultTaxRule($final_ship_rate, $tax_shipping);
-                                    $msp->cart->AddDefaultTaxRules($rule);
-                                }
-                            }
-
-                        }
-
-                    }
-*/
-
-	                $checkout_options['shipping_methods']['flat_rate_shipping'][] = array(	"name"	=> $rate->label,
+                    $checkout_options['shipping_methods']['flat_rate_shipping'][] = array(  "name"  => $rate->label,
                                                                                             "price" => number_format($rate->cost, '2', '.', ''));
-//	                $checkout_options['shipping_methods'][$rate->method_id][] = array(	"name"	=> $rate->label,
-//                                                                                        "price" => number_format($rate->cost, '2', '.', ''));
                 }
-
-
-
-
-                
+               
                 return ($checkout_options);
             }
 
@@ -1378,7 +1332,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             }
             
             public static function MULTISAFEPAY_Add_Gateway($methods) {
-                global $woocommerce;
                 $methods[] = 'WC_MULTISAFEPAY';
                 $settings = (array) get_option('woocommerce_multisafepay_settings');
                 if ($settings['gateways'] == 'yes') {
@@ -1409,10 +1362,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         '23' => 'BODYBUILDINGKLEDING',
                     );
 
-                    $i = 0;
+//                  $i = 0;
                     foreach ($gateway_codes as $pm) {
-                        $methods[] = "WC_MULTISAFEPAY_Paymentmethod_{$i}";
-                        $i++;
+                        $methods[] = "WC_MULTISAFEPAY_Paymentmethod_{$pm}";
+//                      $i++;
                     }
                 }
                 return $methods;
@@ -1422,7 +1375,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
         class WC_MULTISAFEPAY_Paymentmethod extends WC_MULTISAFEPAY {
             public function __construct() {
-                global $woocommerce;
                 $gateway_info = array(
                     'BABYGIFTCARD'              => 'Baby giftcard',
                     'BOEKENBON'                 => 'Boekenbon',
