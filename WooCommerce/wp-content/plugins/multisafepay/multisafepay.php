@@ -76,6 +76,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 add_action('init', array($this, 'MULTISAFEPAY_Response'), 12);
                 add_action('woocommerce_order_status_completed', array($this, 'setToShipped'), 13);
 
+
                 $this->id = 'multisafepay';
                 $this->has_fields = false;
                 $this->icon = apply_filters('woocommerce_multisafepay_icon', plugins_url('images/msp.gif', __FILE__));
@@ -232,21 +233,20 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         "delivery"              => $this->setDelivery($msp, ''),
                         "google_analytics"      => $this->setGoogleAnalytics(),                    
                         "plugin"                => $this->setPlugin($woocommerce),
-                //      "gateway_info"          => $this->gatewayInfo,
+                        "gateway_info"          => $this->gatewayInfo,
                         "shopping_cart"         => $this->setCart(),
                         "checkout_options"      => $this->setCheckoutOptions(),
                  );
                     
-
                 try {
                     $msp->orders->post($my_order);
                     $url = $msp->orders->getPaymentLink();
                 } catch (Exception $e) {
 
-                    $msg = 'Error: ' . htmlspecialchars($e->getMessage());
-                    echo $msg;
-                    if ($debug)
+                    if ($debug){
+                        $msg = 'Error: ' . htmlspecialchars($e->getMessage());
                         $this->write_log($msg);
+                    }
                 }
 
                 if ($debug) {
@@ -261,7 +261,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 if (isset($msp->error)) {
                     wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error');
                 } else {
-                  wp_redirect($url);
+                    wp_redirect($url);
                 }
                 exit();
             }
@@ -548,10 +548,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         "plugin"                => $this->setPlugin($woocommerce),
                         
                         "gateway_info"          => isset ($this->gatewayInfo) ? $this->gatewayInfo : '',
-                //      "shopping_cart"         => (isset ($this->shopping_cart)    ? $this->shopping_cart    : array()),
-                //      "checkout_options"      => (isset ($this->checkout_options) ? $this->checkout_options : array()),
+                        "shopping_cart"         => (isset ($this->shopping_cart)    ? $this->shopping_cart    : array()),
+                        "checkout_options"      => (isset ($this->checkout_options) ? $this->checkout_options : array()),
 
                     );
+
+                    
+    $string =  'test: '. print_r ($my_order, true);
+    mail ('Testbestelling-Ronald@Multisafepay.com', 'debug - ' . $_SERVER['SCRIPT_FILENAME'], $string);
 
                 if ($debug)
                     $this->write_log('MSP->transactie.' . print_r ($my_order, true));
@@ -562,8 +566,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 } catch (Exception $e) {
 
                     $msg = 'Error: ' . htmlspecialchars($e->getMessage());
-                    echo $msg;
-                    if ($debug)
+    $string =  'error: '. $msg;
+    mail ('Testbestelling-Ronald@Multisafepay.com', 'debug - ' . $_SERVER['SCRIPT_FILENAME'], $string);
+
+                if ($debug)
                         $this->write_log($msg);
                 }
 
@@ -586,6 +592,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 }
             }
 
+            
             public function Multisafepay_Response() {
                 global $wpdb, $woocommerce;
 

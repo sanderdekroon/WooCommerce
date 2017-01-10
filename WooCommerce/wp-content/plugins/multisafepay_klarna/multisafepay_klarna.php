@@ -56,7 +56,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $output = '<p class="form-row form-row-wide  validate-required"><label for="birthday" class="">' . __('Geboortedatum', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="KLARNA_birthday" id="birthday" placeholder="dd-mm-yyyy"/>
 				</p><div class="clear"></div>';
 
-                $output .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">' . __('Rekeningnummer', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="KLARNA_account" id="account" placeholder="NLXX XXXX 0000 000 000"/>
+                $output .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">' . __('Geslacht', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="radio" name="KLARNA_gender" id="gender" value="male"/> Man <input type="radio" name="KLARNA_gender" id="gender" value="female"/> Vrouw
 				</p><div class="clear"></div>';
 
                 $output .= '<p class="form-row form-row-wide">' . __('Met het uitvoeren van deze bestelling gaat u akkoord met de ', 'multisafepay') . '<a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">voorwaarden van MultiFactor.</a>';
@@ -124,14 +124,21 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             {
                 $order = new WC_Order($order_id);
 
+                $birthday = $_POST['KLARNA_birthday'];
+                if (preg_match('/^(\d{2})-(\d{2})-(\d{4})$/', $birthday)) {
+                    $patterns = array ('/^(\d{2})-(\d{2})-(\d{4})$/');
+                    $replace = array ('\3-\2-\1');
+                    $birthday = preg_replace($patterns, $replace, $birthday);
+                }
+
                 $this->gatewayInfo = array(
                     'referrer'    => $_SERVER['HTTP_REFERER'],
                     'user_agent'  => $_SERVER['HTTP_USER_AGENT'],
-                    'birthday'    => $_POST['KLARNA_birthday'],
-                    'bankaccount' => $_POST['KLARNA_account'],
+                    'birthday'    => $birthday,
+                    'bankaccount' => '',
                     'phone'       => $order->billing_phone,
                     'email'       => $order->billing_email,
-                    'gender'      => ''
+                    'gender'      => $_POST['KLARNA_gender']
                 );
             }
 
@@ -232,7 +239,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $items = "<ul>\n";
                 foreach ($order->get_items() as $item) {
 
-
                     $items .= "<li>" . $item['qty'].' x : '. $item['name'] . "</li>\n";
 
                     $tax_percentage = round($item['line_subtotal_tax']   / $item['line_subtotal'], 2);
@@ -275,10 +281,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     if ($woocommerce->cart->total > $this->settings['maxamount'] || $woocommerce->cart->total < $this->settings['minamount']) {
                         unset($gateways['multisafepay_klarna']);
                     }
-                }
-
-                if ($woocommerce->customer->get_country() != 'NL') {
-                    unset($gateways['multisafepay_klarna']);
                 }
 
                 return $gateways;
