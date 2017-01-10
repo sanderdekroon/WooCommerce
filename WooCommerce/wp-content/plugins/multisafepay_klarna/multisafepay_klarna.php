@@ -8,7 +8,7 @@
   Author URI:http://www.multisafepay.com
   Version: 3.0.0
 
-  Copyright: � 2012 Multisafepay(email : techsupport@multisafepay.com)
+  Copyright: ? 2012 Multisafepay(email : techsupport@multisafepay.com)
   License: GNU General Public License v3.0
   License URI: http://www.gnu.org/licenses/gpl-3.0.html
  */
@@ -19,28 +19,27 @@ if (!function_exists('is_plugin_active_for_network'))
     require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins'))) || is_plugin_active_for_network('woocommerce/woocommerce.php')) {
-    add_action('plugins_loaded', 'WC_MULTISAFEPAY_PAYAFTER_Load', 0);
+    add_action('plugins_loaded', 'WC_MULTISAFEPAY_KLARNA_Load', 0);
 
-    function WC_MULTISAFEPAY_PAYAFTER_Load() {
+    function WC_MULTISAFEPAY_KLARNA_Load() {
 
-        class WC_MULTISAFEPAY_PAYAFTER extends WC_MULTISAFEPAY {
+        class WC_MULTISAFEPAY_KLARNA extends WC_MULTISAFEPAY {
 
             public function __construct() {
-                global $woocommerce;
-
                 $this->multisafepay_settings    = (array) get_option('woocommerce_multisafepay_settings');
                 $this->debug                    = parent::getDebugMode ($this->multisafepay_settings['debug']);
 
-                $this->id                       = "multisafepay_payafter";
-                $this->gateway                  = "PAYAFTER";
-                $this->paymentDescription       = "Pay After Delivery";
+                $this->id                       = "multisafepay_klarna";
+                $this->gateway                  = "KLARNA";
+                $this->paymentDescription       = "Klarna";
                 $this->has_fields               = false;
                 $this->supports                 = array('refunds');
 
                 add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
                 add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
-                add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_PAYAFTER', 'MULTISAFEPAY_PAYAFTER_Add_Gateway'));
-                add_filter('woocommerce_available_payment_gateways', array ($this , 'payafter_filter_gateways'), 1);
+                add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_KLARNA', 'MULTISAFEPAY_KLARNA_Add_Gateway'));
+                add_filter('woocommerce_available_payment_gateways', array ($this , 'klarna_filter_gateways'), 1);
+
 
                 if (file_exists(dirname(__FILE__) . '/images/' . $this->gateway . '.png')) {
                     $this->icon = apply_filters('woocommerce_multisafepay_icon', plugins_url('images/' . $this->gateway . '.png', __FILE__));
@@ -48,18 +47,21 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $this->icon = '';
                 }
 
-                $this->settings     = (array) get_option("woocommerce_{$this->id}_settings");
+                $this->settings = (array) get_option("woocommerce_{$this->id}_settings");
 
                 $this->title        = !empty($this->settings['pmtitle']) ? $this->settings['pmtitle'] : $this->paymentDescription;
                 $this->method_title = $this->title;
 
-                $output = '<p class="form-row form-row-wide  validate-required"><label for="birthday" class="">' . __('Geboortedatum', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_birthday" id="birthday" placeholder="dd-mm-yyyy"/>
+
+                $output = '<p class="form-row form-row-wide  validate-required"><label for="birthday" class="">' . __('Geboortedatum', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="KLARNA_birthday" id="birthday" placeholder="dd-mm-yyyy"/>
 				</p><div class="clear"></div>';
-                $output .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">' . __('Rekeningnummer', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_account" id="account" placeholder="NLXX XXXX 0000 000 000"/>
+
+                $output .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">' . __('Rekeningnummer', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="KLARNA_account" id="account" placeholder="NLXX XXXX 0000 000 000"/>
 				</p><div class="clear"></div>';
+
                 $output .= '<p class="form-row form-row-wide">' . __('Met het uitvoeren van deze bestelling gaat u akkoord met de ', 'multisafepay') . '<a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">voorwaarden van MultiFactor.</a>';
 
-                $this->PAYAFTER_Forms();
+                $this->KLARNA_Forms();
 
 
                 $this->description = $this->settings['description'];
@@ -68,10 +70,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->enabled     = $this->settings['enabled'] == 'yes' ? 'yes': 'no';
             }
 
-            public function PAYAFTER_Forms() {
+            public function KLARNA_Forms() {
                 $this->form_fields = array(
+                    'stepone' => array(
+                        'title' => __('Set-up Klarna configuration', 'multisafepay'),
+                        'type' => 'title'
+                    ),
                     'enabled' => array(
-                        'title' => __('Enable Pay after Delivery', 'multisafepay'),
+                        'title' => __('Enable Klarna', 'multisafepay'),
                         'type' => 'checkbox',
                         'label' => __('Enable Multisafepay for processing transactions', 'multisafepay'),
                         'default' => 'yes',
@@ -83,25 +89,24 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'description' => __('Optional:overwrites the title of the payment method during checkout', 'multisafepay'),
                         'css' => 'width: 300px;'
                     ),
+                    'minamount' => array(
+                        'title' => __('Minimal order amount', 'multisafepay'),
+                        'type' => 'text',
+                        'description' => __('The minimal amount for an order to show Klarna', 'multisafepay'),
+                        'css' => 'width: 300px;'
+                    ),
+                    'maxamount' => array(
+                        'title' => __('Max order amount', 'multisafepay'),
+                        'type' => 'text',
+                        'description' => __('The max order amount for an order to show Klarna', 'multisafepay'),
+                        'css' => 'width: 300px;'
+                    ),
                     'description' => array(
                         'title' => __('Gateway Description', 'multisafepay'),
                         'type' => 'text',
                         'description' => __('This will be shown when selecting the gateway', 'multisafepay'),
                         'css' => 'width: 300px;'
                     ),
-                    'minamount' => array(
-                        'title' => __('Minimal order amount', 'multisafepay'),
-                        'type' => 'text',
-                        'description' => __('The minimal amount for an order to show Pay After Delivery', 'multisafepay'),
-                        'css' => 'width: 300px;'
-                    ),
-                    'maxamount' => array(
-                        'title' => __('Max order amount', 'multisafepay'),
-                        'type' => 'text',
-                        'description' => __('The max order amount for an order to show Pay After Delivery', 'multisafepay'),
-                        'css' => 'width: 300px;'
-                    ),
-
                 );
             }
 
@@ -122,8 +127,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->gatewayInfo = array(
                     'referrer'    => $_SERVER['HTTP_REFERER'],
                     'user_agent'  => $_SERVER['HTTP_USER_AGENT'],
-                    'birthday'    => $_POST['PAYAFTER_birthday'],
-                    'bankaccount' => $_POST['PAYAFTER_account'],
+                    'birthday'    => $_POST['KLARNA_birthday'],
+                    'bankaccount' => $_POST['KLARNA_account'],
                     'phone'       => $order->billing_phone,
                     'email'       => $order->billing_email,
                     'gender'      => ''
@@ -261,33 +266,32 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             }
 
 
-            public function payafter_filter_gateways($gateways) {
+            public function klarna_filter_gateways($gateways) {
                 global $woocommerce;
 
                 $this->settings = (array) get_option("woocommerce_{$this->id}_settings");
 
                 if(!empty($this->settings['minamount'])){
                     if ($woocommerce->cart->total > $this->settings['maxamount'] || $woocommerce->cart->total < $this->settings['minamount']) {
-                        unset($gateways['multisafepay_payafter']);
+                        unset($gateways['multisafepay_klarna']);
                     }
                 }
 
                 if ($woocommerce->customer->get_country() != 'NL') {
-                    unset($gateways['multisafepay_payafter']);
+                    unset($gateways['multisafepay_klarna']);
                 }
 
                 return $gateways;
             }
 
-            public static function MULTISAFEPAY_PAYAFTER_Add_Gateway($methods) {
-                $methods[] = 'WC_MULTISAFEPAY_PAYAFTER';
+            public static function MULTISAFEPAY_KLARNA_Add_Gateway($methods) {
+                $methods[] = 'WC_MULTISAFEPAY_KLARNA';
                 return $methods;
             }
 
         }
 
         // Start
-        new WC_MULTISAFEPAY_PAYAFTER();
+        new WC_MULTISAFEPAY_KLARNA();
     }
-
 }

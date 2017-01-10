@@ -90,9 +90,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                       'subscription_amount_changes',
                       'subscription_payment_method_change',
                       'subscription_date_changes',
-                      'default_credit_card_form', */
+                      'default_credit_card_form',
+                      'pre-orders'
+                     */
                     'refunds',
-                        //'pre-orders'
                 );
 
                 if (!empty($this->settings['pmtitle'])) {

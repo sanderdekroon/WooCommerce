@@ -26,41 +26,28 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         class WC_MULTISAFEPAY_SOFORT extends WC_MULTISAFEPAY {
 
             public function __construct() {
-//                global $woocommerce;
-
-                $this->multisafepay_settings = (array) get_option('woocommerce_multisafepay_settings');
-                $this->debug    = parent::getDebugMode ($this->multisafepay_settings['debug']);
+                $this->multisafepay_settings= (array) get_option('woocommerce_multisafepay_settings');
+                $this->debug                = parent::getDebugMode ($this->multisafepay_settings['debug']);
 
                 $this->id                   = "multisafepay_sofort";
-                $this->paymentMethodCode    = "Sofort";
+                $this->gateway              = "DIRECTBANK";
+                $this->paymentDescription   = "Sofort";
+
                 $this->has_fields           = true;
-                $this->supports             = array(
-                                                'refunds',
-                                                /* 'subscriptions',
-                                                  'products',
-                                                  'subscription_cancellation',
-                                                  'subscription_reactivation',
-                                                  'subscription_suspension',
-                                                  'subscription_amount_changes',
-                                                  'subscription_payment_method_change',
-                                                  'subscription_date_changes',
-                                                  'default_credit_card_form',
-                                                  'pre-orders' */
-                                                );
+                $this->supports             = array('refunds');
 
                 add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
                 add_action("woocommerce_update_options_payment_gateways_multisafepay_sofort", array($this, 'process_admin_options'));
                 add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY_SOFORT', 'MULTISAFEPAY_SOFORT_Add_Gateway'));
 
-                if (file_exists(dirname(__FILE__) . '/images/' . $this->paymentMethodCode . '.png')) {
-                    $this->icon = apply_filters('woocommerce_multisafepay_icon', plugins_url('images/' . $this->paymentMethodCode . '.png', __FILE__));
+                if (file_exists(dirname(__FILE__) . '/images/' . $this->gateway . '.png')) {
+                    $this->icon = apply_filters('woocommerce_multisafepay_icon', plugins_url('images/' . $this->gateway . '.png', __FILE__));
                 } else {
                     $this->icon = '';
                 }
 
-                $this->settings = (array) get_option("woocommerce_{$this->id}_settings");
-
-                $this->title        = !empty($this->settings['pmtitle']) ? $this->settings['pmtitle'] : $this->paymentMethodCode;
+                $this->settings     = (array) get_option("woocommerce_{$this->id}_settings");
+                $this->title        = !empty($this->settings['pmtitle']) ? $this->settings['pmtitle'] : $this->paymentDescription;
                 $this->method_title = $this->title;
                     
                 parent::GATEWAY_Forms();
@@ -71,12 +58,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             }
 
             public function process_payment($order_id) {
-                $this->gateway = 'DIRECTBANK';
                 return parent::process_payment($order_id);
             }
 
             public static function MULTISAFEPAY_SOFORT_Add_Gateway($methods) {
-//                global $woocommerce;
                 $methods[] = 'WC_MULTISAFEPAY_SOFORT';
                 return $methods;
             }
