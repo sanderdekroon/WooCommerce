@@ -51,15 +51,197 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->title        = !empty($this->settings['pmtitle']) ? $this->settings['pmtitle'] : $this->paymentDescription;
                 $this->method_title = $this->title;
 
-                parent::GATEWAY_Forms();
+                $output = '<p class="form-row form-row-wide  validate-required"><label for="birthday" class="">' . __('Geboortedatum', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_birthday" id="birthday" placeholder="dd-mm-yyyy"/>
+				</p><div class="clear"></div>';
+//                $output .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">' . __('Rekeningnummer', 'multisafepay') . '<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_account" id="account" placeholder="NLXX XXXX 0000 000 000"/>
+//				</p><div class="clear"></div>';
+                $output .= '<p class="form-row form-row-wide">' . __('Met het uitvoeren van deze bestelling gaat u akkoord met de ', 'multisafepay') . '<a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">voorwaarden van MultiFactor.</a>';
+
+                $this->EINVOICE_Forms();
 
                 $this->description = $this->settings['description'];
+                $this->description .= $output;
+
                 $this->enabled     = $this->settings['enabled'] == 'yes' ? 'yes': 'no';
             }
 
+            public function EINVOICE_Forms() {
+                $this->form_fields = array(
+                    'enabled' => array(
+                        'title' => __('Enable E-Invoice', 'multisafepay'),
+                        'type' => 'checkbox',
+                        'label' => __('Enable Multisafepay for processing transactions', 'multisafepay'),
+                        'default' => 'yes',
+                        'description' => __('Payments will be possible when active', 'multisafepay'),
+                    ),
+                    'pmtitle' => array(
+                        'title' => __('Title', 'multisafepay'),
+                        'type' => 'text',
+                        'description' => __('Optional:overwrites the title of the payment method during checkout', 'multisafepay'),
+                        'css' => 'width: 300px;'
+                    ),
+                    'description' => array(
+                        'title' => __('Gateway Description', 'multisafepay'),
+                        'type' => 'text',
+                        'description' => __('This will be shown when selecting the gateway', 'multisafepay'),
+                        'css' => 'width: 300px;'
+                    ),
+                );
+            }
+
+
+
             public function process_payment($order_id) {
+                $this->type = 'direct';
+                $this->getGatewayInfo($order_id);
+                $this->getCart($order_id);
+
                 return parent::process_payment($order_id);
             }
+
+
+            private function getGatewayInfo($order_id)
+            {
+                $order = new WC_Order($order_id);
+
+                $this->gatewayInfo = array(
+                    'referrer'    => $_SERVER['HTTP_REFERER'],
+                    'user_agent'  => $_SERVER['HTTP_USER_AGENT'],
+                    'birthday'    => $_POST['EINVOICE_birthday'],
+//                    'bankaccount' => $_POST['PAYAFTER_account'],
+                    'phone'       => $order->billing_phone,
+                    'email'       => $order->billing_email,
+                    'gender'      => ''
+                );
+            }
+
+
+            private function getCart($order_id){
+
+                $order = new WC_Order($order_id);
+
+                $this->shopping_cart    = array();
+                $this->checkout_options = array();
+                $this->checkout_options['tax_tables']['default'] = array ( 'shipping_taxed'=> 'true', 'rate' => '0.21');
+
+                //Add BTW 0%
+                $this->checkout_options['tax_tables']['alternate'][] = array ('name' => 'BTW-0', 'rules' => array (array ('rate' => '0.00')));
+
+                $tax_array = array('BTW-0');
+
+                // Fee
+/*              foreach ($order->get_items('fee') as $fee) {
+
+                    $taxes = unserialize($fee['taxes']);
+                    $taxes = array_shift ($taxes);
+
+                    $tax_table_selector = 'fee';
+                    $tax_percentage = round($taxes /$fee['cost'], 2);
+
+                    $method_id = explode (':', $fee['method_id']);
+
+                    $this->shopping_cart['items'][] = array (
+                        'name'  		     => $fee['type'],
+                        'description' 		 => $fee['name'],
+                        'unit_price'  		 => $fee['cost'],
+                        'quantity'    		 => 1,
+                        'merchant_item_id' 	 => $method_id[0],
+                        'tax_table_selector' => $tax_table_selector,
+                        'weight' 		     => array ('unit'=> 0,  'value'=> 'KG')
+                    );
+
+                    if (!in_array($tax_table_selector, $tax_array)) {
+                        array_push($this->checkout_options['tax_tables']['alternate'], array ('name' => $tax_table_selector, 'rules' => array (array ('rate' => $tax_percentage))));
+                        array_push($tax_array, $tax_table_selector);
+                    }
+                }
+*/
+                // Shipping
+                foreach ($order->get_items('shipping') as $shipping) {
+
+                    $taxes = unserialize($shipping['taxes']);
+                    $taxes = array_shift ($taxes);
+
+                    $tax_table_selector = 'shipping';
+                    $tax_percentage = round($taxes /$shipping['cost'], 2);
+
+                    $method_id = explode (':', $shipping['method_id']);
+
+                    $this->shopping_cart['items'][] = array (
+                        'name'  		     => $shipping['type'],
+                        'description' 		 => $shipping['name'],
+                        'unit_price'  		 => $shipping['cost'],
+                        'quantity'    		 => 1,
+                        'merchant_item_id' 	 => $method_id[0],
+                        'tax_table_selector' => $tax_table_selector,
+                        'weight' 		     => array ('unit'=> 0,  'value'=> 'KG')
+                    );
+
+                    if (!in_array($tax_table_selector, $tax_array)) {
+                        array_push($this->checkout_options['tax_tables']['alternate'], array ('name' => $tax_table_selector, 'rules' => array (array ('rate' => $tax_percentage))));
+                        array_push($tax_array, $tax_table_selector);
+                    }
+                }
+
+                //add coupon discount
+                foreach ($order->get_items('coupon') as $coupon) {
+
+                    $tax_table_selector = $coupon['type'];
+                    $tax_percentage = round($coupon['discount_amount_tax'] /$coupon['discount_amount'], 2);
+
+                    $this->shopping_cart['items'][] = array (
+                        'name'  		     => $coupon['type'],
+                        'description' 		 => $coupon['name'],
+                        'unit_price'  		 => -$coupon['discount_amount'],
+                        'quantity'    		 => 1,
+                        'merchant_item_id' 	 => $coupon['type'],
+                        'tax_table_selector' => $tax_table_selector,
+                        'weight' 		     => array ('unit'=> 0,  'value'=> 'KG')
+                    );
+
+                    if (!in_array($tax_table_selector, $tax_array)) {
+                        array_push($this->checkout_options['tax_tables']['alternate'], array ('name' => $tax_table_selector, 'rules' => array (array ('rate' => $tax_percentage))));
+                        array_push($tax_array, $tax_table_selector);
+                    }
+                }
+
+                //add item data
+                $items = "<ul>\n";
+                foreach ($order->get_items() as $item) {
+
+                    $items .= "<li>" . $item['qty'].' x : '. $item['name'] . "</li>\n";
+
+                    $tax_percentage = round($item['line_subtotal_tax']   / $item['line_subtotal'], 2);
+                    $product_price          = round($item['line_subtotal'] / $item['qty'], 5);
+
+                    if ($item['line_subtotal_tax'] > 0) {
+                        $tax_table_selector =  'BTW-'. $tax_percentage*100;
+                    } else {
+                        $tax_table_selector = 'BTW-0';
+                    }
+
+                    $this->shopping_cart['items'][] = array (
+                        'name'  		     => $item['name'],
+                        'description' 		 => '',
+                        'unit_price'  		 => $product_price,
+                        'quantity'    		 => $item['qty'],
+                        'merchant_item_id' 	 => $item['product_id'],
+                        'tax_table_selector' => $tax_table_selector,
+                        'weight' 		     => array ('unit'=> 0,  'value'=> 'KG')
+                    );
+
+
+
+                    if (!in_array($tax_table_selector, $tax_array)) {
+                        array_push($this->checkout_options['tax_tables']['alternate'], array ('name' => $tax_table_selector, 'rules' => array (array ('rate' => $tax_percentage))));
+                        array_push($tax_array, $tax_table_selector);
+                    }
+                }
+
+                $items .= "</ul>\n";
+            }
+
+
 
             public static function MULTISAFEPAY_EINVOICE_Add_Gateway($methods) {
                 $methods[] = 'WC_MULTISAFEPAY_EINVOICE';
