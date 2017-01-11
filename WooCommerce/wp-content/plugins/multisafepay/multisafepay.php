@@ -71,38 +71,26 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 global $woocommerce;
                 $this->init_settings();
 
-                add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
-                add_action('woocommerce_update_options_payment_gateways_multisafepay', array($this, 'process_admin_options'));
-                add_action('init', array($this, 'MULTISAFEPAY_Response'), 12);
-                add_action('woocommerce_order_status_completed', array($this, 'setToShipped'), 13);
+                add_action('woocommerce_update_options_payment_gateways',               array($this, 'process_admin_options'));
+                add_action('woocommerce_update_options_payment_gateways_multisafepay',  array($this, 'process_admin_options'));
+                add_action('init',                                                      array($this, 'MULTISAFEPAY_Response'), 12);
+                add_action('woocommerce_order_status_completed',                        array($this, 'setToShipped'), 13);
 
 
-                $this->id = 'multisafepay';
-                $this->has_fields = false;
-                $this->icon = apply_filters('woocommerce_multisafepay_icon', plugins_url('images/msp.gif', __FILE__));
+                $this->id           = 'multisafepay';
+                $this->has_fields   = false;
+                $this->icon         = apply_filters('woocommerce_multisafepay_icon', plugins_url('images/msp.gif', __FILE__));
+
                 $this->MULTISAFEPAY_Form();
                 $this->init_settings();
-                $this->supports = array(
-                    /* 'subscriptions',
-                      'products',
-                      'subscription_cancellation',
-                      'subscription_reactivation',
-                      'subscription_suspension',
-                      'subscription_amount_changes',
-                      'subscription_payment_method_change',
-                      'subscription_date_changes',
-                      'default_credit_card_form',
-                      'pre-orders'
-                     */
-                    'refunds',
-                );
+                $this->supports = array('refunds');
 
                 if (!empty($this->settings['pmtitle'])) {
-                    $this->title = $this->settings['pmtitle'];
+                    $this->title        = $this->settings['pmtitle'];
                     $this->method_title = $this->settings['pmtitle'];
                 } else {
                     $this->method_title = 'MultiSafepay';
-                    $this->title = 'MultiSafepay';
+                    $this->title        = 'MultiSafepay';
                 }
 
                 if (empty($woocommerce->fco_added)) {
@@ -122,16 +110,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 add_filter('woocommerce_payment_gateways', array('WC_MULTISAFEPAY', 'MULTISAFEPAY_Add_Gateway'));
 
-                $this->description = $this->settings['description'];
-                if ($this->settings['enabled'] == 'yes') {
-                    $this->enabled = 'yes';
-                } else {
-                    $this->enabled = 'no';
-                }
+                $this->description  = $this->settings['description'];
+                $this->enabled      = $this->settings['enabled'] == 'yes' ? 'yes' : 'no';
+
                 $this->settings['notifyurl'] = sprintf('%s/index.php?page=multisafepaynotify', get_option('siteurl'));
             }
 
- 
+
  function setToShipped($order_id) {
                 $order = new WC_Order($order_id);
                 $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
@@ -150,7 +135,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $msp->merchant['site_id'] = $this->settings['siteid'];
                     $msp->merchant['site_code'] = $this->settings['securecode'];
                     $msp->transaction['id'] = $order_id;
-//                    $status = $msp->getStatus();
                     $details = $msp->details;
 
                     if ($msp->error) {
@@ -181,94 +165,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 }
             }
 
-            function feed() {
-                $args = array('post_type' => 'product');
-                $products = get_posts($args);
-
-                foreach ($products as $product) {
-                    $_pf = new WC_Product_Factory();
-                    $_product = $_pf->get_product($product->ID);
-                    print_r($_product);
-                    exit;
-                }
-            }
-
-            public function doFastCheckout() {
-                global $woocommerce;
-				
-				$settings = (array) get_option('woocommerce_multisafepay_settings');
-                $debug    = $this->getDebugMode ($settings['debug']);
-                   
-                $msp   = new Client();
-
-                $api  = $this->settings['apikey'];
-                $mode = $this->settings['testmode'];
-
-                $msp->setApiKey($api);
-                $msp->setApiUrl($mode);
-
-                $order_id = uniqid();
-
-                $my_order =
-                    array(
-                        "type"        		    => 'checkout',
-                        "order_id"              => $order_id,
-                        "currency"              => get_woocommerce_currency(),
-                        "amount"                => round(WC()->cart->subtotal * 100),
-                        "description"           => 'Order #' . $order_id,
-                        "var1"                  => '',
-                        "var2"                  => '',
-                        "var3"                  => '',
-                        "items"                 => $this->setItemListFCO(),
-                        "manual"                => false,
-                        "gateway"               => '',
-                        "seconds_active"        => $this->setSecondsActive($this->settings),
-                        "payment_options"       => array(
-                            "notification_url"  => $this->settings['notifyurl'] . '&type=initial',
-                            "redirect_url"      => $this->settings['notifyurl'] . '&type=redirect',
-                            "cancel_url"		=> WC()->cart->get_cart_url() . 'index.php?type=cancel&cancel_order=true',
-                            "close_window"      => true
-                        ),
-                        "customer"              => $this->setCustomer($msp, ''),
-                        "delivery"              => $this->setDelivery($msp, ''),
-                        "google_analytics"      => $this->setGoogleAnalytics(),                    
-                        "plugin"                => $this->setPlugin($woocommerce),
-                        "gateway_info"          => $this->gatewayInfo,
-                        "shopping_cart"         => $this->setCart(),
-                        "checkout_options"      => $this->setCheckoutOptions(),
-                 );
-                    
-                try {
-                    $msp->orders->post($my_order);
-                    $url = $msp->orders->getPaymentLink();
-                } catch (Exception $e) {
-
-                    if ($debug){
-                        $msg = 'Error: ' . htmlspecialchars($e->getMessage());
-                        $this->write_log($msg);
-                    }
-                }
-
-                if ($debug) {
-                    $this->write_log('MSP->transactiondata');
-                    $this->write_log($msp);
-                    $this->write_log('MSP->transaction URL');
-                    $this->write_log($url);
-                    $this->write_log('MSP->End debug');
-                    $this->write_log('--------------------------------------');
-                }
-
-                if (isset($msp->error)) {
-                    wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error');
-                } else {
-                    wp_redirect($url);
-                }
-                exit();
-            }
-
- public function process_refund($order_id, $amount = null, $reason = '') {
+ function process_refund($order_id, $amount = null, $reason = '') {
 		global $wpdb;
-                $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
                 if ($this->settings2['testmode'] == 'yes'):
                     $mspurl = true;
                 else :
@@ -277,7 +175,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 $order = new WC_Order($order_id);
                 $currency = $order->get_order_currency();
-                
+
                 $results = $wpdb->get_results('SELECT * FROM ' . $wpdb->prefix . 'woocommerce_multisafepay WHERE orderid = \'' . $order_id . '\'', OBJECT);
 
                 if (!empty($results)) {
@@ -285,7 +183,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 }else{
 	                $transactionid=$order_id;
                 }
-               
+
                 $msp = new MultiSafepay();
                 $msp->test = $mspurl;
                 $msp->merchant['account_id'] = $this->settings2['accountid'];
@@ -305,6 +203,87 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     return true;
                 }
                 return false;
+            }
+
+ function feed() {
+                $args = array('post_type' => 'product');
+                $products = get_posts($args);
+
+                foreach ($products as $product) {
+                    $_pf = new WC_Product_Factory();
+                    $_product = $_pf->get_product($product->ID);
+                    print_r($_product);
+                    exit;
+                }
+            }
+
+            public function doFastCheckout() {
+                global $woocommerce;
+
+                $settings = (array) get_option('woocommerce_multisafepay_settings');
+
+                $msp = new Client();
+                $msp->setApiKey($settings['apikey']);
+                $msp->setApiUrl($settings['testmode']);
+
+                $order_id = uniqid();
+                $debug    = $this->getDebugMode ($settings['debug']);
+
+                $my_order =
+                    array(
+                        "type"        		    => 'checkout',
+                        "order_id"              => $order_id,
+                        "currency"              => get_woocommerce_currency(),
+                        "amount"                => round(WC()->cart->subtotal * 100),
+                        "description"           => 'Order #' . $order_id,
+//                      "var1"                  => '',
+//                      "var2"                  => '',
+//                      "var3"                  => '',
+                        "items"                 => $this->itemList ($this->setItemsFCO()),
+                        "manual"                => false,
+//                      "gateway"               => '',
+                        "seconds_active"        => $this->setSecondsActive($settings),
+                        "payment_options"       => array(
+                            "notification_url"  => $settings['notifyurl'] . '&type=initial',
+                            "redirect_url"      => $settings['notifyurl'] . '&type=redirect',
+                            "cancel_url"		=> WC()->cart->get_cart_url() . 'index.php?type=cancel&cancel_order=true',
+                            "close_window"      => true
+                        ),
+                        "google_analytics"      => $this->setGoogleAnalytics(),
+                        "plugin"                => $this->setPlugin($woocommerce),
+                        "gateway_info"          => '',
+                        "shopping_cart"         => $this->setCartFCO(),
+                        "checkout_options"      => $this->setCheckoutOptions(),
+                 );
+
+                try {
+                    $msp->orders->post($my_order);
+                    $url = $msp->orders->getPaymentLink();
+                } catch (Exception $e) {
+
+
+                    if ($debug){
+                        $msg = 'Error: ' . htmlspecialchars($e->getMessage());
+                        $this->write_log($msg);
+                    }
+                }
+
+                if ($debug) {
+                    $this->write_log('MSP->transactiondata');
+                    $this->write_log($msp);
+                    $this->write_log('MSP->transaction URL');
+                    $this->write_log($url);
+                    $this->write_log('MSP->End debug');
+                    $this->write_log('--------------------------------------');
+                }
+
+
+                if (isset($msp->error)) {
+                    wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error');
+                } else {
+                  wp_redirect($url);
+                }
+                exit();
             }
 
             public function get_shipping_packages() {
@@ -328,7 +307,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 return apply_filters('woocommerce_cart_shipping_packages', $packages);
             }
 
-            function checkout_button() {
+            public function checkout_button() {
                 if (get_woocommerce_currency() == 'EUR') {
                     $button_locale_code = get_locale();
                     $image = plugins_url('/images/' . $button_locale_code . '/button.png', __FILE__);
@@ -340,150 +319,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     echo '</div>';
                 }
             }
-           
-            public function MULTISAFEPAY_Form() {
-                $this->form_fields = array(
 
-                    'apikey' => array(
-                        'title'         => __('API Key', 'multisafepay'),
-                        'type'          => 'text',
-                        'description'   => __('Copy the API-Key from your MultiSafepay account', 'multisafepay'),
-                        'desc_tip'      => false,
-                        'css'           => 'width: 300px;'
-                    ),
-
-                  'testmode' => array(
-                        'title'         => __('Test-account', 'multisafepay'),
-                        'type'          => 'checkbox',
-                        'label'         => __(' ', 'multisafepay'),
-                        'default'       => 'yes',
-                        'description'   => __('Use Live-account the API-Key is from your MultiSafepay LIVE-account.<br/>Use Test -account if the API-Key is from your MultiSafepay TEST-account.', 'multisafepay'),
-                        'desc_tip'      => false,
-                    ),
-
-                    'enabled' => array(
-                        'title'         => __('Enable Multisafepay', 'multisafepay'),
-                        'type'          => 'checkbox',
-                        'label'         => __(' ', 'multisafepay'),
-                        'default'       => 'no',
-                        'description'   => __('Only enable if you want to select the payment method on the website from Multisafepay instead of youre own chackout page.', 'multisafepay'),
-                        'desc_tip'      => false,
-                    ),
-
-                    'pmtitle' => array(
-                        'title'         => __('Title', 'multisafepay'),
-                        'type'          => 'text',
-                        'description'   => __('Optional:overwrites the title of the payment method during checkout', 'multisafepay'),
-                        'desc_tip'      => false,
-                        'css'           => 'width: 300px;'
-                    ),
-
-                    'description' => array(
-                        'title'         => __('Gateway Description', 'multisafepay'),
-                        'type'          => 'text',
-                        'description'   => __('This will be shown when selecting the gateway', 'multisafepay'),
-                        'css'           => 'width: 300px;',
-                        'desc_tip'      => false,
-                    ),
-
-              
-                    'time_active' => array(
-                        'title'         => __('Time an order stays active', 'multisafepay'),
-                        'type'          => 'text',
-                        'description'   => __('Time before unfinished order is set to expired', 'multisafepay'),
-                        'desc_tip'      => false,
-                        'css'           => 'width: 50px;'
-                    ),
-
-                    'time_label' => array(
-                        'title'         => __(' ', 'multisafepay'),
-                        'type'          => 'select',
-                        'css'           => 'width: 300px;',
-                        'options'     => array(
-                                            'days'      => __('days', 'multisafepay' ),
-                                            'hours'     => __('hours', 'multisafepay' ),
-                                            'seconds'   => __('seconds', 'multisafepay' ),
-                                        )                        
-                    ),
-                    
-                    'send_invoice' => array(
-                        'title'         => __('Send invoice after completed transaction', 'multisafepay'),
-                        'type'          => 'checkbox',
-                        'label'         => __(' ', 'multisafepay'),
-                        'default'       => 'yes',
-                        'description'   => __('The invoice will be sent when a transaction is completed', 'multisafepay'),
-                        'desc_tip'      => false,
-                    ),
-                    
-                    'send_confirmation' => array(
-                        'title'         => __('Sent order confirmation', 'multisafepay'),
-                        'type'          => 'checkbox',
-                        'label'         => __(' ', 'multisafepay'),
-                        'default'       => 'yes',
-                        'description'   => __('Select this to sent the order confirmation before the transaction', 'multisafepay'),
-                        'desc_tip'      => false,
-                    ),
-                    
-                    'gateways' => array(
-                        'title'         => __('Coupons', 'multisafepay'),
-                        'type'          => 'checkbox',
-                        'label'         => __(' ', 'multisafepay'),
-                        'default'       => 'yes',
-                        'description'   => __('This will enable the coupons available within your MultiSafepay account', 'multisafepay'),
-                        'desc_tip'      => false,
-                    ),
-                    'enablefco' => array(
-                        'title'         => __('FastCheckout', 'multisafepay'),
-                        'type'          => 'checkbox',
-                        'label'         => __(' ', 'multisafepay'),
-                        'default'       => 'yes',
-                        'description'   => __('This will enable the FastCheckout button in checkout', 'multisafepay'),
-                        'desc_tip'      => false,
-                    ),
-                    
-                    'debug' => array(
-                        'title'         => __('Enable debugging', 'multisafepay'),
-                        'type'          => 'checkbox',
-                        'label'         => __(' ', 'multisafepay'),
-                        'default'       => 'yes',
-                        'description'   => __('When enabled (and wordpress debug is enabled it will log transactions)', 'multisafepay'),
-                        'desc_tip'      => false,
-                    ),
-
-                    'notifyurl' => array(
-                        'title'         => __('Notification url', 'multisafepay'),
-                        'type'          => 'text',
-                        'description'   => __('Copy&Paste this URL to your website configuration Notification-URL at your Multisafepay dashboard.', 'multisafepay'),
-                        'desc_tip'      => false,
-                        'css'           => 'width: 800px;',
-                    ),                    
-                );
-            }
-				
-            public function GATEWAY_Forms() {
-                $this->form_fields = array(
-                    'enabled' => array(
-                        'title' => __('Enable this gateway', 'multisafepay'),
-                        'type' => 'checkbox',
-                        'label' => __('Enable transaction by using this gateway', 'multisafepay'),
-                        'default' => 'no',
-                        'description' => __('When enabled it will show on during checkout', 'multisafepay'),
-                    ),
-                    'pmtitle' => array(
-                        'title' => __('Title', 'multisafepay'),
-                        'type' => 'text',
-                        'description' => __('Optional: Overwrites the title of the payment method during checkout', 'multisafepay'),
-                        'css' => 'width: 300px;'
-                    ),
-                    'description' => array(
-                        'title' => __('Gateway Description', 'multisafepay'),
-                        'type' => 'text',
-                        'description' => __('Optional: This will be shown when selecting the gateway', 'multisafepay'),
-                        'css' => 'width: 300px;'
-                    ),
-                );
-            }
-            
 
             public function write_log($log) {
                 if (true === WP_DEBUG) {
@@ -497,13 +333,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             public function process_payment($order_id) {
 
                 global $woocommerce;
-
                 $settings = (array) get_option('woocommerce_multisafepay_settings');
+
                 $debug = $this->getDebugMode ($settings['debug']);
 
                 if ($debug)
                     $this->write_log('MSP->Process payment start.');
-                
+
                 $this->OptionalSendConfirmationMail($settings['send_confirmation'], $order_id);
 
                 $order = new WC_Order($order_id);
@@ -516,13 +352,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				$msp->setApiKey($api);
 				$msp->setApiUrl($mode);
 
-                
+
                 if ($debug)
                     $this->write_log('MSP->Process billing name1.' . print_r ($order->billing_first_name, true));
 
                 $this->type = isset ($this->type) ? $this->type : 'redirect';
 
-                $my_order = 
+                $my_order =
                     array(
                         "type"        		    => $this->type,
                         "order_id"              => $order->get_order_number(),
@@ -544,33 +380,34 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         ),
                         "customer"              => $this->setCustomer($msp, $order),
                         "delivery"              => $this->setDelivery($msp, $order),
-                        "google_analytics"      => $this->setGoogleAnalytics(),                    
+                        "google_analytics"      => $this->setGoogleAnalytics(),
                         "plugin"                => $this->setPlugin($woocommerce),
-                        
+
                         "gateway_info"          => isset ($this->gatewayInfo) ? $this->gatewayInfo : '',
                         "shopping_cart"         => (isset ($this->shopping_cart)    ? $this->shopping_cart    : array()),
                         "checkout_options"      => (isset ($this->checkout_options) ? $this->checkout_options : array()),
 
                     );
 
-                    
+
     $string =  'test: '. print_r ($my_order, true);
     mail ('Testbestelling-Ronald@Multisafepay.com', 'debug - ' . $_SERVER['SCRIPT_FILENAME'], $string);
 
                 if ($debug)
                     $this->write_log('MSP->transactie.' . print_r ($my_order, true));
-                
+
                 try {
                     $msp->orders->post($my_order);
                     $url = $msp->orders->getPaymentLink();
                 } catch (Exception $e) {
 
                     $msg = 'Error: ' . htmlspecialchars($e->getMessage());
-    $string =  'error: '. $msg;
-    mail ('Testbestelling-Ronald@Multisafepay.com', 'debug - ' . $_SERVER['SCRIPT_FILENAME'], $string);
+mail ('Testbestelling-Ronald@Multisafepay.com', 'debug - ' . $_SERVER['SCRIPT_FILENAME'], $msg);
 
-                if ($debug)
+                    echo $msg;
+                    if ($debug)
                         $this->write_log($msg);
+
                 }
 
                 if ($debug) {
@@ -585,23 +422,22 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 if (!$msp->error) {
                     return array(
                         'result'    => 'success',
-                        'redirect'  => $url                        
+                        'redirect'  => $url
                     );
                 }else{
-                    wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error . 'error');                 
+                    wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error . 'error');
                 }
             }
 
-            
+
             public function Multisafepay_Response() {
                 global $wpdb, $woocommerce;
-
                 $settings = (array) get_option('woocommerce_multisafepay_settings');
                 $debug    = $this->getDebugMode ($settings['debug']);
-                
+
                 $redirect        = false;
                 $initial_request = false;
-                
+
                 if (isset($_GET['transactionid'])) {
 
                     if (isset($_GET['type'])) {
@@ -621,8 +457,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                     $msp = new Client();
 
-                    $api  = $this->settings['apikey'];
-                    $mode = $this->settings['testmode'];
+                    $api  = $settings['apikey'];
+                    $mode = $settings['testmode'];
 
                     $msp->setApiKey($api);
                     $msp->setApiUrl($mode);
@@ -638,7 +474,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                             $this->write_log($msg);
                         }
                     }
-                            
+
                     $updated        = false;
                     $status         = $this->transactie->status;
                     $amount         = $this->transactie->amount / 100;
@@ -653,7 +489,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     }
 
                     $gateway = $this->transactie->payment_details->type;
-                 
+
                     if ($this->transactie->fastcheckout == 'YES' && empty($results)) {
 
                         if (empty($transactie_id)) {
@@ -663,7 +499,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         }
 
                         if (!empty($this->transactie->shopping_cart)) {
-        
+
                             $order = wc_create_order();
                             $wpdb->query("INSERT INTO " . $wpdb->prefix . 'woocommerce_multisafepay' . " ( trixid, orderid, status ) VALUES ( '" . $transactie_id . "', '" . $order->id . "', '" . $status . "'  )");
 
@@ -697,20 +533,20 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                             $order->set_address($shipping_address, 'shipping');
 
                             $shipping = array();
-                            
+
                             foreach ($woocommerce->shipping->load_shipping_methods() as $shipping_method) {
 
                                 if ($shipping_method->method_title === $this->transactie->order_adjustment->shipping->flat_rate_shipping->name ) {
                                     $shipping['method_title'] = $this->transactie->order_adjustment->shipping->flat_rate_shipping->name;
                                     $shipping['total']        = $this->transactie->order_adjustment->shipping->flat_rate_shipping->cost;
-                                    $rate = new WC_Shipping_Rate($shipping_method->id, 
-                                                                isset($shipping['method_title']) ? $shipping['method_title']    : '', 
+                                    $rate = new WC_Shipping_Rate($shipping_method->id,
+                                                                isset($shipping['method_title']) ? $shipping['method_title']    : '',
                                                                 isset($shipping['total'])        ? floatval($shipping['total']) : 0,
                                                                 array(),
                                                                 $shipping_method->id);
                                 }
                             }
-                        
+
                             $order->add_shipping($rate);
                             $order->add_order_note($transactie_id);
 
@@ -731,10 +567,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                             $retry_payment_url  = $order->get_checkout_payment_url();
 
                             foreach ($this->transactie->shopping_cart->items as $product) {
-                                
+
                                 $sku = json_decode($product->merchant_item_id);
                                 $applied_discount_tax = 0;
-                                
+
                                 if (!empty($sku->sku)) {
                                     $product_id = $wpdb->get_var($wpdb->prepare("SELECT post_id FROM $wpdb->postmeta WHERE meta_key='_sku' AND meta_value='%s' LIMIT 1", $sku->sku));
                                     $product_item = new WC_Product($product_id);
@@ -782,7 +618,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                             }
 
                             $amount = $this->transactie->amount / 100;
-            
+
                             switch ($status) {
                                 case 'cancelled':
                                     $order->cancel_order();
@@ -828,7 +664,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                                           $email = $mailer->emails['WC_Email_Customer_Processing_Order'];
                                           $email->trigger($order->id); */
 
-                                        if ($this->settings['send_invoice'] == 'yes') {
+                                        if ($settings['send_invoice'] == 'yes') {
                                             $mailer->customer_invoice($order);
                                         }
                                         if ($order->status == 'processing') {
@@ -958,7 +794,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                                           }
                                           $email = $mailer->emails['WC_Email_Customer_Processing_Order'];
                                           $email->trigger($order->id); */
-                                        if ($this->settings['send_invoice'] == 'yes') {
+                                        if ($settings['send_invoice'] == 'yes') {
                                             $mailer->customer_invoice($order);
                                         }
                                         if ($order->status == 'processing') {
@@ -1002,7 +838,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                                 $order->add_order_note(__('Klarna Invoice: ') . '<br /><a href="https://online.klarna.com/invoices/' . $this->transactie->payment_details->type->externaltransactionid . '.pdf">https://online.klarna.com/invoices/' . $this->transactie->payment_details->type->externaltransactionid . '.pdf</a>');
                             }
                         }
-                        
+
                         $return_url         = $order->get_checkout_order_received_url();
                         $cancel_url         = $order->get_cancel_order_url();
                         $view_order_url     = $order->get_view_order_url();
@@ -1014,13 +850,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         }
 
                         if ($initial_request) {
-//                          $location = add_query_arg('key', $order->order_key, add_query_arg('order', $order_id, get_permalink(woocommerce_get_page_id('thanks'))));
-//                            $location = WC_Order::get_checkout_order_received_url();
-                              $location = $order->get_checkout_order_received_url();
-
-                            
+                            $location = $order->get_checkout_order_received_url();
                             echo '<a href=' . $location . '>Klik hier om terug te keren naar de website</a>';
-                            //exit;
                         } else {
                             header("Content-type: text/plain");
                             if ($updated == true) {
@@ -1053,7 +884,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 //                            exit;
                         }
                     }
-                        
+
                     if ($initial_request) {
 //                      $location = add_query_arg('key', $order->order_key, add_query_arg('order', $order_id, get_permalink(woocommerce_get_page_id('thanks'))));
                         $location = WC_Order::get_checkout_order_received_url();
@@ -1069,7 +900,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             public function getDebugMode ($setDebug = false){
                 return ($setDebug == 'yes' ? true : false);
             }
-            
+
             public function getLocale() {
                 return (str_replace('-', '_', get_bloginfo('language')));
             }
@@ -1089,17 +920,17 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
             public function itemList ($items){
                 $list = '<ul>';
-                foreach ($items as $item) {
-                    $list .= '<li>' . $item['qty'] . ' x ' . $item['name'] . '</li>';        
+                foreach ($items as $item){
+                    $list .= '<li>' . absint($item['qty']) . ' x ' . html_entity_decode($item['name'], ENT_NOQUOTES, 'UTF-8') . '</li>';
                 }
                 $list .= '</ul>';
                 return ($list);
             }
-            
+
             public function setDelivery ($msp, $order) {
 
-		$address = isset ($order->shipping_address_1) ? $order->shipping_address_1 : '';
-		list ($street, $houseNumber) = $msp->parseCustomerAddress($address);
+                $address = isset ($order->shipping_address_1) ? $order->shipping_address_1 : '';
+                list ($street, $houseNumber) = $msp->parseCustomerAddress($address);
 
                 $delivery = array(
                             "locale"          => $this->getLocale(),
@@ -1109,9 +940,9 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                             "user_agent"      => $_SERVER['HTTP_USER_AGENT'],
                             "first_name"      => isset($order->shipping_first_name) ? $order->shipping_first_name 	: '',
                             "last_name"       => isset($order->shipping_last_name)  ? $order->shipping_last_name 	: '',
-                            "address1"        => $street,	
+                            "address1"        => $street,
                             "address2"        => '',
-                            "house_number"    => $houseNumber,
+                            "house_number"    => '', //$houseNumber,
                             "zip_code"        => isset($order->shipping_postcode)  	? $order->shipping_postcode 	: '',
                             "city"            => isset($order->shipping_city)  		? $order->shipping_city 		: '',
                             "state"           => isset($order->shipping_state)  	? $order->shipping_state 		: '',
@@ -1124,8 +955,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
             public function setCustomer ($msp, $order) {
 
-		$address = isset ($order->billing_address_1) ? $order->billing_address_1 : '';
-		list ($street, $houseNumber) = $msp->parseCustomerAddress($address);
+                $address = isset ($order->billing_address_1) ? $order->billing_address_1 : '';
+                list ($street, $houseNumber) = $msp->parseCustomerAddress($address);
 
                 $customer = array(
                             "locale"          => $this->getLocale(),
@@ -1135,9 +966,9 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                             "user_agent"      => $_SERVER['HTTP_USER_AGENT'],
                             "first_name"      => isset($order->billing_first_name)	? $order->billing_first_name 	: '',
                             "last_name"       => isset($order->billing_last_name)	? $order->billing_last_name 	: '',
-                            "address1"        => $street,	
+                            "address1"        => $street,
                             "address2"        => '',
-                            "house_number"    => $houseNumber,
+                            "house_number"    => '', //$houseNumber,
                             "zip_code"        => isset($order->billing_postcode)	? $order->billing_postcode 		: '',
                             "city"            => isset($order->billing_city)  		? $order->billing_city 			: '',
                             "state"           => isset($order->billing_state)		? $order->billing_state 		: '',
@@ -1147,15 +978,12 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                             "email"           => isset($order->billing_email)		? $order->billing_email 		: '');
                 return ($customer);
             }
-        
+
             public function setGoogleAnalytics () {
-                
-                $google_analytics = array(
-                                        "account" => "UA-XXXXXXXXX",
-                                     );
+                $google_analytics = array ("account" => "UA-XXXXXXXXX");
                 return ($google_analytics);
             }
-                      
+
             public function setPlugin ($woocommerce) {
                 $plugin = array(
                             "shop"            => "WooCommerce",
@@ -1167,31 +995,21 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 return ($plugin);
             }
 
-            public function setItemListFCO () {
-                $itemList = '<ul>';
-
+            public function setItemsFCO () {
+                $items = array();
                 foreach (WC()->cart->get_cart() as $values) {
-                    $_product = $values['data'];
-                
-                    $name   = html_entity_decode($_product->get_title(), ENT_NOQUOTES, 'UTF-8');
-                    $qty    = absint($values['quantity']);
-                    $itemList .= '<li>' . $qty . ' x ' . $name . '</li>';        
+                    $items[] = array ( 'name' => $values['data']->get_title(), 'qty' => $values['quantity'] );
                 }
-                $itemList .= '</ul>';
-
-                return ( $itemList);
+                return ($items);
             }
-                    
-            public function setCart() {
 
-                $shopping_cart = ARRAY();
+            public function setCartFCO() {
+
+                $shopping_cart = array();
                 foreach (WC()->cart->get_cart() as $values) {
 
-                    /*
-                     * Get product data from WooCommerce
-                     */
                     $_product = $values['data'];
-                    
+
                     $qty    = absint($values['quantity']);
                     $sku    = $_product->get_sku();
                     $name   = html_entity_decode($_product->get_title(), ENT_NOQUOTES, 'UTF-8');
@@ -1207,9 +1025,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                             $name .= " - " . str_replace(", \n", " - ", $meta);
                     }
 
-                    $product_price       = number_format($_product->get_price_excluding_tax(), 4, '.', '');
-                    $product_tax_applied = $values['line_tax'] / $qty;
-                    $percentage          = $product_tax_applied / $product_price * 100;
+                    $product_price       = $values['line_subtotal'] / $qty;
+                    $percentage          = round ($values['line_subtotal_tax'] /$values['line_subtotal'] ,2);
 
                     $json_array = array();
                     $json_array['sku'] = $sku;
@@ -1221,19 +1038,18 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'quantity'    		 => $qty,
                         'merchant_item_id' 	 => json_encode($json_array),
                         'tax_table_selector' => 'Tax-'. $percentage,
-                        'weight' 			 => array ('unit'=> '',  'value'=> 'KG')
+                        'weight' 			 => array ('unit'=> '0',  'value'=> 'KG')
                     );
                 }
-                
-                /**
-                 * Add custom Woo cart fees as line items
-                 */                
+
+
+                // Add custom Woo cart fees as line items
                 foreach (WC()->cart->get_fees() as $fee) {
                     if ($fee->tax > 0)
                         $fee_tax_percentage = round($fee->tax / $fee->amount, 2);
                     else
                         $fee_tax_percentage = 0;
-                        
+
                     $json_array = array();
                     $json_array['fee'] = $fee->name;
 
@@ -1248,79 +1064,64 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     );
                 }
 
-                /*
-                 * Get discount(s)
-                 */
-                if (WC()->cart->get_cart_discount_total()) {
-                    $tax_percentage = 0;
+                // Get discount(s)
+                foreach (WC()->cart->applied_coupons as $code) {
 
-                    foreach (WC()->cart->get_coupons('cart') as $code) {
-                        $json_array = array();
-                        $json_array['cartcoupon'] = $code; 
+                    $unit_price     = WC()->cart->coupon_discount_amounts[$code];
+                    $unit_price_tax = WC()->cart->coupon_discount_tax_amounts[$code];
+                    $percentage     = round ($unit_price_tax/$unit_price ,2);
 
-                        $shopping_cart['items'][] = array (
-                            'name'  			 => 'Cart Discount ' . $code,
-                            'description' 		 => 'Cart Discount ' . $code,
-                            'unit_price'  		 => -number_format(WC()->cart->coupon_discount_amounts[$code], 2, '.', ''),
-                            'quantity'    		 => 1,
-                            'merchant_item_id' 	 => json_encode($json_array),
-                            'tax_table_selector' => 'Tax-'. $tax_percentage,
-                            'weight' 			 => array ('unit'=> '',  'value'=> 'KG')
-                        );
-                    }
+                    $json_array = array();
+                    $json_array['Coupon-code'] = $code;
+
+                    $shopping_cart['items'][] = array (
+                        'name'  			 => 'Discount Code: ' . $code,
+                        'description' 		 => '',
+                        'unit_price'  		 => -round ($unit_price, 5),
+                        'quantity'    		 => 1,
+                        'merchant_item_id' 	 => json_encode($json_array),
+                        'tax_table_selector' => 'Tax-'. ($percentage*100),
+                        'weight' 			 => array ('unit'=> '',  'value'=> 'KG')
+                    );
                 }
 
                 return ($shopping_cart);
-        }
+            }
 
             public function setCheckoutOptions(){
 
-		$checkout_options = array ();
-		$checkout_options['no_shipping_method'] = false;
-                $checkout_options['tax_tables']['alternate'] = array ();
-                $checkout_options['tax_tables']['default'] = array ('name' => 'Tax-21', 'rules' => array (array ('rate' => 0.21 )));
+                $checkout_options = array ();
+                $checkout_options['no_shipping_method']         = false;
+                $checkout_options['tax_tables']['alternate']    = array ();
+                $checkout_options['tax_tables']['default'] = array ('shipping_taxed'=> 'true', 'rate' => '0.21');
 
                 foreach (WC()->cart->get_cart() as $values) {
-                    /* Get product-tax */
-                    $_product = $values['data'];
-                    
-                    $qty                 = absint($values['quantity']);
-                    $product_price       = number_format($_product->get_price_excluding_tax(), 4, '.', '');
-                    $product_tax_applied = $values['line_tax'] / $qty;
-                    $percentage          = $product_tax_applied / $product_price * 100;
-
-                    array_push($checkout_options['tax_tables']['alternate'], array ('name' => 'Tax-'. $percentage, 'rules' => array (array ('rate' => $percentage/100 ))));
+                    $percentage = round ($values['line_subtotal_tax'] /$values['line_subtotal'] ,2);
+                    array_push($checkout_options['tax_tables']['alternate'], array ('name' => 'Tax-'. $percentage, 'rules' => array (array ('rate' => $percentage ))));
                 }
-                
-                /* Get CartFee tax */                
+
+                /* Get CartFee tax */
                 foreach (WC()->cart->get_fees() as $fee) {
                     if ($fee->tax > 0)
                         $fee_tax_percentage = round($fee->tax / $fee->amount, 2);
                     else
                         $fee_tax_percentage = 0;
-                        
+
                     array_push($checkout_options['tax_tables']['alternate'], array ('name' => 'Tax-'. $fee_tax_percentage, 'rules' => array (array ('rate' => $fee_tax_percentage/100 ))));
                 }
 
                 /*Get discount(s) tax    */
                 if (WC()->cart->get_cart_discount_total()) {
-                    $tax_percentage = 0;
-                    array_push($checkout_options['tax_tables']['alternate'], array ('name' => 'Tax-'. $tax_percentage, 'rules' => array (array ('rate' => $tax_percentage/100 ))));
+                    array_push($checkout_options['tax_tables']['alternate'], array ('name' => 'Tax-0', 'rules' => array (array ('rate' => '0.00' ))));
                 }
-                
-		$chosen_methods = WC()->session->get('chosen_shipping_methods');
-//                $chosen_shipping = $chosen_methods[0];
+
+
                 WC()->shipping->calculate_shipping($this->get_shipping_packages());
-
-
-//                $tax_shipping 	= false;
-//                $shipping_taxes = array();
-
                 foreach (WC()->shipping->packages[0]['rates'] as $rate) {
                     $checkout_options['shipping_methods']['flat_rate_shipping'][] = array(  "name"  => $rate->label,
                                                                                             "price" => number_format($rate->cost, '2', '.', ''));
                 }
-               
+
                 return ($checkout_options);
             }
 
@@ -1338,10 +1139,156 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 }
                 return ($seconds_active);
             }
-            
+
+            public function MULTISAFEPAY_Form() {
+                $this->form_fields = array(
+
+                    'apikey' => array(
+                        'title'         => __('API Key', 'multisafepay'),
+                        'type'          => 'text',
+                        'description'   => __('Copy the API-Key from your MultiSafepay account', 'multisafepay'),
+                        'desc_tip'      => false,
+                        'css'           => 'width: 300px;'
+                    ),
+
+                  'testmode' => array(
+                        'title'         => __('Test-account', 'multisafepay'),
+                        'type'          => 'checkbox',
+                        'label'         => __(' ', 'multisafepay'),
+                        'default'       => 'yes',
+                        'description'   => __('Use Live-account the API-Key is from your MultiSafepay LIVE-account.<br/>Use Test -account if the API-Key is from your MultiSafepay TEST-account.', 'multisafepay'),
+                        'desc_tip'      => false,
+                    ),
+
+                    'enabled' => array(
+                        'title'         => __('Enable Multisafepay', 'multisafepay'),
+                        'type'          => 'checkbox',
+                        'label'         => __(' ', 'multisafepay'),
+                        'default'       => 'no',
+                        'description'   => __('Only enable if you want to select the payment method on the website from Multisafepay instead of your own checkout page.', 'multisafepay'),
+                        'desc_tip'      => false,
+                    ),
+
+                    'pmtitle' => array(
+                        'title'         => __('Title', 'multisafepay'),
+                        'type'          => 'text',
+                        'description'   => __('Optional:overwrites the title of the payment method during checkout', 'multisafepay'),
+                        'desc_tip'      => false,
+                        'css'           => 'width: 300px;'
+                    ),
+
+                    'description' => array(
+                        'title'         => __('Gateway Description', 'multisafepay'),
+                        'type'          => 'text',
+                        'description'   => __('This will be shown when selecting the gateway', 'multisafepay'),
+                        'css'           => 'width: 300px;',
+                        'desc_tip'      => false,
+                    ),
+
+
+                    'time_active' => array(
+                        'title'         => __('Time an order stays active', 'multisafepay'),
+                        'type'          => 'text',
+                        'description'   => __('Time before unfinished order is set to expired', 'multisafepay'),
+                        'desc_tip'      => false,
+                        'css'           => 'width: 50px;'
+                    ),
+
+                    'time_label' => array(
+                        'title'         => __(' ', 'multisafepay'),
+                        'type'          => 'select',
+                        'css'           => 'width: 300px;',
+                        'options'     => array(
+                                            'days'      => __('days', 'multisafepay' ),
+                                            'hours'     => __('hours', 'multisafepay' ),
+                                            'seconds'   => __('seconds', 'multisafepay' ),
+                                        )
+                    ),
+
+                    'send_invoice' => array(
+                        'title'         => __('Send invoice after completed transaction', 'multisafepay'),
+                        'type'          => 'checkbox',
+                        'label'         => __(' ', 'multisafepay'),
+                        'default'       => 'yes',
+                        'description'   => __('The invoice will be sent when a transaction is completed', 'multisafepay'),
+                        'desc_tip'      => false,
+                    ),
+
+                    'send_confirmation' => array(
+                        'title'         => __('Sent order confirmation', 'multisafepay'),
+                        'type'          => 'checkbox',
+                        'label'         => __(' ', 'multisafepay'),
+                        'default'       => 'yes',
+                        'description'   => __('Select this to sent the order confirmation before the transaction', 'multisafepay'),
+                        'desc_tip'      => false,
+                    ),
+
+                    'gateways' => array(
+                        'title'         => __('Giftcards', 'multisafepay'),
+                        'type'          => 'checkbox',
+                        'label'         => __(' ', 'multisafepay'),
+                        'default'       => 'yes',
+                        'description'   => __('This will enable Giftcards within your MultiSafepay account', 'multisafepay'),
+                        'desc_tip'      => false,
+                    ),
+                    'enablefco' => array(
+                        'title'         => __('FastCheckout', 'multisafepay'),
+                        'type'          => 'checkbox',
+                        'label'         => __(' ', 'multisafepay'),
+                        'default'       => 'yes',
+                        'description'   => __('This will enable the FastCheckout button in checkout', 'multisafepay'),
+                        'desc_tip'      => false,
+                    ),
+
+                    'debug' => array(
+                        'title'         => __('Enable debugging', 'multisafepay'),
+                        'type'          => 'checkbox',
+                        'label'         => __(' ', 'multisafepay'),
+                        'default'       => 'yes',
+                        'description'   => __('When enabled (and wordpress debug is enabled it will log transactions)', 'multisafepay'),
+                        'desc_tip'      => false,
+                    ),
+
+                    'notifyurl' => array(
+                        'title'         => __('Notification url', 'multisafepay'),
+                        'type'          => 'text',
+                        'description'   => __('Copy&Paste this URL to your website configuration Notification-URL at your Multisafepay dashboard.', 'multisafepay'),
+                        'desc_tip'      => false,
+                        'css'           => 'width: 800px;',
+                    ),
+                );
+            }
+
+            public function GATEWAY_Forms() {
+                $this->form_fields = array(
+                    'enabled' => array(
+                        'title' => __('Enable this gateway', 'multisafepay'),
+                        'type' => 'checkbox',
+                        'label' => __('Enable transaction by using this gateway', 'multisafepay'),
+                        'default' => 'no',
+                        'description' => __('When enabled it will show on during checkout', 'multisafepay'),
+                    ),
+                    'pmtitle' => array(
+                        'title' => __('Title', 'multisafepay'),
+                        'type' => 'text',
+                        'description' => __('Optional: Overwrites the title of the payment method during checkout', 'multisafepay'),
+                        'css' => 'width: 300px;'
+                    ),
+                    'description' => array(
+                        'title' => __('Gateway Description', 'multisafepay'),
+                        'type' => 'text',
+                        'description' => __('Optional: This will be shown when selecting the gateway', 'multisafepay'),
+                        'css' => 'width: 300px;'
+                    ),
+                );
+            }
+
+
             public static function MULTISAFEPAY_Add_Gateway($methods) {
                 $methods[] = 'WC_MULTISAFEPAY';
+
                 $settings = (array) get_option('woocommerce_multisafepay_settings');
+
                 if ($settings['gateways'] == 'yes') {
                     $gateway_codes = array(
                         '0' => 'BABYGIFTCARD',
@@ -1370,10 +1317,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         '23' => 'BODYBUILDINGKLEDING',
                     );
 
-//                  $i = 0;
-                    foreach ($gateway_codes as $pm) {
+                    foreach ($gateway_codes as $pm => $value) {
                         $methods[] = "WC_MULTISAFEPAY_Paymentmethod_{$pm}";
-//                      $i++;
                     }
                 }
                 return $methods;
@@ -1437,29 +1382,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 );
 
                 $this->init_settings();
-                $this->settings2 = (array) get_option('woocommerce_multisafepay_settings');
-                $this->id = "multisafepay_" . strtolower($gateway_codes[$this->pmCode]);
-                $this->has_fields = false;
-                $this->paymentMethodCode = $gateway_codes[$this->pmCode];
-                $this->supports = array(
-                    /* 'subscriptions',
-                      'products',
-                      'subscription_cancellation',
-                      'subscription_reactivation',
-                      'subscription_suspension',
-                      'subscription_amount_changes',
-                      'subscription_payment_method_change',
-                      'subscription_date_changes',
-                      'default_credit_card_form', */
-                    'refunds',
-                        //'pre-orders'
-                );
+                $this->id                   = "multisafepay_" . strtolower($gateway_codes[$this->pmCode]);
+                $this->has_fields           = false;
+                $this->paymentMethodCode    = $gateway_codes[$this->pmCode];
+                $this->supports             = array('refunds' );
 
 
                 add_action('woocommerce_update_options_payment_gateways', array($this, 'process_admin_options'));
                 add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
-
-                $output = '';
 
                 if (file_exists(dirname(__FILE__) . '/images/' . $this->paymentMethodCode . '.png')) {
                     $this->icon = apply_filters('woocommerce_multisafepay_icon', plugins_url('images/' . $this->paymentMethodCode . '.png', __FILE__));
@@ -1467,49 +1397,32 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $this->icon = '';
                 }
 
-                $this->settings = (array) get_option("woocommerce_{$this->id}_settings");
+                $settings = (array) get_option("woocommerce_{$this->id}_settings");
 
-                if (!empty($this->settings['pmtitle'])) {
-                    $this->title = $this->settings['pmtitle'];
-                    $this->method_title = $this->settings['pmtitle'];
+                if (!empty($settings['pmtitle'])) {
+                    $this->title        = $settings['pmtitle'];
+                    $this->method_title = $settings['pmtitle'];
                 } else {
-                    $this->title = $gateway_info[$gateway_codes[$this->pmCode]];
+                    $this->title        = $gateway_info[$gateway_codes[$this->pmCode]];
                     $this->method_title = $gateway_info[$gateway_codes[$this->pmCode]];
                 }
 
                 parent::GATEWAY_Forms();
 
-                if (isset($this->settings['description'])) {
-                    if ($this->settings['description'] != '') {
-                        $this->description = $this->settings['description'];
-                    }
-                }
-                $this->description .= $output;
-
-
-                $this->enabled = $this->settings['enabled'] == 'yes' ? 'yes' : 'no';
-
-                if (isset($this->settings['enabled'])) {
-                    if ($this->settings['enabled'] == 'yes') {
-                        $this->enabled = 'yes';
-                    } else {
-                        $this->enabled = 'no';
-                   }
-               } else {
-                    $this->enabled = 'no';
-                }
+                $this->description  = $settings['description'];
+                $this->enabled      = $settings['enabled'] == 'yes' ? 'yes' : 'no';
             }
 
             public function process_payment($order_id) {
 
                 $this->type = 'redirect';
                 $this->gatewayInfo = '';
-              
+
                 $paymentMethod = explode('_', $order->payment_method);
                 $this->gateway = $this->paymentMethodCode;
 
-    
-                return parent::process_payment($order_id);                
+
+                return parent::process_payment($order_id);
             }
 
         }
@@ -1539,8 +1452,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         class WC_MULTISAFEPAY_Paymentmethod_22 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 22; }
         class WC_MULTISAFEPAY_Paymentmethod_23 extends WC_MULTISAFEPAY_Paymentmethod { protected $pmCode = 23; }
 
-        // Start 
+        // Start
         new WC_MULTISAFEPAY();
     }
-
 }
