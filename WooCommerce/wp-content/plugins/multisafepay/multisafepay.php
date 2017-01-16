@@ -236,12 +236,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         "currency"              => get_woocommerce_currency(),
                         "amount"                => round(WC()->cart->subtotal * 100),
                         "description"           => 'Order #' . $order_id,
-//                      "var1"                  => '',
-//                      "var2"                  => '',
-//                      "var3"                  => '',
                         "items"                 => $this->itemList ($this->setItemsFCO()),
                         "manual"                => false,
-//                      "gateway"               => '',
                         "seconds_active"        => $this->setSecondsActive($settings),
                         "payment_options"       => array(
                             "notification_url"  => $settings['notifyurl'] . '&type=initial',
@@ -340,7 +336,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 if ($debug)
                     $this->write_log('MSP->Process payment start.');
 
-                $this->OptionalSendConfirmationMail($settings['send_confirmation'], $order_id);
+//                $this->OptionalSendConfirmationMail($settings['send_confirmation'], $order_id);
 
                 $order = new WC_Order($order_id);
 
@@ -389,9 +385,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                     );
 
-
-    $string =  'test: '. print_r ($my_order, true);
-    mail ('Testbestelling-Ronald@Multisafepay.com', 'debug - ' . $_SERVER['SCRIPT_FILENAME'], $string);
 
                 if ($debug)
                     $this->write_log('MSP->transactie.' . print_r ($my_order, true));
@@ -905,7 +898,7 @@ mail ('Testbestelling-Ronald@Multisafepay.com', 'debug - ' . $_SERVER['SCRIPT_FI
                 return (str_replace('-', '_', get_bloginfo('language')));
             }
 
-            public function OptionalSendConfirmationMail($sendMail, $order_id){
+            public function _OUTDATED_OptionalSendConfirmationMail($sendMail, $order_id){
                 global $wp_version, $woocommerce;
                 if ($sendMail == 'yes') {
                     $mailer = $woocommerce->mailer();
@@ -1214,7 +1207,7 @@ mail ('Testbestelling-Ronald@Multisafepay.com', 'debug - ' . $_SERVER['SCRIPT_FI
                         'desc_tip'      => false,
                     ),
 
-                    'send_confirmation' => array(
+/*                    'send_confirmation' => array(
                         'title'         => __('Sent order confirmation', 'multisafepay'),
                         'type'          => 'checkbox',
                         'label'         => __(' ', 'multisafepay'),
@@ -1222,7 +1215,7 @@ mail ('Testbestelling-Ronald@Multisafepay.com', 'debug - ' . $_SERVER['SCRIPT_FI
                         'description'   => __('Select this to sent the order confirmation before the transaction', 'multisafepay'),
                         'desc_tip'      => false,
                     ),
-
+*/
                     'gateways' => array(
                         'title'         => __('Giftcards', 'multisafepay'),
                         'type'          => 'checkbox',
