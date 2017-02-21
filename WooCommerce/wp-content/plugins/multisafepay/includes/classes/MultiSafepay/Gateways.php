@@ -93,7 +93,16 @@ class MultiSafepay_Gateways
                                     'hours'     => __('hours',   'multisafepay'),
                                     'seconds'   => __('seconds', 'multisafepay')),
             'id'        => 'multisafepay_time_unit',
-        );        
+        );
+        $addedSettings[] = array(
+            'name'      => __('Images', 'multisafepay'),
+            'desc'   => __('Show gateway images', 'multisafepay'),
+            'type'      => 'checkbox',
+            'default'   => 'yes',
+            'id'        => 'multisafepay_show_images',
+            'desc_tip' => __('Show gateway images during checkout?', 'multisafepay'),
+        );
+
         $addedSettings[] = array(
             'name'      => __('Invoice', 'multisafepay'),
             'desc'      => __('Send Invoice', 'multisafepay'),
