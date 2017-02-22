@@ -112,9 +112,9 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
 
         $this->title =  $this->get_option('title');
 
-//        if ( $this->getShowImages()){
+        if ( $this->getShowImages()) {
             $this->icon = $this->getIcon();
-//	}
+        }
 
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
     }
@@ -190,7 +190,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
                             "google_analytics"      => $this->setGoogleAnalytics(),
                             "plugin"                => $this->setPlugin(),
 
-                            "gateway_info"          => isset ($this->GatewayInfo)      ? $this->GatewayInfo      : null,
+                            "gateway_info"          => isset ($this->GatewayInfo)      ? $this->GatewayInfo      : array(),
                             "shopping_cart"         => isset ($this->shopping_cart)    ? $this->shopping_cart    : array(),
                             "checkout_options"      => isset ($this->checkout_options) ? $this->checkout_options : array(),
 

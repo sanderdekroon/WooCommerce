@@ -11,7 +11,7 @@ class MultiSafepay_Gateway_Ideal extends MultiSafepay_Gateway_Abstract
     {
         return __('iDEAL', 'multisafepay');
     }
-		
+
 	public static function getGatewayCode()
     {
         return "IDEAL";
@@ -26,7 +26,7 @@ class MultiSafepay_Gateway_Ideal extends MultiSafepay_Gateway_Abstract
         else
             return "redirect";
     }
-	
+
 
     public function getGatewayInfo($order_id)
     {
@@ -35,13 +35,13 @@ class MultiSafepay_Gateway_Ideal extends MultiSafepay_Gateway_Abstract
         else
             return ('');
     }
-	
+
 	public function init_settings($form_fields = array())
     {
 		$this->form_fields = array();
-		
+
 		$warning = $this->getWarning();
-		
+
 		if(is_array($warning))
 			$this->form_fields['warning'] = $warning;
 
@@ -51,12 +51,12 @@ class MultiSafepay_Gateway_Ideal extends MultiSafepay_Gateway_Abstract
 				'label'     => sprintf(__('Direct %s', 'multisafepay'), $this->getName()),
 				'default'   => 'no'
 			);
-						
-			
+
+
         parent::init_settings($this->form_fields);
     }
 
-    
+
 	public function payment_fields()
     {
 
@@ -81,7 +81,7 @@ class MultiSafepay_Gateway_Ideal extends MultiSafepay_Gateway_Abstract
                 $msg = 'Error: ' . htmlspecialchars($e->getMessage());
                 echo $msg;
             }
-            
+
             $description .= __('Choose your bank', 'multisafepay') . '<br/>';
             $description .= '<select id="ideal_issuer" name="ideal_issuer" class="required-entry">';
             $description .= '<option value="">' . __('Please choose...', 'multisafepay') . '</option>';
@@ -89,13 +89,13 @@ class MultiSafepay_Gateway_Ideal extends MultiSafepay_Gateway_Abstract
                 $description .= '<option value="'.$issuer->code.'">'.$issuer->description.'</option>';
             }
             $description .= '</select>';
-            $description .= '</p>';	
+            $description .= '</p>';
         }
-        
+
         echo $description;
-				
+
     }
-	
+
     public function validate_fields() {
         $settings = get_option('woocommerce_multisafepay_ideal_settings');
 
@@ -104,6 +104,14 @@ class MultiSafepay_Gateway_Ideal extends MultiSafepay_Gateway_Abstract
             return false;
         }
         return true;
+    }
+
+    public function process_payment($order_id)
+    {
+        $this->type         = $this->getType();
+        $this->GatewayInfo  = $this->getGatewayInfo($order_id);
+
+        return parent::process_payment($order_id);
     }
 
 }
