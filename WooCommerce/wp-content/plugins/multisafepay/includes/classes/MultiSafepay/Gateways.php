@@ -58,7 +58,33 @@ class MultiSafepay_Gateways
             , 'MultiSafepay_Gateway_Payafter'
             , 'MultiSafepay_Gateway_Paypal'
             , 'MultiSafepay_Gateway_Sofort'
-            , 'MultiSafepay_Gateway_Visa'  );
+            , 'MultiSafepay_Gateway_Visa',
+
+            , 'MultiSafepay_Gateway_VVVBon'
+            , 'MultiSafepay_Gateway_Babygiftcard'
+            , 'MultiSafepay_Gateway_Boekenbon'
+            , 'MultiSafepay_Gateway_Erotiekbon'
+            , 'MultiSafepay_Gateway_Fijncadeau'
+            , 'MultiSafepay_Gateway_Parfumcadeaukaart'
+            , 'MultiSafepay_Gateway_Wellnessgiftcard'
+            , 'MultiSafepay_Gateway_Beautyandwellness'
+            , 'MultiSafepay_Gateway_Webshopgiftcard'
+            , 'MultiSafepay_Gateway_Fashioncheque'
+            , 'MultiSafepay_Gateway_Gezondheidsbon'
+            , 'MultiSafepay_Gateway_Liefcadeaukaart'
+            , 'MultiSafepay_Gateway_GoodCard'
+            , 'MultiSafepay_Gateway_Wijncadeau'
+            , 'MultiSafepay_Gateway_Fashiongiftcard'
+            , 'MultiSafepay_Gateway_Podiumcadeaukaart'
+            , 'MultiSafepay_Gateway_Sportenfit'
+            , 'MultiSafepay_Gateway_Yourgift'
+            , 'MultiSafepay_Gateway_Nationaletuinbon'
+            , 'MultiSafepay_Gateway_Nationaleverwencadeaubon'
+            , 'MultiSafepay_Gateway_Fietsbon'
+            , 'MultiSafepay_Gateway_Winkelcheque'
+            , 'MultiSafepay_Gateway_Givacard'            
+            , 'MultiSafepay_Gateway_Bodybuildkleding'            
+            );
 
         $paymentOptions = array_merge($arrDefault, $paymentOptions);
 
@@ -181,12 +207,6 @@ class MultiSafepay_Gateways
 
     public function Multisafepay_Response() {
 
-
-        // If no transaction-id there is nothing to process..
-        if (!isset($_GET['transactionid'])) {
-            return;
-        }
-
         global $wpdb, $wp_version, $woocommerce;
 
         $redirect        = false;
@@ -203,12 +223,16 @@ class MultiSafepay_Gateways
                 return true;
 
             if ($_GET['type'] == 'feeds'){
-                require_once dirname(__FILE__) . '/includes/classes/Helper/Feeds.php';
+                require_once dirname(__FILE__) . '/Helper/Feeds.php';
 
                 return true;
             }
         }
 
+        // If no transaction-id there is nothing to process..
+        if (!isset($_GET['transactionid'])) {
+            return;
+        }
 
         $transactionid = $_GET['transactionid'];
 
