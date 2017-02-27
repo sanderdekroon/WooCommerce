@@ -58,7 +58,7 @@ class MultiSafepay_Gateways
             , 'MultiSafepay_Gateway_Payafter'
             , 'MultiSafepay_Gateway_Paypal'
             , 'MultiSafepay_Gateway_Sofort'
-            , 'MultiSafepay_Gateway_Visa',
+            , 'MultiSafepay_Gateway_Visa'
 
             , 'MultiSafepay_Gateway_VVVBon'
             , 'MultiSafepay_Gateway_Babygiftcard'
