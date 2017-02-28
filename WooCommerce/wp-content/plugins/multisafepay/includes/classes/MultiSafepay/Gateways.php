@@ -72,7 +72,7 @@ class MultiSafepay_Gateways
             , 'MultiSafepay_Gateway_Fijncadeau'
             , 'MultiSafepay_Gateway_Gezondheidsbon'
             , 'MultiSafepay_Gateway_Givacard'            
-            , 'MultiSafepay_Gateway_GoodCard'
+            , 'MultiSafepay_Gateway_Goodcard'
             , 'MultiSafepay_Gateway_Liefcadeaukaart'
             , 'MultiSafepay_Gateway_Nationaletuinbon'
             , 'MultiSafepay_Gateway_Parfumcadeaukaart'

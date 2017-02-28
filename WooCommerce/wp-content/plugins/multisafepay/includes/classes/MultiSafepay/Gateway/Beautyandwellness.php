@@ -4,7 +4,7 @@ class MultiSafepay_Gateway_Beautyandwellness extends MultiSafepay_Gateway_Abstra
 {
 	public static function getCode()
     {
-        return "multisafepay_Beautyandwellness";
+        return "multisafepay_beautyandwellness";
     }
 
     public static function getName()

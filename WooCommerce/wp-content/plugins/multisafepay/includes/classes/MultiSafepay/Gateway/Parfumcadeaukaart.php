@@ -4,7 +4,7 @@ class MultiSafepay_Gateway_Parfumcadeaukaart extends MultiSafepay_Gateway_Abstra
 {
 	public static function getCode()
     {
-        return "multisafepay_Parfumcadeaukaart";
+        return "multisafepay_parfumcadeaukaart";
     }
 
     public static function getName()

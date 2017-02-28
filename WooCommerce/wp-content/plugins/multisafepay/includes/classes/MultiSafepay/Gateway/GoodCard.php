@@ -4,7 +4,7 @@ class MultiSafepay_Gateway_GoodCard extends MultiSafepay_Gateway_Abstract
 {
 	public static function getCode()
     {
-        return "multisafepay_goodCard";
+        return "multisafepay_goodcard";
     }
 
     public static function getName()

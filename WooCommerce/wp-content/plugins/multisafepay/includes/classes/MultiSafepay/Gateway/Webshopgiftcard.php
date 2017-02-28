@@ -4,7 +4,7 @@ class MultiSafepay_Gateway_Webshopgiftcard extends MultiSafepay_Gateway_Abstract
 {
 	public static function getCode()
     {
-        return "multisafepay_Webshopgiftcard";
+        return "multisafepay_webshopgiftcard";
     }
 
     public static function getName()
