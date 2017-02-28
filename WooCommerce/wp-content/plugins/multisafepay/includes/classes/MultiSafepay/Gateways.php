@@ -58,9 +58,11 @@ class MultiSafepay_Gateways
             , 'MultiSafepay_Gateway_Payafter'
             , 'MultiSafepay_Gateway_Paypal'
             , 'MultiSafepay_Gateway_Sofort'
-            , 'MultiSafepay_Gateway_Visa'
+            , 'MultiSafepay_Gateway_Visa');
 
-            , 'MultiSafepay_Gateway_VVVBon'
+
+    $giftCards = array(
+              'MultiSafepay_Gateway_VVVBon'
             , 'MultiSafepay_Gateway_Babygiftcard'
             , 'MultiSafepay_Gateway_Boekenbon'
             , 'MultiSafepay_Gateway_Erotiekbon'
@@ -82,10 +84,15 @@ class MultiSafepay_Gateways
             , 'MultiSafepay_Gateway_Nationaleverwencadeaubon'
             , 'MultiSafepay_Gateway_Fietsbon'
             , 'MultiSafepay_Gateway_Winkelcheque'
-            , 'MultiSafepay_Gateway_Givacard'            
-            , 'MultiSafepay_Gateway_Bodybuildkleding'            
+            , 'MultiSafepay_Gateway_Givacard'
+            , 'MultiSafepay_Gateway_Bodybuildkleding'
             );
 
+
+        $giftcards_enabled = get_option("multisafepay_giftcards_enabled") == 'yes' ? true : false;
+        if ($giftcards_enabled){
+            $paymentOptions = array_merge($arrDefault, $giftCards);
+        }
         $paymentOptions = array_merge($arrDefault, $paymentOptions);
 
         return $paymentOptions;
@@ -122,11 +129,20 @@ class MultiSafepay_Gateways
 
         $addedSettings[] = array(
             'name'      => __('FastCheckout', 'multisafepay'),
-            'desc'   => __('Activate FastCheckout.', 'multisafepay'),
+            'desc'   => __('Activate FastCheckout', 'multisafepay'),
             'type'      => 'checkbox',
             'default'   => 'no',
             'desc_tip'  => __('When enabled FastCheckout will be available during checkout.', 'multisafepay'),
             'id'        => 'multisafepay_fco_enabled'
+        );
+
+        $addedSettings[] = array(
+            'name'      => __('GiftCards', 'multisafepay'),
+            'desc'   => __('Activate GiftCards', 'multisafepay'),
+            'type'      => 'checkbox',
+            'default'   => 'no',
+            'desc_tip'  => __('When enabled GiftCards will be available during checkout.', 'multisafepay'),
+            'id'        => 'multisafepay_giftcards_enabled'
         );
 
         $addedSettings[] = array(

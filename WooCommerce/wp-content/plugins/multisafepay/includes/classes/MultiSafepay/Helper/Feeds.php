@@ -27,19 +27,8 @@
 
     function feeds ($params){
 
-/*  // todo
-        www.store.com/index.php?api_key=xxxxx&language=en_US&identifier=products&product_id=10
-        www.store.com/index.php?api_key=xxxxx&language=en_US&identifier=products&category_id=x
-        www.store.com/index.php?api_key=xxxxx&language=en_US&identifier=tax
-        www.store.com/index.php?api_key=xxxxx&language=en_US&identifier=categories
-        www.store.com/index.php?api_key=xxxxx&language=en_US&identifier=stock&product_id=10
-        www.store.nl/index.php?api_key=xxxxx&identifier=stores
-        www.store.com/index.php?api_key=xxxxx&language=en_US&identifier=shipping&countrycode=NL
-*/
-
         if ( $params['identifier'] == 'test')
             return (array ('Feed wordt correct aangeroepen'));
-
 
         // no API-Key provided
         if (!isset ($params['api_key']))
@@ -49,174 +38,291 @@
         if ($params['api_key'] != get_option('multisafepay_api_key'))
             die('Invalid API-Key');
 
-
-        // no Language provided
-        if (!isset($params['language']))
-            die('no Language provided');
-
         // no identifier provided
         if (!isset ($params['identifier']))
             die(' no identifier provided');
 
 
         if ( $params['identifier'] == 'products'  && isset($params['product_id']) && $params['product_id'] != '')
-            return (productById($params));
+			return (productById( $params['product_id']));
 
         if ( $params['identifier'] == 'products'  && isset($params['category_id']) && $params['category_id'] != '' )
-            return ($this->productByCategory($params));
-
-        if ( $params['identifier'] == 'tax')
-            return ($this->tax($params));
+            return (productByCategory($params['category_id']));
 
         if ( $params['identifier'] == 'category')
-            return ($this->categories($params));
+            return (categories($params));
 
         if ( $params['identifier'] == 'stock'  && isset($params['product_id']) && $params['product_id'] != '' )
-            return ($this->stock($params));
+            return (stock($params['product_id']));
 
         if ( $params['identifier'] == 'stores')
-            return ($this->stores($params));
+            return (stores($params));
 
         if ( $params['identifier'] == 'shipping')
-            return ($this->shipping($params));
+            return (shipping($params));
 
         return (array ('No results available'));
     }
 
 
+    function productById ($product_id=0){
+
+		$results = array();
+		$product 	= WC()->product_factory->get_product( $product_id );
+		if ($product)
+			$results 	= get_product_details ($product);
+
+		return($results);
+	}
+
+    function productByCategory ($category_id=0){
+
+		$results = array();
+		$args = array(
+			'post_type'             => 'product',
+			'post_status'           => 'publish',
+			'ignore_sticky_posts'   => 1,
+			'posts_per_page'        => '-1',
+			'meta_query'            => array(
+				array(
+					'key'           => '_visibility',
+					'value'         => array('catalog', 'visible'),
+					'compare'       => 'IN'
+				)
+			),
+			'tax_query'             => array(
+				array(
+					'taxonomy'      => 'product_cat',
+					'field'         => 'term_id', //This is optional, as it defaults to 'term_id'
+					'terms'         => $category_id,
+					'operator'      => 'IN' // Possible values are 'IN', 'NOT IN', 'AND'.
+				)
+			)
+		);
+
+		$loop = new WP_Query( $args );
+
+		while ( $loop->have_posts() ){
+			$loop->the_post();
+			$id = get_the_ID();
+			$_product 	= WC()->product_factory->get_product($id);
+			$results[] = get_product_details ($_product);
+		}
+
+		return ($results);
+	}
+
+	function stock ($product_id=0){
+
+		$results = array();
+		$product 	= WC()->product_factory->get_product( $product_id );
+		if ($product) {
+			$data 	= get_product_details ($product);
+
+			$results 	= array( 	'product_id'	=>	$product->get_id(),
+									'stock'			=> 	$product->get_stock_quantity());
+		}
+		return ($results);
+	}
+
+    function categories (){
+		$results = _categories();
+		return ($results);
+	}
+
+    function shipping (){
+
+		$active_methods   = array();
+		$shipping_methods = WC()->shipping->get_shipping_methods();
+		foreach ( $shipping_methods as $id => $shipping_method ) {
+			if ( isset( $shipping_method->enabled ) && $shipping_method->enabled == 'yes' ) {
+
+				$active_methods[] = array( 	'id'				=> $id,
+											'type' 				=> $shipping_method->method_title,
+											'provider' 			=> '',
+											'name' 				=> $shipping_method->method_title,
+											'price' 			=> '',
+											'excluded_areas'	=> array (),
+											'included_areas' 	=> array ()
+										);
+			}
+		}
+
+		return $active_methods;
+}
+
+    function stores (){
+
+		$store = array ('allowed_countries'  	=> array (),
+						'shipping_countries'  	=> array (),
+						'languages'  			=> array (),
+						'stock_updates'  		=> get_option('woocommerce_manage_stock') 		== 'yes' ? true : false,
+						'allowed_currencies'	=> get_woocommerce_currency(),
+						'including_tax'  		=> get_option('woocommerce_prices_include_tax') == 'yes' ? true : false,
+
+						'shipping_tax'  		=> array(),
+						'require_shipping'  	=> wc_shipping_enabled(),
+						'base_url'  			=> get_home_url(),
+						'order_push_url'  		=> get_option('multisafepay_nurl'),
+						'coc'  					=> '',
+						'email'  				=> '',
+						'contact_phone'  		=> '',
+						'address'  				=> '',
+						'housenumber'  			=> '',
+						'zipcode'  				=> '',
+						'city'  				=> '',
+						'country'  				=> '',
+						'vat_nr'  				=> '',
+						'terms_and_conditions'  => '',
+						'faq'  					=> '',
+						'open'  				=> '00:00',
+						'closed'  				=> '23:59',
+						'days'  				=> array ( 	'sunday'	=> true,
+															'monday'	=> true,
+															'tuesday'	=> true,
+															'wednesday'	=> true,
+															'thursday'	=> true,
+															'friday'	=> true,
+															'saturday'	=> true ),
+						'social'  				=> array (	'facebook'	=> '',
+															'twitter'	=> '',
+															'linkedin'	=> ''),
+
+						'languages'		 		=> array (	get_locale() ),
+						'shipping_tax'			=> array (  'id'	=> '',
+															'name'	=> '',
+															'rules'	=> array ( get_locale() => '' )));
+		return ($store);
+}
 
 
-    function productById ($params){
+	function get_product_details ($product){
 
-        $_pf = new WC_Product_Factory();
+		// get categories, maximal=2
+		$categories = strip_tags( $product->get_categories());
+		list ($primary_category, $secondary_category, $rest) = array_pad(explode(', ', $categories, 3), 3, null);
 
-        $IDs = array ($params['product_id']);
-        foreach ($IDs as $id) {
+		// get (all) taxes incl info
+		$tax_id 	= $product->get_tax_class() ? $product->get_tax_class() : 'Standard';
+		$rates  	= reset (WC_Tax::get_rates( $product->get_tax_class() ));
+		$location 	= WC_tax::get_tax_location();
 
-            $_product = $_pf->get_product($id);
-//          print_r ($_product);
+		// get meta tags
+		$metadata = array();
+		$tags = explode(", ", strip_tags ($product->get_tags()));
+		foreach( $tags as $tag ) {
+			array_push ($metadata, array ( get_locale() => array (	'title' 		=> $tag,
+																	'keyword' 		=> $tag,
+																	'description' 	=> $tag)));
+		}
 
-            $meta = get_post_meta($params['product_id']);
-//          print_r ($meta);
+		// get main image
+		$images['product_image_urls']	= array();
+		$_images = wp_get_attachment_image_src( get_post_thumbnail_id( $product->get_id() ), 'single-post-thumbnail' );
+		if ($_images) {
+			$main_image = reset ($_images);
+			array_push ($images['product_image_urls'], array ( 	'url' 	=> $main_image,
+																'main'  => true));
+		}
 
+		// get other images
+		$attachment_ids = $product->get_gallery_attachment_ids();
+		foreach( $attachment_ids as $attachment_id )
+		{
+			$_images = wp_get_attachment_url( $attachment_id );
+			if ($_images != $main_image)
+				array_push ($images['product_image_urls'], array ( 	'url' 	=> $_images,
+																	'main'  => false));
+		}
 
-            $tmp_product["product_id"]                  = $_product->get_id();
-            $tmp_product["parent_product_id"]           = $_product->get_parent();
-            $tmp_product["product_name"]                = $_product->get_title();
-            $tmp_product["brand"]                       = null;
-            $tmp_product["sku_number"]                  = $_product->get_sku();
+		// Variens?
+		$variants = array();
+		if( $product->has_child() ) {
 
+			$available_variations = $product->get_available_variations();
+			foreach ($available_variations as $variation) {
 
-            $categories = strip_tags( $_product->get_categories());
-            list ($primary_category, $secondary_category) = explode(", ", $categories);
+				$attributes	= array();
+				foreach ($variation['attributes'] as $key => $attr){
+					$key = str_replace ('attribute_pa_', '', $key);
+					$attributes['attributes'][$key] = array ( get_locale() => array ('label' => $key, 'value' => $attr));
+				}
 
-            $tmp_product["primary_category"]            = array (   "en_US" => $primary_category,
-                                                                    "fr_FR" => $primary_category,
-                                                                    "de_DE" => $primary_category);
+				$variants[] = array (	'product_id' 		=> $variation['variation_id'],
+										'sku_number' 		=> $variation['sku'],
+										'gtin' 				=> false,
+										'unique_identifier' => false,
+										'product_image_url'	=> $images,
+										'stock' 			=> $variation['max_qty'],
+										'sale_price' 		=> $variation['display_regular_price'],
+										'retail_price' 		=> $variation['display_regular_price'],
+										'attributes' 		=> $attributes);
+			}
+		}
 
-            $tmp_product["secondary_category"]          = array (   "en_US" => $secondary_category,
-                                                                    "fr_FR" => $secondary_category,
-                                                                    "de_DE" => $secondary_category);
+		$_product[]  = array (	'product_id' 				=> $product->get_id(),
+								'parentproduct_id' 			=> $product->get_parent(),
+								'product_name' 				=> $product->get_title(),
+								'brand' 					=> null,
 
-            $tmp_product["product_url"]                 = $_product->post->guid;
-            $tmp_product["short_product_description"]   = array (   "en_US" => $_product->post->post_excerpt,
-                                                                    "fr_FR" => $_product->post->post_excerpt,
-                                                                    "de_DE" => $_product->post->post_excerpt
-                                                                );
+								'sku_number' 				=> $product->get_sku(),
+								'product_url' 				=> $product->post->guid,
+								'primary_category' 			=> array ( get_locale() => $primary_category ),
+								'secondary_category' 		=> array ( get_locale() => $secondary_category ),
+								'shortproduct_description' 	=> array ( get_locale() => $product->post->post_excerpt ),
+								'longproduct_description' 	=> array ( get_locale() => $product->post->post_content ),
+								'sale_price' 				=> $product->get_regular_price(),
+								'retail_price' 				=> $product->get_regular_price(),
+								'tax' 						=> array (	'id'		=> $tax_id,
+																		'name'		=> $rates['label'],
+																		'rules'		=> array ($location[0] => $rates['rate'])),
 
-            $tmp_product["long_product_description"]    = array (   "en_US" => $_product->post->post_content,
-                                                                    "fr_FR" => $_product->post->post_content,
-                                                                    "de_DE" => $_product->post->post_content
-                                                                );
-            $tmp_product["sale_price"]                  = $_product->get_regular_price();
-            $tmp_product["retail_price"]                = $_product->get_regular_price();
+								'gtin' 						=> '',
+								'mpn' 						=> '',
+								'unique_identifier' 		=> false,
+								'stock' 					=> $product->get_stock_quantity(),
+								'options' 					=> '',
+								'attributes' 				=> '',
+								'metadata' 					=> $metadata,
+								'created' 					=> $product->post->post_date,
+								'updated' 					=> $product->post->post_modified,
+								'downloadable' 				=> $product->is_downloadable(),
+								'package_dimensions' 		=> $product->get_length() .'x' . $product->get_width() . 'x'. $product->get_height(),
+								'dimension_unit' 			=> get_option( 'woocommerce_dimension_unit' ),
+								'weight' 					=> $product->get_weight(),
+								'weight_unit' 				=> get_option( 'woocommerce_weight_unit' ),
 
+								'product_image_urls' 		=> $images,
+								'variants'					=> $variants
+								);
 
-//          if ($_product->get_tax_status() == 'taxable')
-//              $tmp_product["tax_id"]                  = $_product->get_tax_class() ? $_product->get_tax_class() : 'Standard';
+		return ($_product);
+	}
 
-            $tmp_product["gtin"]                        = null;
-            $tmp_product["mpn"]                         = null;
-            $tmp_product["unique_identifier"]           = false;
-            $tmp_product["stock"]                       = $_product->get_stock_quantity();
+	function _categories($id=0) {
+		global $wpdb;
+		$sql = "SELECT wp_terms.term_id, wp_terms.name
+				FROM wp_terms
+				LEFT JOIN wp_term_taxonomy ON wp_terms.term_id = wp_term_taxonomy.term_id
+				WHERE wp_term_taxonomy.taxonomy = 'product_cat'
+ 				  AND wp_term_taxonomy.parent =" . $id;
 
-//          $tmp_product["metadata"]                    = '';
-//          $tmp_product["attributes"]                  = '';
-//          $tmp_product["options"]                     = '' ;
+		$results  = $wpdb->get_results($sql);
+		$children = array();
 
-            $tmp_product["created"]                     = $_product->post->post_date;
-            $tmp_product["updated"]                     = $_product->post->post_modified;
-            $tmp_product["downloadable"]                = $_product->is_downloadable();
+		if( count($results) > 0) {
 
-            $tmp_product["package_dimensions"]          = $_product->get_length() .'x' . $_product->get_width() . 'x'. $_product->get_height();
-            $tmp_product["dimension_unit"]              = get_option( 'woocommerce_dimension_unit' );
+			# It has children, let's get them.
+			foreach ($results as $key => $result) {
+				# Add the child to the list of children, and get its subchildren
+				$children[$result->term_id]['id']   	= $result->term_id;
+				$children[$result->term_id]['title'] 	= array (get_locale() => $result->name);
+				$children[$result->term_id]['children'] = _categories($result->term_id);
+			}
+		}
 
-            $tmp_product["weight"]                      = $_product->get_weight();
-            $tmp_product["weight_unit"]                 = get_option( 'woocommerce_weight_unit' );
-
-
-            // Main image
-            $tmp_product["product_image_urls"] = array();
-            $image = wp_get_attachment_image_src( get_post_thumbnail_id( $_product->get_id() ), 'single-post-thumbnail' );
-            if ($image) {
-                $main_img = reset ($image);
-                array_push ($tmp_product["product_image_urls"], array ( "url" => $main_img, "main"  => true));
-            }
-
-            // other images
-            $attachment_ids = $_product->get_gallery_attachment_ids();
-            foreach( $attachment_ids as $attachment_id )
-            {
-                $img = wp_get_attachment_url( $attachment_id );
-                if ($img != $main_img)
-                    array_push ($tmp_product["product_image_urls"], array ( "url" => $img, "main"  => false));
-            }
-
-
-
-
-
-            $available_variations = $_product->get_available_variations();
-
-            print_r ($available_variations);
-            $variants = array();
-            foreach ($available_variations as $variation) {
-
-                $_variant["product_id"]         = $variation['variation_id'];
-                $_variant["sku_number"]         = $variation['sku'];
-                $_variant["gtin"]               = false;
-                $_variant["unique_identifier"]  = false;
-                $_variant["product_image_urls"] = $tmp_product["product_image_urls"];
-                $_variant["stock"]              = $variation['max_qty'];
-                $_variant["sale_price"]         = $variation['display_regular_price'];
-                $_variant["retail_price"]       = $variation['display_regular_price'];
-
-                $_variant["attributes"]  = array();
-                foreach ($variation['attributes'] as $key => $attr){
-
-                    $key = str_replace ('attribute_pa_', '', $key);
-                    $_variant["attributes"][$key] = array ('en_US' => array ('label' => $key, 'value' => $attr),
-                                                           'fr_FR' => array ('label' => $key, 'value' => $attr),
-                                                           'de_DE' => array ('label' => $key, 'value' => $attr),);
-                }
-
-
-                array_push ($variants, $_variant);
-            }
-            $tmp_product["variants"] = $variants;
-
-//            print_r ($variants);
-
-
-
-
-        }
-        return ($tmp_product);
-    }
-
-
-
-
+		return $children;
+	}
 
     function reOrderArray($array) {
         if(!is_array($array)) {

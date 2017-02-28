@@ -1,6 +1,6 @@
 <?php
 
-class MultiSafepay_Gateway_Eps extends MultiSafepay_Gateway_Abstract
+class MultiSafepay_Gateway_Vvvbon extends MultiSafepay_Gateway_Abstract
 {
 	public static function getCode()
     {
