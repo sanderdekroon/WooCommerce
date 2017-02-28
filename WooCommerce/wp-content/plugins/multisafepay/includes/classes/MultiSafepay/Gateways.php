@@ -59,40 +59,37 @@ class MultiSafepay_Gateways
             , 'MultiSafepay_Gateway_Paypal'
             , 'MultiSafepay_Gateway_Sofort'
             , 'MultiSafepay_Gateway_Visa');
-
-
+            
+            
     $giftCards = array(
-              'MultiSafepay_Gateway_VVVBon'
-            , 'MultiSafepay_Gateway_Babygiftcard'
+              'MultiSafepay_Gateway_Babygiftcard'
+            , 'MultiSafepay_Gateway_Beautyandwellness'
             , 'MultiSafepay_Gateway_Boekenbon'
             , 'MultiSafepay_Gateway_Erotiekbon'
-            , 'MultiSafepay_Gateway_Fijncadeau'
-            , 'MultiSafepay_Gateway_Parfumcadeaukaart'
-            , 'MultiSafepay_Gateway_Wellnessgiftcard'
-            , 'MultiSafepay_Gateway_Beautyandwellness'
-            , 'MultiSafepay_Gateway_Webshopgiftcard'
             , 'MultiSafepay_Gateway_Fashioncheque'
-            , 'MultiSafepay_Gateway_Gezondheidsbon'
-            , 'MultiSafepay_Gateway_Liefcadeaukaart'
-            , 'MultiSafepay_Gateway_GoodCard'
-            , 'MultiSafepay_Gateway_Wijncadeau'
             , 'MultiSafepay_Gateway_Fashiongiftcard'
+            , 'MultiSafepay_Gateway_Fietsbon'
+            , 'MultiSafepay_Gateway_Fijncadeau'
+            , 'MultiSafepay_Gateway_Gezondheidsbon'
+            , 'MultiSafepay_Gateway_Givacard'            
+            , 'MultiSafepay_Gateway_GoodCard'
+            , 'MultiSafepay_Gateway_Liefcadeaukaart'
+            , 'MultiSafepay_Gateway_Nationaletuinbon'
+            , 'MultiSafepay_Gateway_Parfumcadeaukaart'
             , 'MultiSafepay_Gateway_Podiumcadeaukaart'
             , 'MultiSafepay_Gateway_Sportenfit'
-            , 'MultiSafepay_Gateway_Yourgift'
-            , 'MultiSafepay_Gateway_Nationaletuinbon'
-            , 'MultiSafepay_Gateway_Nationaleverwencadeaubon'
-            , 'MultiSafepay_Gateway_Fietsbon'
+            ,  'MultiSafepay_Gateway_VVVBon'
+            , 'MultiSafepay_Gateway_Webshopgiftcard'
+            , 'MultiSafepay_Gateway_Wellnessgiftcard'
+            , 'MultiSafepay_Gateway_Wijncadeau'
             , 'MultiSafepay_Gateway_Winkelcheque'
-            , 'MultiSafepay_Gateway_Givacard'
-            , 'MultiSafepay_Gateway_Bodybuildkleding'
-            );
+            , 'MultiSafepay_Gateway_Yourgift'            );
 
-
+            
         $giftcards_enabled = get_option("multisafepay_giftcards_enabled") == 'yes' ? true : false;
         if ($giftcards_enabled){
-            $paymentOptions = array_merge($arrDefault, $giftCards);
-        }
+            $paymentOptions = array_merge($paymentOptions, $giftCards);
+        }            
         $paymentOptions = array_merge($arrDefault, $paymentOptions);
 
         return $paymentOptions;
