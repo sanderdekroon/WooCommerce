@@ -114,4 +114,5 @@ class MultiSafepay_Gateway_Ideal extends MultiSafepay_Gateway_Abstract
         return parent::process_payment($order_id);
     }
 
+   
 }

@@ -230,20 +230,42 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
         }
 	}
 
-	public function process_refund( $order_id, $amount = null, $reason = '' ){
-/*		$order = wc_get_order( $order_id );
-		$sisow = new Sisow_Helper_Sisow(get_option('sisow_merchantid'), get_option('sisow_merchantkey'), get_option('sisow_shopid'));
+    public function process_refund($order_id, $amount = null, $reason = '') {
 
-		$refundid = $sisow->RefundRequest($order->get_transaction_id(), $amount);
-		if($refundid > 0)
-		{
-			$order->add_order_note( sprintf( __( 'Refunded %s (Sisow amount: %s) - Refund ID: %s', 'woocommerce' ), $amount, $sisow->amount, $refundid ) );
-			return true;
-		}
-		else
-			return false;
-*/
-	}
+        $msp   = new Client();
+        
+        $msp->setApiKey($this->getApiKey());
+        $msp->setApiUrl($this->getTestMode());
+
+        $order = new WC_Order($order_id);
+        $ordernumber = ltrim($order->get_order_number(), __('#', '', 'multisafepay'));
+        $ordernumber = ltrim($ordernumber, __('n°', '', 'multisafepay'));
+
+        $endpoint = 'orders/' . $ordernumber . '/refunds';
+        $refund =  array(   "currency"      => $order->get_order_currency(),
+                            "amount"        => $amount * 100,
+                            "description"   => $reason
+                           );
+
+        try {
+            $order = $msp->orders->post($refund, $endpoint);
+        } catch (Exception $e) {
+
+            $msg = 'Error: ' . htmlspecialchars($e->getMessage());
+            $this->write_log($msg);
+
+            wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msg , 'error');
+        }
+
+ 
+        if ($msp->error) {
+            return new WP_Error('multisafepay_ideal', 'Order can\'t be refunded:' . $msp->error_code . ' - ' . $msp->error);
+        } else {
+            return true;
+        }
+    }
+    
+    
 
     public function getCart($order_id){
 
