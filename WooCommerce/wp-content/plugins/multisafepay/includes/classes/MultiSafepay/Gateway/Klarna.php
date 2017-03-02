@@ -121,5 +121,56 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
 
         return parent::process_payment($order_id);
     }
+    
+    
+    function setToShipped($order_id) {
+
+        $msp   = new Client();
+        
+        $msp->setApiKey($this->getApiKey());
+        $msp->setApiUrl($this->getTestMode());
+
+        $order = new WC_Order($order_id);
+
+        try {
+            $transactie = $msp->orders->get($order_id, 'orders', array(), false);
+        } catch (Exception $e) {
+
+            $msg = "Unable. to get transaction. Error: " . htmlspecialchars($e->getMessage());
+        }
+        
+        if ($msp->error) {
+            return new WP_Error('multisafepay', 'Can\'t receive transaction data to update correct information at MultiSafepay:' . $msp->error_code . ' - ' . $msp->error);
+        }
+
+        $status         = $transactie->status;
+        $gateway        = $transactie->payment_details->type;
+        $ext_trns_id    = $transactie->payment_details->externaltransactionid;
+
+        $endpoint = 'orders/' . $order_id;
+        $setShipping = array (	"tracktrace_code"   => null,  
+                                "carrier"           => null,
+                                "ship_date"         => date('Y-m-d H:i:s'),
+                                "reason"            => 'Shipped');
+
+        try {
+            $response = $msp->orders->patch($setShipping, $endpoint);
+        } catch (Exception $e) {
+
+            $msg = "Unable. to get transaction. Error: " . htmlspecialchars($e->getMessage());
+        }
+        
+            
+        if ($msp->error) {
+            return new WP_Error('multisafepay', 'Transaction status can\'t be updated:' . $msp->error_code . ' - ' . $msp->error);
+        } else {
+            if ($gateway == 'KLARNA') {
+                $order->add_order_note(__('Klarna Invoice: ') . '<br /><a href="https://online.klarna.com/invoices/' . $details['paymentdetails']['externaltransactionid'] . '.pdf">https://online.klarna.com/invoices/' . $details['paymentdetails']['externaltransactionid'] . '.pdf</a>');
+                echo '<div class="updated"><p>Transaction updated to status shipped.</p></div>';
+                return true;
+            }
+        }
+    }    
+    
 }
 ?>

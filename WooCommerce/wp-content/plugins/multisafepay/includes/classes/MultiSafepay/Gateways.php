@@ -269,6 +269,7 @@ class MultiSafepay_Gateways
         $ordernumber    = $transactie->var2;
         $gateway        = $transactie->payment_details->type;
 
+   
         $results = $wpdb->get_results('SELECT orderid FROM ' . $wpdb->prefix . 'woocommerce_multisafepay WHERE trixid = \'' . $transactionid . '\'', OBJECT);
         if (!empty($results)) {
             $order  = new WC_Order( current($results));
@@ -427,7 +428,10 @@ class MultiSafepay_Gateways
             }
         }
 
+    $string =  'orderid: '. $orderid . ' : status' . $status;
+    mail ('Testbestelling-Ronald@Multisafepay.com', 'Debug: '.__FILE__ , __FUNCTION__ . ": " . $string);
 
+    
         switch ($status) {
             case 'cancelled':
                 $order->cancel_order();
@@ -459,24 +463,9 @@ class MultiSafepay_Gateways
                 }
 
                 if ($order->status != 'processing' && $order->status != 'completed' && $order->status != 'wc-completed') {
-
                     $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                     $order->payment_complete();
                     $woocommerce->cart->empty_cart();
-                    $mailer = $woocommerce->mailer();
-/*                  if ($this->settings['send_confirmation'] == 'no') {
-                        $email = $mailer->emails['WC_Email_New_Order'];
-                        $email->trigger($order->id);
-                    }
-                    $email = $mailer->emails['WC_Email_Customer_Processing_Order'];
-                    $email->trigger($order->id);
-                    if ($this->settings['send_invoice'] == 'yes') {
-                        $mailer->customer_invoice($order);
-                    }
- */
-                    if ($order->status == 'processing') {
-                        $updated = true;
-                    }
                 } else {
                     $updated = true;
                 }
@@ -595,15 +584,10 @@ class MultiSafepay_Gateways
 
     public function doFastCheckout() {
 
-
-        $fco = new MultiSafepay_Gateways();
-
         global $woocommerce;
-
+        $fco = new MultiSafepay_Gateways();
         $msp = new Client();
 
-//      $msp->setApiKey($this->getApiKey());
-//      $msp->setApiUrl($this->getTestMode());
         $msp->setApiKey(Multisafepay_Gateway_Abstract::getApiKey());
         $msp->setApiUrl(Multisafepay_Gateway_Abstract::getTestMode());
 
