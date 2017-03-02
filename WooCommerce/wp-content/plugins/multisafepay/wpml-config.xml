@@ -65,6 +65,11 @@
             <key name="description" />
             <key name="description_bankaccount"/>
         </key>
+		<key name="woocommerce_paysafecard_settings">
+            <key name="title" />
+            <key name="description" />
+            <key name="description_bankaccount"/>
+        </key>        
 		<key name="woocommerce_vvv_settings">
             <key name="title" />
             <key name="description" />
