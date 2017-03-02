@@ -2,7 +2,12 @@
 class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
 {
 
-	public static function getCode()
+	public static function getVersion()
+    {
+        return get_option('multisafepay_version');
+    }
+
+    public static function getCode()
     {
         throw new Exception('Please implement the getCode method');
     }
@@ -529,7 +534,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
         $plugin = array(
                     "shop"            => "WooCommerce",
                     "shop_version"    => 'WooCommerce '. $woocommerce->version,
-                    "plugin_version"  => '(3.0.0)',
+                    "plugin_version"  => '(' . get_option('multisafepay_version') . ')',
                     "partner"         => '',
                     "shop_root_url"   => '',
                   );

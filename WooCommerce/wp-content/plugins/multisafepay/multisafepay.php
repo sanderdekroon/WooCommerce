@@ -12,9 +12,9 @@
   License: GNU General Public License v3.0
   License URI: http://www.gnu.org/licenses/gpl-3.0.html
  */
- 
- 
- 
+
+
+
 //Autoloader laden en registreren
 require_once dirname(__FILE__) . '/includes/classes/Autoload.php';
 require_once dirname(__FILE__) . '/includes/classes/MultiSafepay/api/Autoload.php';
@@ -33,6 +33,7 @@ function error_woocommerce_not_active() {
 function error_curl_not_installed() {
     echo '<div class="error"><p>' . __('Curl is not installed.<br />In order to use the MultiSafepay plug-in, you must install install CURL.<br />Ask your system administrator to install php_curl', 'woocommerce-sisow') . '</p></div>';
 }
+
 
 // Curl is niet geinstalleerd. foutmelding weergeven
 if (!function_exists('curl_version')) {
@@ -54,3 +55,49 @@ if (is_plugin_active('woocommerce/woocommerce.php') || is_plugin_active_for_netw
     add_action('admin_notices', error_woocommerce_not_active);
 }
 
+
+
+
+class update_available {
+    private $_message;
+
+    function __construct( $message ) {
+        $this->_message = $message;
+
+        add_action( 'admin_notices', array( $this, 'render' ) );
+    }
+
+    function render() {
+        printf( '<div class="notice">%s</div>', $this->_message );
+    }
+}
+
+if ($message = new_plugin_version_available()) {
+    new update_available( $message );
+}
+
+function new_plugin_version_available(){
+
+    $html = 'https://www.multisafepay.com/nl_nl/oplossingen/shop-plug-ins/detail/plugins/woocommerce/';
+
+    libxml_use_internal_errors(true);
+    $doc = new DOMDocument();
+    $doc->loadHTMLFile($html);
+    libxml_clear_errors();
+
+    $items = $doc->getElementsByTagName('td');
+    $latestVersion = $items->item(0)->nodeValue;
+
+    if ($latestVersion > get_option('multisafepay_version') ){
+
+        $message = 'There is a new version of the MultiSafepay plugin available. '
+        . '<a href="https://www.multisafepay.com/fileadmin/plugins/changelogs/woocommerce.html">View version ' . $latestVersion . ' details</a>'
+        . ' or '
+        . '<a href="https://www.multisafepay.com/fileadmin/plugins/Plugin_WooCommerce_' . $latestVersion . '.zip">download now.</a>';
+//        . '<a href="https://www.multisafepay.com/fileadmin/plugins/Plugin_WooCommerce_' . $latestVersion . '.zip">Update now.</a>';
+
+        return ($message);
+    }else{
+        return false;
+    }
+}

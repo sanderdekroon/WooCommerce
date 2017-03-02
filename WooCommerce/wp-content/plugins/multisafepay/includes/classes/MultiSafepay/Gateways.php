@@ -3,6 +3,8 @@ class MultiSafepay_Gateways
 {
     public static function register()
     {
+        add_option( 'multisafepay_version', '3.0.0', '', 'yes' );
+
         add_filter('woocommerce_payment_gateways'               , array(__CLASS__, '_getGateways'));
         add_filter('woocommerce_payment_gateways_settings'      , array(__CLASS__, '_addGlobalSettings'),1);
 
@@ -101,7 +103,8 @@ class MultiSafepay_Gateways
         $updatedSettings = array();
 
         $addedSettings = array();
-        $addedSettings[] = array(
+
+         $addedSettings[] = array(
             'title'     => __('MultiSafepay settings', 'multisafepay'),
             'type'      => 'title',
             'desc'      => '<p>' . __('The following options are needed to make use of the MultiSafepay plug-in', 'multisafepay') . '</p>',
