@@ -57,11 +57,10 @@ class MultiSafepay_Gateways
             , 'MultiSafepay_Gateway_Mastercard'
             , 'MultiSafepay_Gateway_Payafter'
             , 'MultiSafepay_Gateway_Paypal'
+            , 'MultiSafepay_Gateway_Paysafecard'
             , 'MultiSafepay_Gateway_Sofort'
-            , 'MultiSafepay_Gateway_Visa'
-            , 'MultiSafepay_Gateway_Paysafecard');
-            
-            
+            , 'MultiSafepay_Gateway_Visa');
+
     $giftCards = array(
               'MultiSafepay_Gateway_Babygiftcard'
             , 'MultiSafepay_Gateway_Beautyandwellness'
@@ -72,25 +71,25 @@ class MultiSafepay_Gateways
             , 'MultiSafepay_Gateway_Fietsbon'
             , 'MultiSafepay_Gateway_Fijncadeau'
             , 'MultiSafepay_Gateway_Gezondheidsbon'
-            , 'MultiSafepay_Gateway_Givacard'            
+            , 'MultiSafepay_Gateway_Givacard'
             , 'MultiSafepay_Gateway_Goodcard'
             , 'MultiSafepay_Gateway_Liefcadeaukaart'
             , 'MultiSafepay_Gateway_Nationaletuinbon'
             , 'MultiSafepay_Gateway_Parfumcadeaukaart'
             , 'MultiSafepay_Gateway_Podiumcadeaukaart'
             , 'MultiSafepay_Gateway_Sportenfit'
-            ,  'MultiSafepay_Gateway_VVVBon'
+            , 'MultiSafepay_Gateway_VVVBon'
             , 'MultiSafepay_Gateway_Webshopgiftcard'
             , 'MultiSafepay_Gateway_Wellnessgiftcard'
             , 'MultiSafepay_Gateway_Wijncadeau'
             , 'MultiSafepay_Gateway_Winkelcheque'
-            , 'MultiSafepay_Gateway_Yourgift'            );
+            , 'MultiSafepay_Gateway_Yourgift' );
 
-            
+
         $giftcards_enabled = get_option("multisafepay_giftcards_enabled") == 'yes' ? true : false;
         if ($giftcards_enabled){
             $paymentOptions = array_merge($paymentOptions, $giftCards);
-        }            
+        }
         $paymentOptions = array_merge($arrDefault, $paymentOptions);
 
         return $paymentOptions;
@@ -100,10 +99,9 @@ class MultiSafepay_Gateways
     {
 
         $updatedSettings = array();
+        $addedSettings   = array();
 
-        $addedSettings = array();
-
-         $addedSettings[] = array(
+        $addedSettings[] = array(
             'title'     => __('MultiSafepay settings', 'multisafepay'),
             'type'      => 'title',
             'desc'      => '<p>' . __('The following options are needed to make use of the MultiSafepay plug-in', 'multisafepay') . '</p>',
@@ -137,7 +135,7 @@ class MultiSafepay_Gateways
 
         $addedSettings[] = array(
             'name'      => __('GiftCards', 'multisafepay'),
-            'desc'   => __('Activate GiftCards', 'multisafepay'),
+            'desc'      => __('Activate GiftCards', 'multisafepay'),
             'type'      => 'checkbox',
             'default'   => 'no',
             'desc_tip'  => __('When enabled GiftCards will be available during checkout.', 'multisafepay'),
@@ -148,9 +146,9 @@ class MultiSafepay_Gateways
             'name'      => __('Expire order', 'multisafepay'),
             'type'      => 'number',
             'default'   => 30,
-            'desc_tip' => __('Time before unfinished order is set to expired', 'multisafepay'),
+            'desc_tip'  => __('Time before unfinished order is set to expired', 'multisafepay'),
             'id'        => 'multisafepay_time_active',
-			'css'      => 'max-width:80px;',
+			'css'       => 'max-width:80px;',
 
         );
         $addedSettings[] = array(
@@ -163,11 +161,11 @@ class MultiSafepay_Gateways
         );
         $addedSettings[] = array(
             'name'      => __('Images', 'multisafepay'),
-            'desc'   => __('Show gateway images', 'multisafepay'),
+            'desc'      => __('Show gateway images', 'multisafepay'),
             'type'      => 'checkbox',
             'default'   => 'yes',
             'id'        => 'multisafepay_show_images',
-            'desc_tip' => __('Show gateway images during checkout?', 'multisafepay'),
+            'desc_tip'  => __('Show gateway images during checkout?', 'multisafepay'),
         );
 
         $addedSettings[] = array(
@@ -184,7 +182,7 @@ class MultiSafepay_Gateways
             'desc'      => __('Activate debug mode', 'multisafepay'),
             'type'      => 'checkbox',
             'default'   => 'no',
-            'desc_tip'      => __('When enabled (and wordpress debug is enabled it will log transactions)', 'multisafepay'),
+            'desc_tip'  => __('When enabled (and wordpress debug is enabled it will log transactions)', 'multisafepay'),
             'id'        => 'multisafepay_debugmode',
         );
         $addedSettings[] = array(
@@ -194,8 +192,7 @@ class MultiSafepay_Gateways
             'desc'      => __('Copy&Paste this URL to your website configuration Notification-URL at your Multisafepay dashboard.', 'multisafepay'),
             'id'        => 'multisafepay_nurl',
             'desc_tip'  => true,
-   			'css'      => 'min-width:800px;',
-
+   			'css'       => 'min-width:800px;',
         );
 
 
@@ -203,15 +200,12 @@ class MultiSafepay_Gateways
             'type'  => 'sectionend',
             'id'    => 'multisafepay_general_settings',
         );
-        foreach ($settings as $setting)
-        {
-            if (isset($setting['id']) && $setting['id'] == 'payment_gateways_options' && $setting['type'] != 'sectionend')
-            {
+        foreach ($settings as $setting) {
+            if (isset($setting['id']) && $setting['id'] == 'payment_gateways_options' && $setting['type'] != 'sectionend') {
                 $updatedSettings = array_merge($updatedSettings, $addedSettings);
             }
             $updatedSettings[] = $setting;
         }
-
 
         return $updatedSettings;
     }
@@ -239,7 +233,6 @@ class MultiSafepay_Gateways
 
             if ($_GET['type'] == 'feeds'){
                 require_once dirname(__FILE__) . '/Helper/Feeds.php';
-
                 return true;
             }
         }
@@ -263,15 +256,12 @@ class MultiSafepay_Gateways
             $msg = "Unable. to get transaction. Error: " . htmlspecialchars($e->getMessage());
         }
 
-
         $updated        = false;
         $status         = $transactie->status;
         $amount         = $transactie->amount /100;
         $orderid        = $transactie->order_id;
-        $ordernumber    = $transactie->var2;
         $gateway        = $transactie->payment_details->type;
 
-   
         $results = $wpdb->get_results('SELECT orderid FROM ' . $wpdb->prefix . 'woocommerce_multisafepay WHERE trixid = \'' . $transactionid . '\'', OBJECT);
         if (!empty($results)) {
             $order  = new WC_Order( current($results));
@@ -279,9 +269,7 @@ class MultiSafepay_Gateways
             $order  = new WC_Order($orderid);
         }
 
-
-        if ($transactie->fastcheckout == 'YES' && empty($results))
-        {
+        if ($transactie->fastcheckout == 'YES' && empty($results)) {
             // No correct transaction, go back to checkout-page.
             if (empty($transactie->transaction_id)) {
                 wp_safe_redirect($woocommerce->cart->get_cart_url());
@@ -319,7 +307,6 @@ class MultiSafepay_Gateways
                 $order->set_address($billing_address,  'billing');
                 $order->set_address($shipping_address, 'shipping');
 
-
                 // Add shipping method
                 foreach ($woocommerce->shipping->load_shipping_methods() as $shipping_method) {
 
@@ -352,8 +339,6 @@ class MultiSafepay_Gateways
                     }
                 }
                 $order->set_payment_method($selected_gateway);
-
-
 
                 // Temp array needed for tax calculating coupons etc...
                 $tmp_tax = array();
@@ -416,7 +401,6 @@ class MultiSafepay_Gateways
                         //TODO PROCESS CART FEE
                     }
 */
-
                 }
 
 
@@ -793,6 +777,4 @@ class MultiSafepay_Gateways
 
         return apply_filters('woocommerce_cart_shipping_packages', $packages);
     }
-
-
 }
