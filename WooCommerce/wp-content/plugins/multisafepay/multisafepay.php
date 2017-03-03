@@ -30,13 +30,13 @@ function error_woocommerce_not_active() {
 }
 
 function error_curl_not_installed() {
-    echo '<div class="error"><p>' . __('Curl is not installed.<br />In order to use the MultiSafepay plug-in, you must install install CURL.<br />Ask your system administrator to install php_curl', 'woocommerce-sisow') . '</p></div>';
+    echo '<div class="error"><p>' . __('Curl is not installed.<br />In order to use the MultiSafepay plug-in, you must install install CURL.<br />Ask your system administrator to install php_curl', 'multisafepay') . '</p></div>';
 }
 
 
 // Curl is niet geinstalleerd. foutmelding weergeven
 if (!function_exists('curl_version')) {
-    add_action('admin_notices', 'error_curl_not_installed');
+    add_action('admin_notices', __('error_curl_not_installed', 'multisafepay'));
 }
 
 
@@ -89,11 +89,14 @@ function new_plugin_version_available(){
 
     if ($latestVersion > get_option('multisafepay_version') ){
 
-        $message = 'There is a new version of the MultiSafepay plugin available. '
-        . '<a href="https://www.multisafepay.com/fileadmin/plugins/changelogs/woocommerce.html">View version ' . $latestVersion . ' details</a>'
-        . ' or '
-        . '<a href="https://www.multisafepay.com/fileadmin/plugins/Plugin_WooCommerce_' . $latestVersion . '.zip">download now.</a>';
-//        . '<a href="https://www.multisafepay.com/fileadmin/plugins/Plugin_WooCommerce_' . $latestVersion . '.zip">Update now.</a>';
+        $message = __('There is a new version of the MultiSafepay plugin available. ', 'multisafepay')
+        . '<a href="https://www.multisafepay.com/fileadmin/plugins/changelogs/woocommerce.html">'
+        . __('View version', 'multisafepay') . $latestVersion
+        . __(' details', 'multisafepay')     . '</a>'
+        . __(' or ', 'multisafepay')
+        . '<a href="https://www.multisafepay.com/fileadmin/plugins/Plugin_WooCommerce_' . $latestVersion . '.zip">'
+        . __('download now.', 'multisafepay') . '</a>';
+
 
         return ($message);
     }else{

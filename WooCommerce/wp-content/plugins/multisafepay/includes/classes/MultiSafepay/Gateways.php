@@ -112,7 +112,7 @@ class MultiSafepay_Gateways
             'type'      => 'text',
             'desc_tip'  => __('Copy the API-Key from your MultiSafepay account', 'multisafepay'),
             'id'        => 'multisafepay_api_key',
-   			'css'      => 'min-width:350px;',
+   			'css'       => 'min-width:350px;',
 
         );
         $addedSettings[] = array(
@@ -152,7 +152,7 @@ class MultiSafepay_Gateways
 
         );
         $addedSettings[] = array(
-            'name'      => __('', 'multisafepay'),
+//            'name'      => __('', 'multisafepay'),
             'type'      => 'select',
             'options'   => array(   'days'      => __('days',    'multisafepay'),
                                     'hours'     => __('hours',   'multisafepay'),
@@ -253,7 +253,7 @@ class MultiSafepay_Gateways
             $transactie = $msp->orders->get($transactionid, 'orders', array(), false);
         } catch (Exception $e) {
 
-            $msg = "Unable. to get transaction. Error: " . htmlspecialchars($e->getMessage());
+            $msg = __('Unable to get transaction. Error: ', 'multisafepay') . htmlspecialchars($e->getMessage());
         }
 
         $updated        = false;
@@ -275,6 +275,7 @@ class MultiSafepay_Gateways
                 wp_safe_redirect($woocommerce->cart->get_cart_url());
                 exit();
             }
+
             $amount = $transactie->amount / 100;
 
             if (!empty($transactie->shopping_cart)) {
@@ -499,7 +500,7 @@ class MultiSafepay_Gateways
 
         if ($initial_request) {
             $location = add_query_arg('key', $order->order_key, add_query_arg('order', $order_id, get_permalink(woocommerce_get_page_id('thanks'))));
-            echo '<a href=' . $location . '>' . __('Klik hier om terug te keren naar de website', 'multisafepay') . '</a>';
+            echo '<a href=' . $location . '>' . __('Return to website', 'multisafepay') . '</a>';
             exit;
         } else {
             header("Content-type: text/plain");
@@ -725,7 +726,7 @@ class MultiSafepay_Gateways
         $checkout_options = array ();
         $checkout_options['no_shipping_method']         = false;
         $checkout_options['tax_tables']['alternate']    = array ();
-        $checkout_options['tax_tables']['default'] = array ('shipping_taxed'=> 'true', 'rate' => '0.21');
+        $checkout_options['tax_tables']['default']      = array ('shipping_taxed'=> 'true', 'rate' => '0.21');
 
         foreach (WC()->cart->get_cart() as $values) {
             $percentage = round ($values['line_subtotal_tax'] /$values['line_subtotal'] ,2);

@@ -115,7 +115,7 @@ class Client
     public function processAPIRequest($http_method, $api_method, $http_body = null)
     {
         if (empty($this->api_key)) {
-            throw new Exception("Please configure your MultiSafepay API Key.");
+            throw new Exception(__('Please configure your MultiSafepay API Key.', 'multisafepay'));
         }
 
         $url = $this->api_url . $api_method;
@@ -149,8 +149,8 @@ class Client
         }
 
         if (curl_errno($ch)) {
-            $str = "Unable to communicatie with the MultiSafepay payment server ("
-                 . curl_errno($ch) . "): " . curl_error($ch) . ".";
+            $str = __('Unable to communicatie with the MultiSafepay payment server', 'multisafepay') . '('
+                 . curl_errno($ch) . '): ' . curl_error($ch) . '.';
             throw new Exception($str);
         }
         curl_close($ch);
