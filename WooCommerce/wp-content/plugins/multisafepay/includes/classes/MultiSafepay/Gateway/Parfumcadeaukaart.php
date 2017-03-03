@@ -2,7 +2,8 @@
 
 class MultiSafepay_Gateway_Parfumcadeaukaart extends MultiSafepay_Gateway_Abstract
 {
-	public static function getCode()
+
+    public static function getCode()
     {
         return "multisafepay_parfumcadeaukaart";
     }
@@ -12,7 +13,7 @@ class MultiSafepay_Gateway_Parfumcadeaukaart extends MultiSafepay_Gateway_Abstra
         return __('Parfum-cadeaukaart', 'multisafepay');
     }
 
-	public static function getGatewayCode()
+    public static function getGatewayCode()
     {
         return "PARFUMCADEAUKAART";
     }
@@ -21,5 +22,4 @@ class MultiSafepay_Gateway_Parfumcadeaukaart extends MultiSafepay_Gateway_Abstra
     {
         return "redirect";
     }
-
 }

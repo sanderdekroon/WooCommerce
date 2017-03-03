@@ -2,7 +2,8 @@
 
 class MultiSafepay_Gateway_Paypal extends MultiSafepay_Gateway_Abstract
 {
-	public static function getCode()
+
+    public static function getCode()
     {
         return "multisafepay_paypal";
     }
@@ -11,8 +12,8 @@ class MultiSafepay_Gateway_Paypal extends MultiSafepay_Gateway_Abstract
     {
         return __('PayPal', 'multisafepay');
     }
-		
-	public static function getGatewayCode()
+
+    public static function getGatewayCode()
     {
         return "PAYPAL";
     }
@@ -21,5 +22,4 @@ class MultiSafepay_Gateway_Paypal extends MultiSafepay_Gateway_Abstract
     {
         return "redirect";
     }
-	
 }

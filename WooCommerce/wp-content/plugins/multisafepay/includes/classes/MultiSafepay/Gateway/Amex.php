@@ -1,8 +1,8 @@
 <?php
-
 class MultiSafepay_Gateway_Amex extends MultiSafepay_Gateway_Abstract
 {
-	public static function getCode()
+
+    public static function getCode()
     {
         return "multisafepay_amex";
     }
@@ -11,8 +11,8 @@ class MultiSafepay_Gateway_Amex extends MultiSafepay_Gateway_Abstract
     {
         return __('Amex', 'multisafepay');
     }
-		
-	public static function getGatewayCode()
+
+    public static function getGatewayCode()
     {
         return "AMEX";
     }
@@ -21,5 +21,4 @@ class MultiSafepay_Gateway_Amex extends MultiSafepay_Gateway_Abstract
     {
         return "redirect";
     }
-	
 }

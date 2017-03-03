@@ -2,7 +2,8 @@
 
 class MultiSafepay_Gateway_Nationaletuinbon extends MultiSafepay_Gateway_Abstract
 {
-	public static function getCode()
+
+    public static function getCode()
     {
         return "multisafepay_nationaletuinbon";
     }
@@ -12,7 +13,7 @@ class MultiSafepay_Gateway_Nationaletuinbon extends MultiSafepay_Gateway_Abstrac
         return __('Nationale-tuinbon', 'multisafepay');
     }
 
-	public static function getGatewayCode()
+    public static function getGatewayCode()
     {
         return "NATIONALETUINBON";
     }
@@ -21,5 +22,4 @@ class MultiSafepay_Gateway_Nationaletuinbon extends MultiSafepay_Gateway_Abstrac
     {
         return "redirect";
     }
-
 }

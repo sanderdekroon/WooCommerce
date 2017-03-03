@@ -2,7 +2,8 @@
 
 class MultiSafepay_Gateway_Sofort extends MultiSafepay_Gateway_Abstract
 {
-	public static function getCode()
+
+    public static function getCode()
     {
         return "multisafepay_sofort";
     }
@@ -12,13 +13,14 @@ class MultiSafepay_Gateway_Sofort extends MultiSafepay_Gateway_Abstract
         return __('Sofort', 'multisafepay');
     }
 
-	public static function getGatewayCode()
+    public static function getGatewayCode()
     {
         return "SOFORT";
     }
-    
+
+
     public function getType()
     {
-        return "redirect";            
+        return "redirect";
     }
 }

@@ -35,8 +35,6 @@ class MultiSafepay_Gateways
                                     PRIMARY KEY  (id)
                                 ) $collate;";
         dbDelta($woocommerce_tables);
-
-
     }
 
 
@@ -431,10 +429,6 @@ class MultiSafepay_Gateways
             }
         }
 
-    $string =  'orderid: '. $orderid . ' : status' . $status;
-    mail ('Testbestelling-Ronald@Multisafepay.com', 'Debug: '.__FILE__ , __FUNCTION__ . ": " . $string);
-
-    
         switch ($status) {
             case 'cancelled':
                 $order->cancel_order();

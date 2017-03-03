@@ -14,7 +14,6 @@
  */
 
 
-
 //Autoloader laden en registreren
 require_once dirname(__FILE__) . '/includes/classes/Autoload.php';
 require_once dirname(__FILE__) . '/includes/classes/MultiSafepay/api/Autoload.php';
@@ -57,7 +56,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || is_plugin_active_for_netw
 
 
 
-
+// Check if new version is available.
 class update_available {
     private $_message;
 

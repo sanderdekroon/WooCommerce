@@ -2,6 +2,7 @@
 
 class MultiSafepay_Gateway_Visa extends MultiSafepay_Gateway_Abstract
 {
+
     public static function getCode()
     {
         return "multisafepay_visa";
@@ -16,9 +17,9 @@ class MultiSafepay_Gateway_Visa extends MultiSafepay_Gateway_Abstract
     {
         return "VISA";
     }
-    
+
     public function getType()
     {
-        return "redirect";            
+        return "redirect";
     }
 }

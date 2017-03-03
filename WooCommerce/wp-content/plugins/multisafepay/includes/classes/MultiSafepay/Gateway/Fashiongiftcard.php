@@ -2,7 +2,8 @@
 
 class MultiSafepay_Gateway_Fashiongiftcard extends MultiSafepay_Gateway_Abstract
 {
-	public static function getCode()
+
+    public static function getCode()
     {
         return "multisafepay_fashiongiftcard";
     }
@@ -12,7 +13,7 @@ class MultiSafepay_Gateway_Fashiongiftcard extends MultiSafepay_Gateway_Abstract
         return __('Fashion-Giftcard', 'multisafepay');
     }
 
-	public static function getGatewayCode()
+    public static function getGatewayCode()
     {
         return "FASHIONGIFTCARD";
     }
@@ -21,5 +22,4 @@ class MultiSafepay_Gateway_Fashiongiftcard extends MultiSafepay_Gateway_Abstract
     {
         return "redirect";
     }
-
 }

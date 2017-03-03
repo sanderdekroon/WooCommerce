@@ -2,7 +2,8 @@
 
 class MultiSafepay_Gateway_Podiumcadeaukaart extends MultiSafepay_Gateway_Abstract
 {
-	public static function getCode()
+
+    public static function getCode()
     {
         return "multisafepay_podiumcadeaukaart";
     }
@@ -12,7 +13,7 @@ class MultiSafepay_Gateway_Podiumcadeaukaart extends MultiSafepay_Gateway_Abstra
         return __('Podium-Cadeaukaart', 'multisafepay');
     }
 
-	public static function getGatewayCode()
+    public static function getGatewayCode()
     {
         return "PODIUM";
     }
@@ -21,5 +22,4 @@ class MultiSafepay_Gateway_Podiumcadeaukaart extends MultiSafepay_Gateway_Abstra
     {
         return "redirect";
     }
-
 }
