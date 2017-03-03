@@ -10,7 +10,7 @@ class MultiSafepay_Gateway_Babygiftcard extends MultiSafepay_Gateway_Abstract
 
     public static function getName()
     {
-        return __('BABYGIFTCARD', 'multisafepay');
+        return __('Babygiftcard', 'multisafepay');
     }
 
     public static function getGatewayCode()

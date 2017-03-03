@@ -45,13 +45,13 @@ class MultiSafepay_Gateway_Einvoice extends MultiSafepay_Gateway_Abstract
         $this->form_fields['minamount'] = array(
             'title'         => __('Minimal order amount', 'multisafepay'),
             'type'          => 'text',
-            'description'   => __('The minimal amount in euro\'s  for an order to show E-Invoice', 'multisafepay'),
+            'description'   => __('The minimal order amount in euro\'s  for an order to use this payment method', 'multisafepay'),
             'css'           => 'width: 100px;');
 
         $this->form_fields['maxamount'] = array(
             'title'         => __('Maximal order amount', 'multisafepay'),
             'type'          => 'text',
-            'description'   => __('The max order amount in euro\'s  for an order to show E-Invoice', 'multisafepay'),
+            'description'   => __('The maximal order amount in euro\'s  for an order to use this payment method', 'multisafepay'),
             'css'           => 'width: 100px;');
 
         parent::init_settings($this->form_fields);

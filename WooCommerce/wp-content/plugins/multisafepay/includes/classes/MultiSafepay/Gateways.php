@@ -117,28 +117,28 @@ class MultiSafepay_Gateways
         );
         $addedSettings[] = array(
             'name'      => __('Test Mode', 'multisafepay'),
-            'desc'   => __('Activate Test mode.', 'multisafepay'),
+            'desc'      => sprintf(__('Activate %s', 'multisafepay'), __('Test Mode', 'multisafepay')),
             'type'      => 'checkbox',
             'default'   => 'yes',
-            'desc_tip'   => __('Enable if the API-Key is from your MultiSafepay TEST-account, otherwise leave empty.', 'multisafepay'),
+            'desc_tip'   => __('Only enable if the API-Key is from a MultiSafepay Test-account.', 'multisafepay'),
             'id'        => 'multisafepay_testmode'
         );
 
         $addedSettings[] = array(
             'name'      => __('FastCheckout', 'multisafepay'),
-            'desc'   => __('Activate FastCheckout', 'multisafepay'),
+            'desc'      =>  sprintf(__('Activate %s', 'multisafepay'), __('FastCheckout', 'multisafepay')),
             'type'      => 'checkbox',
             'default'   => 'no',
-            'desc_tip'  => __('When enabled FastCheckout will be available during checkout.', 'multisafepay'),
+            'desc_tip'  => sprintf(__('When enabled %s will be available during checkout.', 'multisafepay'), __('FastCheckout', 'multisafepay')),
             'id'        => 'multisafepay_fco_enabled'
         );
 
         $addedSettings[] = array(
             'name'      => __('GiftCards', 'multisafepay'),
-            'desc'      => __('Activate GiftCards', 'multisafepay'),
+            'desc'      => sprintf(__('Activate %s', 'multisafepay'), __('GiftCards', 'multisafepay')),
             'type'      => 'checkbox',
             'default'   => 'no',
-            'desc_tip'  => __('When enabled GiftCards will be available during checkout.', 'multisafepay'),
+            'desc_tip'  => sprintf(__('When enabled %s will be available during checkout.', 'multisafepay'), __('GiftCards', 'multisafepay')),
             'id'        => 'multisafepay_giftcards_enabled'
         );
 
@@ -165,7 +165,7 @@ class MultiSafepay_Gateways
             'type'      => 'checkbox',
             'default'   => 'yes',
             'id'        => 'multisafepay_show_images',
-            'desc_tip'  => __('Show gateway images during checkout?', 'multisafepay'),
+            'desc_tip'  => sprintf(__('%s during checkout.', 'multisafepay'), __('Show gateway images', 'multisafepay'))
         );
 
         $addedSettings[] = array(

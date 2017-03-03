@@ -46,13 +46,13 @@ class MultiSafepay_Gateway_Payafter extends MultiSafepay_Gateway_Abstract
         $this->form_fields['minamount'] = array(
             'title'         => __('Minimal order amount', 'multisafepay'),
             'type'          => 'text',
-            'description'   => __('The minimal amount in euro\'s for an order to show Pay After Delivery', 'multisafepay'),
+            'description'   => __('The minimal order amount in euro\'s  for an order to use this payment method', 'multisafepay'),
             'css'           => 'width: 100px;');
 
         $this->form_fields['maxamount'] = array(
             'title'         => __('Maximal order amount', 'multisafepay'),
             'type'          => 'text',
-            'description'   => __('The max order amount in euro\'s for an order to show Pay After Delivery', 'multisafepay'),
+            'description'   => __('The maximal order amount in euro\'s  for an order to use this payment method', 'multisafepay'),
             'css'           => 'width: 100px;');
 
         parent::init_settings($this->form_fields);
@@ -61,10 +61,10 @@ class MultiSafepay_Gateway_Payafter extends MultiSafepay_Gateway_Abstract
     public function payment_fields()
     {
         $description = '';
-        $description = '<p class="form-row form-row-wide  validate-required"><label for="birthday" class="">'.__('Geboortedatum', 'multisafepay').'<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_birthday" id="birthday" placeholder="dd-mm-yyyy"/>
+        $description = '<p class="form-row form-row-wide  validate-required"><label for="birthday" class="">'.__('Birthday', 'multisafepay').'<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_birthday" id="birthday" placeholder="dd-mm-yyyy"/>
         </p><div class="clear"></div>';
 
-        $description .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">'.__('Rekeningnummer', 'multisafepay').'<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_account" id="account" placeholder=""/>
+        $description .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">'.__('Accountnumber', 'multisafepay').'<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_account" id="account" placeholder=""/>
         </p><div class="clear"></div>';
 
         $description .= '<p class="form-row form-row-wide">'.__('By confirming this order you agree with the ', 'multisafepay').'<a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">Terms and conditions of MultiFactor</a>';
