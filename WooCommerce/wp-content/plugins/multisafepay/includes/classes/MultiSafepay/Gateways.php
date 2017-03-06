@@ -493,6 +493,7 @@ class MultiSafepay_Gateways
         $view_order_url     = $order->get_view_order_url();
         $retry_payment_url  = $order->get_checkout_payment_url();
 
+
         if ($redirect) {
             wp_redirect($return_url);
             exit;
