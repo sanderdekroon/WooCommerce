@@ -537,11 +537,12 @@ class MultiSafepay_Gateways
 
     public function getButtonFCO() {
 
-        if (get_woocommerce_currency() != 'EUR')
+        if (get_woocommerce_currency() != 'EUR')        
             return;
 
-        $button_locale_code = get_locale();
-        $image = plugins_url('/Images/' . $button_locale_code . '/button.png', __FILE__);
+//        $button_locale_code = get_locale();
+//        $image = plugins_url('/Images/' . $button_locale_code . '/button.png', __FILE__);
+        $image = plugins_url('/Images/button.png', __FILE__);
 
         echo '<div id="msp_fastcheckout" >';
         echo '<a class="checkout-button"  style="width:219px;border:none;margin-bottom:15px;" href="' . add_query_arg('action', 'doFastCheckout', add_query_arg('wc-api', 'MultiSafepay_Gateways', home_url('/'))) . '">';
