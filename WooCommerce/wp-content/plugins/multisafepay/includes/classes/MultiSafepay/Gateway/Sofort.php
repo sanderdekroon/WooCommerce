@@ -15,7 +15,7 @@ class MultiSafepay_Gateway_Sofort extends MultiSafepay_Gateway_Abstract
 
     public static function getGatewayCode()
     {
-        return "SOFORT";
+        return "DIRECTBANK";
     }
 
 
