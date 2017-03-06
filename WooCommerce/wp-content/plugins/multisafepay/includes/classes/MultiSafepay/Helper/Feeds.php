@@ -117,6 +117,9 @@ function shipping()
 {
     $active_methods   = array();
     $shipping_methods = WC()->shipping->get_shipping_methods();
+
+    print_r ($shipping_methods);
+
     foreach ($shipping_methods as $id => $shipping_method) {
         if (isset($shipping_method->enabled) && $shipping_method->enabled == 'yes') {
 
@@ -125,8 +128,8 @@ function shipping()
                 'provider' => '',
                 'name' => $shipping_method->method_title,
                 'price' => '',
-                'excluded_areas' => array(),
-                'included_areas' => array()
+//                'excluded_areas' => array(),
+//                'included_areas' => array()
             );
         }
     }
@@ -136,7 +139,8 @@ function shipping()
 
 function stores()
 {
-    $store = array( 'allowed_countries'     => array(),
+
+    $store = array( 'allowed_countries'     => WC()->countries->get_countries(),
                     'shipping_countries'    => array(),
                     'languages'             => array(),
                     'stock_updates'         => get_option('woocommerce_manage_stock') == 'yes' ? true : false,

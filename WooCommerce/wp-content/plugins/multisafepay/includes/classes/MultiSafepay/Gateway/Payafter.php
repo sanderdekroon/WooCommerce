@@ -64,7 +64,7 @@ class MultiSafepay_Gateway_Payafter extends MultiSafepay_Gateway_Abstract
         $description = '<p class="form-row form-row-wide  validate-required"><label for="birthday" class="">'.__('Birthday', 'multisafepay').'<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_birthday" id="birthday" placeholder="dd-mm-yyyy"/>
         </p><div class="clear"></div>';
 
-        $description .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">'.__('Accountnumber', 'multisafepay').'<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_account" id="account" placeholder=""/>
+        $description .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">'.__('Bankaccount', 'multisafepay').'<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_account" id="account" placeholder=""/>
         </p><div class="clear"></div>';
 
         $description .= '<p class="form-row form-row-wide">'.__('By confirming this order you agree with the ', 'multisafepay').'<a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">Terms and conditions of MultiFactor</a>';

@@ -12,7 +12,6 @@ class API_Autoload
     public static function autoload($class_name)
     {
         $name = str_replace("Object", "Object/", $class_name);
-
         $file_name = realpath(dirname(__FILE__) . "/{$name}.php");
 
         if (file_exists($file_name)) {

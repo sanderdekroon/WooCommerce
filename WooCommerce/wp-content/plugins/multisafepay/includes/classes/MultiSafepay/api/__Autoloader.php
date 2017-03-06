@@ -9,9 +9,8 @@
 
 class API_Autoload
 {
-    public static function autoload($class_name)
+    public static function autoloader($class_name)
     {
-
         $name = str_replace("Object", "Object/", $class_name);
         $class_path = dirname(__FILE__) . '/' . str_replace('_', '/', $class_name) . '.php';
         

@@ -504,36 +504,20 @@ class MultiSafepay_Gateways
             exit;
         } else {
             header("Content-type: text/plain");
-            if ($updated == true) {
-                if (isset($_GET['cancel_order'])) {
-                    $order->cancel_order();
-                    $location = $woocommerce->cart->get_cart_url();
-                    wp_safe_redirect($location);
-                    exit();
-                } elseif (isset($_GET['order']) || isset($_GET['key'])) {
-                    $location = $order->get_checkout_order_received_url();
-                    wp_safe_redirect($location);
-                    exit();
-                } else {
-                    echo 'OK';
-                }
+            if (isset($_GET['cancel_order'])) {
+                $order->cancel_order();
+                $location = $woocommerce->cart->get_cart_url();
+                wp_safe_redirect($location);
+                exit();
+            } elseif (isset($_GET['order']) || isset($_GET['key'])) {
+                $location = $order->get_checkout_order_received_url();
+                wp_safe_redirect($location);
+                exit();
             } else {
-                if (isset($_GET['cancel_order'])) {
-                    $order->cancel_order();
-                    $location = $woocommerce->cart->get_cart_url();
-                    wp_safe_redirect($location);
-                    exit();
-                } elseif (isset($_GET['order']) || isset($_GET['key'])) {
-                    $location = $order->get_checkout_order_received_url();
-                    wp_safe_redirect($location);
-                    exit();
-                } else {
-                    echo 'OK';
-                }
+                echo 'OK';
             }
             exit;
         }
-
     }
 
 

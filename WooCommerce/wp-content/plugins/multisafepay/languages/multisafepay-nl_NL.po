@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: MultiSafepay\n"
-"POT-Creation-Date: 2017-03-03 12:43+0100\n"
-"PO-Revision-Date: 2017-03-03 12:44+0100\n"
+"POT-Creation-Date: 2017-03-06 13:48+0100\n"
+"PO-Revision-Date: 2017-03-06 13:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: nl_NL\n"
@@ -56,7 +56,7 @@ msgstr "Betaal met %s"
 
 #: includes/classes/MultiSafepay/Gateway/Abstract.php:211
 #: includes/classes/MultiSafepay/Gateway/Abstract.php:254
-#: includes/classes/MultiSafepay/Gateways.php:623
+#: includes/classes/MultiSafepay/Gateways.php:607
 msgid "Payment error:"
 msgstr "Betalingsfout:"
 
@@ -282,8 +282,8 @@ msgid "PayAfter"
 msgstr "Betaal Na Ontvangst"
 
 #: includes/classes/MultiSafepay/Gateway/Payafter.php:67
-msgid "Accountnumber"
-msgstr "Rekeningnummer"
+msgid "Bankaccount"
+msgstr "Bankrekening"
 
 #: includes/classes/MultiSafepay/Gateway/Paypal.php:13
 msgid "PayPal"
@@ -499,7 +499,7 @@ msgstr "Betaling %s door MultiSafepay"
 msgid "Return to website"
 msgstr "Keer terug naar de website"
 
-#: includes/classes/MultiSafepay/Gateways.php:563
+#: includes/classes/MultiSafepay/Gateways.php:547
 msgid "Pay with FastCheckout"
 msgstr "Betaal via FastCheckout"
 
@@ -513,11 +513,10 @@ msgstr ""
 #: multisafepay.php:33
 msgid ""
 "Curl is not installed.<br />In order to use the MultiSafepay plug-in, you "
-"must install install CURL.<br />Ask your system administrator to install "
-"php_curl"
+"must install CURL.<br />Ask your system administrator to install php_curl"
 msgstr ""
-"Curl is niet geinstalleerd.<br />Installeer CURL om deze plug-in te kunnen "
-"gebruiken.<br />Vraag uw systeembeheerder"
+"Curl is niet geinstalleerd.<br />Vraag uw systeembeheerder om Curl te "
+"installeren om gebruik te kunnen maken van de MultiSafepay plug-in."
 
 #: multisafepay.php:39
 msgid "error_curl_not_installed"
@@ -542,6 +541,17 @@ msgstr "of"
 #: multisafepay.php:98
 msgid "download now."
 msgstr "download nu."
+
+#~ msgid "Accountnumber"
+#~ msgstr "Rekeningnummer"
+
+#~ msgid ""
+#~ "Curl is not installed.<br />In order to use the MultiSafepay plug-in, you "
+#~ "must install install CURL.<br />Ask your system administrator to install "
+#~ "php_curl"
+#~ msgstr ""
+#~ "Curl is niet geinstalleerd.<br />Installeer CURL om deze plug-in te "
+#~ "kunnen gebruiken.<br />Vraag uw systeembeheerder"
 
 #~ msgid ""
 #~ "The minimal amount in euro's  for an order to show this payment method"

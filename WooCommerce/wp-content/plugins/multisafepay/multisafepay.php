@@ -30,7 +30,7 @@ function error_woocommerce_not_active() {
 }
 
 function error_curl_not_installed() {
-    echo '<div class="error"><p>' . __('Curl is not installed.<br />In order to use the MultiSafepay plug-in, you must install install CURL.<br />Ask your system administrator to install php_curl', 'multisafepay') . '</p></div>';
+    echo '<div class="error"><p>' . __('Curl is not installed.<br />In order to use the MultiSafepay plug-in, you must install CURL.<br />Ask your system administrator to install php_curl', 'multisafepay') . '</p></div>';
 }
 
 
