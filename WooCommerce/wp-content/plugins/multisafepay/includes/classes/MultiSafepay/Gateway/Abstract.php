@@ -93,8 +93,10 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
 
     public function getIcon()
     {
-        $button_locale_code = get_locale();
-        $image              = plugins_url('/Images/'.$button_locale_code.'/'.$this->getCode().'.png', dirname(__FILE__));
+//        $button_locale_code = get_locale();
+//        $image              = plugins_url('/Images/'.$button_locale_code.'/'.$this->getCode().'.png', dirname(__FILE__));
+          $image              = plugins_url('/Images/'.$this->getCode().'.png', dirname(__FILE__));
+
 
         return ($image);
     }
