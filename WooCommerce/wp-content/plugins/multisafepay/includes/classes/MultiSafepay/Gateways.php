@@ -214,7 +214,7 @@ class MultiSafepay_Gateways
         return false;
     }
 
-    public function Multisafepay_Response() {
+    public static function Multisafepay_Response() {
 
         global $wpdb, $wp_version, $woocommerce;
 
@@ -526,7 +526,7 @@ class MultiSafepay_Gateways
     }
 
 
-    public function addFCO() {
+    public static function addFCO() {
         global $woocommerce;
 
         if (!empty($woocommerce->fco_added))
@@ -539,7 +539,7 @@ class MultiSafepay_Gateways
         }
     }
 
-    public function getButtonFCO() {
+    public static function getButtonFCO() {
 
         if (get_woocommerce_currency() != 'EUR')        
             return;

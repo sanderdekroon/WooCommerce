@@ -25,7 +25,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
 
     public static function getTestMode()
     {
-        return get_option('multisafepay_testmode');
+        return (get_option('multisafepay_testmode') == 'yes' ? true : false);
     }
 
     public static function getEnabled()

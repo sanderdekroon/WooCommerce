@@ -81,7 +81,7 @@ class MultiSafepay_Gateway_Payafter extends MultiSafepay_Gateway_Abstract
         return true;
     }
 
-    public function payafter_filter_gateways($gateways)
+    public static function payafter_filter_gateways($gateways)
     {
 
         global $woocommerce;

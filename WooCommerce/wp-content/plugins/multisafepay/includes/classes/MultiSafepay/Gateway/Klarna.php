@@ -86,7 +86,7 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
         return true;
     }
 
-    public function klarna_filter_gateways($gateways)
+    public static function klarna_filter_gateways($gateways)
     {
 
         global $woocommerce;

@@ -79,7 +79,7 @@ class MultiSafepay_Gateway_Einvoice extends MultiSafepay_Gateway_Abstract
         return true;
     }
 
-    public function einvoice_filter_gateways($gateways)
+    public static function einvoice_filter_gateways($gateways)
     {
         global $woocommerce;
 
