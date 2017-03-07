@@ -22,8 +22,10 @@ class MultiSafepay_Gateway_Banktrans extends MultiSafepay_Gateway_Abstract
     {
         $settings = get_option('woocommerce_multisafepay_banktrans_settings');
 
-        if ($settings['direct'] == 'yes') return "direct";
-        else return "redirect";
+        if ($settings['direct'] == 'yes')
+            return "direct";
+        else
+            return "redirect";
     }
 
     public function init_settings($form_fields = array())
