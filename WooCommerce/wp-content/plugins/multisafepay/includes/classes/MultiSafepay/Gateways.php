@@ -262,7 +262,11 @@ class MultiSafepay_Gateways
         $orderid        = $transactie->order_id;
         $gateway        = $transactie->payment_details->type;
 
-        $results = $wpdb->get_results('SELECT orderid FROM ' . $wpdb->prefix . 'woocommerce_multisafepay WHERE trixid = \'' . $transactionid . '\'', OBJECT);
+        $tablename = $wpdb->prefix . 'woocommerce_multisafepay';
+        $sql = $wpdb->prepare('SELECT orderid FROM %s WHERE trixid = %s', $tablename, $transactionid);
+        $results = $wpdb->get_results( $sql , OBJECT);
+
+
         if (!empty($results)) {
             $order  = new WC_Order( current($results));
         }else{
