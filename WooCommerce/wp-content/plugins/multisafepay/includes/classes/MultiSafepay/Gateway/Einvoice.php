@@ -84,17 +84,16 @@ class MultiSafepay_Gateway_Einvoice extends MultiSafepay_Gateway_Abstract
         global $woocommerce;
 
         $settings = (array) get_option("woocommerce_multisafepay_einvoice_settings");
-
-        if (!empty($settings['minamount'])) {
-            if ($woocommerce->cart->total > $settings['maxamount'] || $woocommerce->cart->total < $settings['minamount']) {
-                unset($gateways['multisafepay_einvoice']);
-            }
-        }
-
-        if ($woocommerce->customer->get_country() != 'NL') {
+        
+        if ( !empty($settings['minamount']) && $woocommerce->cart->total < $settings['minamount'])
             unset($gateways['multisafepay_einvoice']);
-        }
 
+        if ( !empty($settings['maxamount']) && $woocommerce->cart->total > $settings['maxamount'])
+            unset($gateways['multisafepay_einvoice']);
+
+        if ($woocommerce->customer->get_country() != 'NL')
+            unset($gateways['multisafepay_einvoice']);
+        
         return $gateways;
     }
 

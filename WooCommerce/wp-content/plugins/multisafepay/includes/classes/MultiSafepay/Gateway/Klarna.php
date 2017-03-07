@@ -89,16 +89,17 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
     public function klarna_filter_gateways($gateways)
     {
 
-        unset($gateways['multisafepay_klarna']);
         global $woocommerce;
 
         $settings = (array) get_option("woocommerce_multisafepay_klarna_settings");
+       
+        if ( !empty($settings['minamount']) && $woocommerce->cart->total < $settings['minamount'])
+            unset($gateways['multisafepay_klarna']);
 
-        if (!empty($settings['minamount'])) {
-            if ($woocommerce->cart->total > $settings['maxamount'] || $woocommerce->cart->total < $settings['minamount']) {
-                unset($gateways['multisafepay_klarna']);
-            }
-        }
+        if ( !empty($settings['maxamount']) && $woocommerce->cart->total > $settings['maxamount'])
+            unset($gateways['multisafepay_klarna']);
+
+        
 
         return $gateways;
     }
