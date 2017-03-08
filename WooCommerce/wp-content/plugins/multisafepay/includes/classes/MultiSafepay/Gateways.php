@@ -37,9 +37,10 @@ class MultiSafepay_Gateways
         dbDelta($woocommerce_tables);
     }
 
-
+    
     public static function _getGateways($arrDefault)
     {
+        
         $paymentOptions = array(
               'MultiSafepay_Gateway_Amex'
             , 'MultiSafepay_Gateway_Bancontact'
@@ -250,10 +251,13 @@ class MultiSafepay_Gateways
         $msp->setApiUrl(get_option('multisafepay_testmode'));
 
         try {
+            $msg = null;
             $transactie = $msp->orders->get($transactionid, 'orders', array(), false);
         } catch (Exception $e) {
 
-            $msg = __('Unable to get transaction. Error: ', 'multisafepay') . htmlspecialchars($e->getMessage());
+            $msg = htmlspecialchars($e->getMessage());
+            $Debug = new MultiSafepay_Helper_Debug();
+            $Debug->write_log($msg);
         }
 
         $updated        = false;
@@ -541,7 +545,7 @@ class MultiSafepay_Gateways
 
     public static function getButtonFCO() {
 
-        if (get_woocommerce_currency() != 'EUR')        
+        if (get_woocommerce_currency() != 'EUR')
             return;
 
 //        $button_locale_code = get_locale();
@@ -564,10 +568,7 @@ class MultiSafepay_Gateways
         $msp->setApiKey(Multisafepay_Gateway_Abstract::getApiKey());
         $msp->setApiUrl(Multisafepay_Gateway_Abstract::getTestMode());
 
-
-
         $order_id = uniqid();
-
         $my_order =
             array(
                 "type"        		    => 'checkout',
@@ -592,28 +593,33 @@ class MultiSafepay_Gateways
          );
 
         try {
+            $msg = null;
             $msp->orders->post($my_order);
             $url = $msp->orders->getPaymentLink();
         } catch (Exception $e) {
 
-            $msg = 'Error: ' . htmlspecialchars($e->getMessage());
-            Multisafepay_Gateway_Abstract::write_log($msg);
-
-
+            $msg = htmlspecialchars($e->getMessage());
+            $Debug = new MultiSafepay_Helper_Debug();
+            $Debug->write_log($msg);
         }
 
-        Multisafepay_Gateway_Abstract::write_log('MSP->transactiondata');
-        Multisafepay_Gateway_Abstract::write_log($msp);
-        Multisafepay_Gateway_Abstract::write_log('MSP->transaction URL');
-        Multisafepay_Gateway_Abstract::write_log($url);
-        Multisafepay_Gateway_Abstract::write_log('MSP->End debug');
-        Multisafepay_Gateway_Abstract::write_log('--------------------------------------');
+        if ($msg) {
+            $Debug = new MultiSafepay_Helper_Debug();
+            $Debug->write_log('MSP->transactiondata');
+            $Debug->write_log(print_r ($my_order, true));
+            $Debug->write_log('MSP->End debug');
 
-        if (isset($msp->error)) {
-            wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msp->error, 'error');
-        } else {
-          wp_redirect($url);
+            if (strpos($msg,'1037') === 0)
+                $msg = __('There are no shipping methods available. Please double check your address, or contact us if you need any help.', 'multisafepay');
+
+            wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msg, 'error');
         }
+
+        if ($msg)
+            wc_add_notice($msg, 'error');
+        else
+            wp_redirect(WC()->cart->get_checkout_url());
+
         exit();
 
     }

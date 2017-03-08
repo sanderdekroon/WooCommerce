@@ -75,11 +75,14 @@ class MultiSafepay_Gateway_Ideal extends MultiSafepay_Gateway_Abstract
             $msp->setApiUrl($this->getTestMode());
 
             try {
+                $msg = null;
                 $issuers = $msp->issuers->get();
             } catch (Exception $e) {
 
-                $msg = 'Error: '.htmlspecialchars($e->getMessage());
-                echo $msg;
+                $msg = htmlspecialchars($e->getMessage());
+                $this->write_log($msg);
+                wc_add_notice( $msg, 'error');
+
             }
 
             $description .= __('Choose your bank', 'multisafepay').'<br/>';

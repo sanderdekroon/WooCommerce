@@ -122,10 +122,13 @@ class MultiSafepay_Gateway_Payafter extends MultiSafepay_Gateway_Abstract
         $msp->setApiUrl($this->getTestMode());
 
         try {
+            $msg = null;
             $transactie = $msp->orders->get($order_id, 'orders', array(), false);
         } catch (Exception $e) {
 
-            $msg = "Unable. to get transaction. Error: ".htmlspecialchars($e->getMessage());
+            $msg = htmlspecialchars($e->getMessage());
+            $this->write_log($msg);
+
         }
 
         if ($msp->error) {
@@ -140,9 +143,11 @@ class MultiSafepay_Gateway_Payafter extends MultiSafepay_Gateway_Abstract
             "reason" => 'Shipped');
 
         try {
+            $msg = null;
             $response = $msp->orders->patch($setShipping, $endpoint);
         } catch (Exception $e) {
-            $msg = "Unable. to get transaction. Error: ".htmlspecialchars($e->getMessage());
+            $msg = htmlspecialchars($e->getMessage());
+            $this->write_log($msg);
         }
 
         if ($msp->error) {

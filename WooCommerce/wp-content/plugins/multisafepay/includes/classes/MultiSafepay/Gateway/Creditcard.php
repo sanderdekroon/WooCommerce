@@ -42,11 +42,12 @@ class MultiSafepay_Gateway_Creditcard extends MultiSafepay_Gateway_Abstract
         $msp->setApiUrl($this->getTestMode());
 
         try {
+            $msg = null;
             $gateways = $msp->gateways->get();
         } catch (Exception $e) {
-
-            $msg = 'Error: '.htmlspecialchars($e->getMessage());
-            echo $msg;
+            $msg = htmlspecialchars($e->getMessage());
+            $this->write_log($msg);
+            wc_add_notice($msg, 'error');
         }
 
         $description .= __('Select CreditCard', 'multisafepay').'<br/>';

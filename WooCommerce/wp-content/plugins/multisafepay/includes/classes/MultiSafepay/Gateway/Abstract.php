@@ -204,33 +204,25 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
             "checkout_options"      => isset($this->checkout_options) ? $this->checkout_options : array(),
         );
 
-        $msg = null;
         try {
+            $msg = null;
             $msp->orders->post($my_order);
             $url = $msp->orders->getPaymentLink();
         } catch (Exception $e) {
-
-            $msg = 'Error: '.htmlspecialchars($e->getMessage());
+            $msg = htmlspecialchars($e->getMessage());
             $this->write_log($msg);
-
-            wc_add_notice(__('Payment error:', 'multisafepay').' '.$msg, 'error');
+            wc_add_notice($msg, 'error');
         }
 
-
-        if (!$msg) {
-            return array(   'result'    => 'success',
-                            'redirect'  => $url);
-        } else {
-
+        if ($msg) {
             $this->write_log('msp->transactiondata:');
-            $this->write_log($msp);
-            $this->write_log('msp->transaction URL:'.$url);
+            $this->write_log(print_r($msp, true));
             $this->write_log('msp->End debug');
 
-            $msg = 'Error: '.htmlspecialchars($e->getMessage());
-            $this->write_log($msg);
-
             return array(   'result'    => 'error',
+                            'redirect'  => $url);
+        } else {
+            return array(   'result'    => 'success',
                             'redirect'  => $url);
         }
     }
@@ -250,17 +242,16 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
                             "description"   => $reason );
 
         try {
+            $msg = null;
             $order = $msp->orders->post($refund, $endpoint);
         } catch (Exception $e) {
-
             $msg = 'Error: '.htmlspecialchars($e->getMessage());
             $this->write_log($msg);
-
-            wc_add_notice(__('Payment error:', 'multisafepay').' '.$msg, 'error');
+            wc_add_notice($msg, 'error');
         }
 
         if ($msp->error) {
-            return new WP_Error('multisafepay_ideal', 'Order can\'t be refunded:'.$msp->error_code.' - '.$msp->error);
+            return new WP_Error('multisafepay', 'Order can\'t be refunded:'.$msp->error_code.' - '.$msp->error);
         } else {
             return true;
         }
