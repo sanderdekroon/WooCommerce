@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Webshopgiftcard extends MultiSafepay_Gateway_Abstract
         return __('Webshop-giftcard', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_webshopgiftcard_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "WEBSHOPGIFTCARD";

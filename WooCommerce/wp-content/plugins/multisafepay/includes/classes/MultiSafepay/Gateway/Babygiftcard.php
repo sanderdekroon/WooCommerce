@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Babygiftcard extends MultiSafepay_Gateway_Abstract
         return __('Babygiftcard', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_babygiftcard_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "Baby-Giftcard";

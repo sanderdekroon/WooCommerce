@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Creditcard extends MultiSafepay_Gateway_Abstract
         return __('Creditcard', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_creditcard_settings');
+    }
+
     public static function getGatewayCode()
     {
         return ( empty($_POST['cc_issuer']) ? "CREDITCARDS" : $_POST['cc_issuer']);
@@ -30,8 +35,6 @@ class MultiSafepay_Gateway_Creditcard extends MultiSafepay_Gateway_Abstract
         $description_text = $this->get_option('description');
         if (!empty($description_text))
             $description .= '<p>'.$description_text.'</p>';
-
-        $settings = get_option('woocommerce_multisafepay_ideal_settings');
 
         $msp = new Client();
 

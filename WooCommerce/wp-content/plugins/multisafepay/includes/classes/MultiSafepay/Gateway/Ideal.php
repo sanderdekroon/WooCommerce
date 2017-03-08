@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Ideal extends MultiSafepay_Gateway_Abstract
         return __('iDEAL', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_ideal_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "IDEAL";

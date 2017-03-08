@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Dirdeb extends MultiSafepay_Gateway_Abstract
         return __('DirectDebit', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_dirdeb_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "DIRDEB";

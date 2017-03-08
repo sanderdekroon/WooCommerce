@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Banktrans extends MultiSafepay_Gateway_Abstract
         return __('Banktransfer', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_banktrans_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "BANKTRANS";

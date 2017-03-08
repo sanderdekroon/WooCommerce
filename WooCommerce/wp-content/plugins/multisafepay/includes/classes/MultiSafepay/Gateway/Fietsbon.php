@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Fietsbon extends MultiSafepay_Gateway_Abstract
         return __('Fietsbon', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_fietsbon_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "FIETSBON";

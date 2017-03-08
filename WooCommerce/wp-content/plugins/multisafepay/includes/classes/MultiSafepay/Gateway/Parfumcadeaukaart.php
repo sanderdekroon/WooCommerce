@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Parfumcadeaukaart extends MultiSafepay_Gateway_Abstra
         return __('Parfum-cadeaukaart', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_parfumcadeaukaart_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "PARFUMCADEAUKAART";

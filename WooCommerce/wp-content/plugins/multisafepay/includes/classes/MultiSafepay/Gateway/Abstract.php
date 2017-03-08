@@ -114,8 +114,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
             $this->supports = array('products');
 
         $this->init_settings();
-
-        $this->title = $this->get_option('title');
+        $this->title = $this->getTitle() ? $this->getTitle() : $this->getName();
 
         if ($this->getShowImages()) {
             $this->icon = $this->getIcon();

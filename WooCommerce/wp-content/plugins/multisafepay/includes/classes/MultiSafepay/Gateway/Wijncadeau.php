@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Wijncadeau extends MultiSafepay_Gateway_Abstract
         return __('WijnCadeau', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_wijncadeau_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "WIJNCADEAU";

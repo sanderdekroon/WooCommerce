@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Erotiekbon extends MultiSafepay_Gateway_Abstract
         return __('Erotiekbon', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_erotiekbon_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "EROTIEKBON";

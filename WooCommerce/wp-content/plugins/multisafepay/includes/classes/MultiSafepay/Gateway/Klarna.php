@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
         return __('Klarna', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_klarna_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "KLARNA";

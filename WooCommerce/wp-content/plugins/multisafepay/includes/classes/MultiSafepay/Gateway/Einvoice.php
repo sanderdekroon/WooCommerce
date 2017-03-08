@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Einvoice extends MultiSafepay_Gateway_Abstract
         return __('E-Invoice', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_einvoice_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "EINVOICE";

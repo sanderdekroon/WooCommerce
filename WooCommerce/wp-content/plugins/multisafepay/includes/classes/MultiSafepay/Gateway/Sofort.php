@@ -13,11 +13,15 @@ class MultiSafepay_Gateway_Sofort extends MultiSafepay_Gateway_Abstract
         return __('Sofort', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_sofort_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "DIRECTBANK";
     }
-
 
     public function getType()
     {

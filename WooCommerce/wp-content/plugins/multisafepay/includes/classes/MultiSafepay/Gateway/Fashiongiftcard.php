@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Fashiongiftcard extends MultiSafepay_Gateway_Abstract
         return __('Fashion-Giftcard', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_fashiongiftcard_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "FASHIONGIFTCARD";

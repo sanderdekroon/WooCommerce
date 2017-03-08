@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Gezondheidsbon extends MultiSafepay_Gateway_Abstract
         return __('Gezondheidsbon', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_gezondheidsbon_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "GEZONDHEIDSBON";

@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Vvvbon extends MultiSafepay_Gateway_Abstract
         return __('VVV-Bon', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_vvvbon_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "VVVBON";

@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Dotpay extends MultiSafepay_Gateway_Abstract
         return __('Dotpay', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_dotpay_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "DOTPAY";

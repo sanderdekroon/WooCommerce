@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Podiumcadeaukaart extends MultiSafepay_Gateway_Abstra
         return __('Podium-Cadeaukaart', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_podiumcadeaukaart_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "PODIUM";

@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Givacard extends MultiSafepay_Gateway_Abstract
         return __('Givacard', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_givacard_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "GIVACARD";

@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Sportenfit extends MultiSafepay_Gateway_Abstract
         return __('Sport en Fit', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_sportenfit_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "SPORTENFIT";

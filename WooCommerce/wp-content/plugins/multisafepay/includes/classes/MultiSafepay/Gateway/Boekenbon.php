@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Boekenbon extends MultiSafepay_Gateway_Abstract
         return __('Boekenbon', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_boekenbon_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "BOEKENBON";

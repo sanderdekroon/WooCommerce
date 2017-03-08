@@ -13,6 +13,11 @@ class MultiSafepay_Gateway_Bancontact extends MultiSafepay_Gateway_Abstract
         return __('Bancontact', 'multisafepay');
     }
 
+    public static function getSettings()
+    {
+        return get_option('woocommerce_multisafepay_bancontact_settings');
+    }
+
     public static function getGatewayCode()
     {
         return "BANCONTACT";
