@@ -67,8 +67,7 @@ class MultiSafepay_Gateway_Payafter extends MultiSafepay_Gateway_Abstract
         $description .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">'.__('Bankaccount', 'multisafepay').'<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="PAYAFTER_account" id="account" placeholder=""/>
         </p><div class="clear"></div>';
 
-        $description .= '<p class="form-row form-row-wide">'.__('By confirming this order you agree with the ', 'multisafepay').'<a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">Terms and conditions of MultiFactor</a>';
-
+        $description .= '<p class="form-row form-row-wide">'.__('By confirming this order you agree with the ', 'multisafepay').'<br><a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">'. __('Terms and conditions of MultiFactor', 'multisafepay'). '</a>';
         $description_text = $this->get_option('description');
         if (!empty($description_text))
             $description .= '<p>'.$description_text.'</p>';
