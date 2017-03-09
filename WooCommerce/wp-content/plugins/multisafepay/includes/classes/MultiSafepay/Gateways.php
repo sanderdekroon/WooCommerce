@@ -218,6 +218,7 @@ class MultiSafepay_Gateways
     public static function Multisafepay_Response() {
 
         global $wpdb, $wp_version, $woocommerce;
+        $helper = new MultiSafepay_Helper_Helper();
 
         $redirect        = false;
         $initial_request = false;
@@ -243,12 +244,15 @@ class MultiSafepay_Gateways
             return;
         }
 
+
         $transactionid = $_GET['transactionid'];
 
         $msp = new Client();
+        $helper= new Multisafepay_Helper_Helper();
+    
+        $msp->setApiKey($helper->getApiKey());
+        $msp->setApiUrl($helper->getTestMode());
 
-        $msp->setApiKey(get_option('multisafepay_api_key'));
-        $msp->setApiUrl(get_option('multisafepay_testmode'));
 
         try {
             $msg = null;
@@ -256,18 +260,17 @@ class MultiSafepay_Gateways
         } catch (Exception $e) {
 
             $msg = htmlspecialchars($e->getMessage());
-            $Debug = new MultiSafepay_Helper_Debug();
-            $Debug->write_log($msg);
+            $helper->write_log($msg);
         }
 
         $updated        = false;
         $status         = $transactie->status;
-        $amount         = $transactie->amount /100;
+        $amount         = $transactie->amount/100;
         $orderid        = $transactie->order_id;
         $gateway        = $transactie->payment_details->type;
 
         $tablename = $wpdb->prefix . 'woocommerce_multisafepay';
-        $sql = $wpdb->prepare('SELECT orderid FROM %s WHERE trixid = %s', $tablename, $transactionid);
+        $sql = $wpdb->prepare("SELECT orderid FROM {$tablename} WHERE trixid = %s", $transactionid);
         $results = $wpdb->get_results( $sql , OBJECT);
 
 
@@ -290,27 +293,27 @@ class MultiSafepay_Gateways
 
                 $order = wc_create_order();
 
-                $wpdb->query("INSERT INTO " . $wpdb->prefix . woocommerce_multisafepay . " (trixid, orderid, status) VALUES ('" . $transactionid . "', '" . $order->id . "', '" . $status . "'  )");
+                $wpdb->query("INSERT INTO " . $wpdb->prefix . 'woocommerce_multisafepay' . " (trixid, orderid, status) VALUES ('" . $transactionid . "', '" . $order->id . "', '" . $status . "'  )");
 
                 $billing_address = array();
-                $billing_address['firstname']   = $transactie->customer->firstname;
-                $billing_address['lastname']    = $transactie->customer->lastname;
-                $billing_address['address_1']   = $transactie->customer->address1 . $transactie->customer->housenumber;
+                $billing_address['firstname']   = $transactie->customer->first_name;
+                $billing_address['lastname']    = $transactie->customer->last_name;
+                $billing_address['address_1']   = $transactie->customer->address1 . $transactie->customer->house_number;
                 $billing_address['address_2']   = $transactie->customer->address2;
                 $billing_address['city']        = $transactie->customer->city;
                 $billing_address['state']       = $transactie->customer->state;
-                $billing_address['postcode']    = $transactie->customer->zipcode;
+                $billing_address['postcode']    = $transactie->customer->zip_code;
                 $billing_address['country']     = $transactie->customer->country;
                 $billing_address['phone']       = $transactie->customer->phone1;
                 $billing_address['email']       = $transactie->customer->email;
 
-                $shipping_address['firstname']  = $transactie->delivery->firstname;
-                $shipping_address['lastname']   = $transactie->delivery->lastname;
-                $shipping_address['address_1']  = $transactie->delivery->address1 . $transactie->delivery->housenumber;
+                $shipping_address['firstname']  = $transactie->delivery->first_name;
+                $shipping_address['lastname']   = $transactie->delivery->last_name;
+                $shipping_address['address_1']  = $transactie->delivery->address1 . $transactie->delivery->house_number;
                 $shipping_address['address_2']  = $transactie->delivery->address2;
                 $shipping_address['city']       = $transactie->delivery->city;
                 $shipping_address['state']      = $transactie->delivery->state;
-                $shipping_address['postcode']   = $transactie->delivery->zipcode;
+                $shipping_address['postcode']   = $transactie->delivery->zip_code;
                 $shipping_address['country']    = $transactie->delivery->country;
 
                 $order->set_address($billing_address,  'billing');
@@ -328,12 +331,12 @@ class MultiSafepay_Gateways
                                                         isset($shipping['total']) ? floatval($shipping['total']) : 0,
                                                         array(),
                                                         $shipping_method->id);
+                        $order->add_shipping($rate);
                         break;
                     }
                 }
-                $order->add_shipping($rate);
-                $order->add_order_note($transactie->transaction_id);
 
+                $order->add_order_note($transactie->transaction_id);
 
                 // Add payment method
                 $gateways = new WC_Payment_Gateways();
@@ -369,6 +372,8 @@ class MultiSafepay_Gateways
                     }
 
                     // CartCoupon
+                    $applied_discount_tax = 0;
+
                     if (!empty($sku->{'Coupon-code'})){
 
                         $code   = $sku->Coupon-code;
@@ -377,7 +382,6 @@ class MultiSafepay_Gateways
                         update_post_meta($order->id, '_order_total', $amount);
 
 
-                        $applied_discount_tax   = 0;
                         update_post_meta($order->id, '_cart_discount_tax', 0);
 
                         $order->calculate_taxes();
@@ -390,6 +394,7 @@ class MultiSafepay_Gateways
 
 /*
                     // Ordercoupon
+                    $applied_discount_tax = 0;                    
                     if (!empty($sku->ordercoupon)) {
                         $code = $sku->ordercoupon;
                         $amount = (float) str_replace('-', '', $product['unit_price']);
@@ -422,7 +427,6 @@ class MultiSafepay_Gateways
                 }
             }
         }
-
         switch ($status) {
             case 'cancelled':
                 $order->cancel_order();
@@ -506,12 +510,13 @@ class MultiSafepay_Gateways
             wp_redirect($return_url);
             exit;
         }
-
         if ($initial_request) {
-            $location = add_query_arg('key', $order->order_key, add_query_arg('order', $order_id, get_permalink(woocommerce_get_page_id('thanks'))));
-            echo '<a href=' . $location . '>' . __('Return to website', 'multisafepay') . '</a>';
+//            $location = add_query_arg('key', $order->order_key, add_query_arg('order', $orderid, get_permalink(woocommerce_get_page_id('thanks'))));
+//            $location = WC_Order::get_checkout_order_received_url();
+//            echo '<a href=' . $location . '>' . __('Return to website', 'multisafepay') . '</a>';
             exit;
         } else {
+
             header("Content-type: text/plain");
             if (isset($_GET['cancel_order'])) {
                 $order->cancel_order();
@@ -527,6 +532,7 @@ class MultiSafepay_Gateways
             }
             exit;
         }
+        exit;        
     }
 
 
@@ -561,12 +567,14 @@ class MultiSafepay_Gateways
 
     public function doFastCheckout() {
 
+  
         global $woocommerce;
-        $fco = new MultiSafepay_Gateways();
-        $msp = new Client();
-
-        $msp->setApiKey(Multisafepay_Gateway_Abstract::getApiKey());
-        $msp->setApiUrl(Multisafepay_Gateway_Abstract::getTestMode());
+        $fco   = new MultiSafepay_Gateways();
+        $msp   = new Client();
+        $helper= new Multisafepay_Helper_Helper();
+    
+        $msp->setApiKey($helper->getApiKey());
+        $msp->setApiUrl($helper->getTestMode());
 
         $order_id = uniqid();
         $my_order =
@@ -599,29 +607,22 @@ class MultiSafepay_Gateways
         } catch (Exception $e) {
 
             $msg = htmlspecialchars($e->getMessage());
-            $Debug = new MultiSafepay_Helper_Debug();
-            $Debug->write_log($msg);
+            $helper->write_log('error: '. $msg);
         }
 
         if ($msg) {
-            $Debug = new MultiSafepay_Helper_Debug();
-            $Debug->write_log('MSP->transactiondata');
-            $Debug->write_log(print_r ($my_order, true));
-            $Debug->write_log('MSP->End debug');
+            $helper->write_log('MSP->transactiondata');
+            $helper->write_log(print_r ($my_order, true));
+            $helper->write_log('MSP->End debug');
 
             if (strpos($msg,'1037') === 0)
                 $msg = __('There are no shipping methods available. Please double check your address, or contact us if you need any help.', 'multisafepay');
 
-            wc_add_notice(__('Payment error:', 'multisafepay') . ' ' . $msg, 'error');
-        }
-
-        if ($msg)
             wc_add_notice($msg, 'error');
-        else
             wp_redirect(WC()->cart->get_checkout_url());
-
-        exit();
-
+        } else{
+            wp_redirect($url);
+        }
     }
 
     public function setItemsFCO () {

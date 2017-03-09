@@ -35,6 +35,7 @@ function feeds($params)
         die('Invalid API-Key');
 
     // no identifier provided
+
     if (!isset($params['identifier']))
         die(' no identifier provided');
 
@@ -56,8 +57,52 @@ function feeds($params)
     if ($params['identifier'] == 'shipping')
         return (shipping($params));
 
+    if ($params['identifier'] == 'getInfo')
+        return (getInfo());
+    if ($params['identifier'] == 'getLog')
+        return (getLog());
+
+
     return (array('No results available'));
 }
+
+
+function getInfo()
+{
+    global $wpdb;
+
+    $results = array();
+    $tablename = $wpdb->prefix . "options";
+
+    // Get general settings
+    $sql = "SELECT option_name, option_value FROM `" . $tablename . "` WHERE option_name like 'multisafepay%' order by option_name";
+    foreach ($wpdb->get_results($sql) as $key => $values)
+        $results['multisafepay'][$values->option_name] = $values->option_value;
+
+    // Get gatewaye specific settings
+    $sql = "SELECT option_name, option_value FROM `" . $tablename . "` WHERE option_name like 'woocommerce_multisafepay%' order by option_name";
+    foreach ($wpdb->get_results($sql) as $key => $values) {
+        $data = @unserialize($values->option_value);
+        $value = $data ? array ($data) : array ('value'=> $values->option_value);
+        $results[$values->option_name] = $value;
+    }
+    return ($results);
+}
+
+
+function getLog() {
+    $logInfo = 'No logfile available';
+    $file = WP_CONTENT_DIR . '/debug.log';
+    if (file_exists ($file)){
+        $logInfo = file_get_contents($file, null,null, 0, 5120);
+        $logInfo = str_replace ("\n", "<br>", $logInfo);
+        $results['logInfo'] = $logInfo;
+    }
+    return ($results);
+}
+
+
+
 
 function productById($product_id = 0)
 {
@@ -213,7 +258,7 @@ function get_product_details($product)
     $attachment_ids = $product->get_gallery_attachment_ids();
     foreach ($attachment_ids as $attachment_id) {
         $_images = wp_get_attachment_url($attachment_id);
-        if ($_images != $main_image) 
+        if ($_images != $main_image)
             array_push($images['product_image_urls'], array('url'   => $_images,
                                                             'main'  => false));
     }
