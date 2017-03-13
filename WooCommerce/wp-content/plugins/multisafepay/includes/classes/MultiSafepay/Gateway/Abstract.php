@@ -398,11 +398,11 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
 
         return (array(  'referrer'      => $_SERVER['HTTP_REFERER'],
                         'user_agent'    => $_SERVER['HTTP_USER_AGENT'],
-                        'birthday'      => $_POST['PAYAFTER_birthday'],
-                        'bankaccount'   => $_POST['PAYAFTER_account'],
+                        'birthday'      => $_POST['birthday'] ? $_POST['birthday'] : '' ,
+                        'bankaccount'   => $_POST['account']  ? $_POST['account'] : '',
                         'phone'         => $order->billing_phone,
                         'email'         => $order->billing_email,
-                        'gender'        => '') );
+                        'gender'        => $_POST['gender']   ? $_POST['gender'] : '') );
     }
 
     public function setItemList($items)
