@@ -10,7 +10,7 @@ class MultiSafepay_Gateway_Payafter extends MultiSafepay_Gateway_Abstract
 
     public static function getName()
     {
-        return __('PayAfter', 'multisafepay');
+        return __('Pay After Delivery', 'multisafepay');
     }
 
     public static function getSettings()
