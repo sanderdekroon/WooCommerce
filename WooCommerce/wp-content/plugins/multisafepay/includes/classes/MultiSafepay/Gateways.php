@@ -243,6 +243,10 @@ class MultiSafepay_Gateways
         if (!isset($_GET['transactionid'])) {
             return;
         }
+        // If no timestamp there is nothing to process..
+        if (!isset($_GET['timestamp'])) {
+            return;
+        }
 
 
         $transactionid = $_GET['transactionid'];
@@ -261,26 +265,26 @@ class MultiSafepay_Gateways
 
             $msg = htmlspecialchars($e->getMessage());
             $helper->write_log($msg);
+            return;
         }
 
-        $updated        = false;
-        $status         = $transactie->status;
-        $amount         = $transactie->amount/100;
-        $orderid        = $transactie->order_id;
-        $gateway        = $transactie->payment_details->type;
+        $updated    = false;
+        $status     = $transactie->status;
+        $amount     = $transactie->amount/100;
+        $gateway    = $transactie->payment_details->type;
 
-        $tablename = $wpdb->prefix . 'woocommerce_multisafepay';
-        $sql = $wpdb->prepare("SELECT orderid FROM {$tablename} WHERE trixid = %s", $transactionid);
-        $results = $wpdb->get_results( $sql , OBJECT);
+        $tablename  = $wpdb->prefix . 'woocommerce_multisafepay';
+        $sql        = $wpdb->prepare("SELECT orderid FROM {$tablename} WHERE trixid = %s", $transactionid);
+        $orderid    = $wpdb->get_var($sql);
 
 
-        if (!empty($results)) {
-            $order  = new WC_Order( current($results));
+        if (!empty($orderid)) {
+            $order  = new WC_Order( $orderid);
         }else{
-            $order  = new WC_Order($orderid);
+            $order  = new WC_Order( $transactie->order_id );
         }
 
-        if ($transactie->fastcheckout == 'YES' && empty($results)) {
+        if ($transactie->fastcheckout == 'YES' && empty($orderid)) {
             // No correct transaction, go back to checkout-page.
             if (empty($transactie->transaction_id)) {
                 wp_safe_redirect($woocommerce->cart->get_cart_url());
@@ -427,6 +431,7 @@ class MultiSafepay_Gateways
                 }
             }
         }
+        
         switch ($status) {
             case 'cancelled':
                 $order->cancel_order();
