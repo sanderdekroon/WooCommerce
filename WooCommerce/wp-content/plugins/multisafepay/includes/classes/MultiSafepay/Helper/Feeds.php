@@ -58,9 +58,9 @@ function feeds($params)
         return (shipping($params));
 
     if ($params['identifier'] == 'getInfo')
-        return (getInfo());
+//        return (getInfo());
     if ($params['identifier'] == 'getLog')
-        return (getLog());
+//        return (getLog());
 
 
     return (array('No results available'));
