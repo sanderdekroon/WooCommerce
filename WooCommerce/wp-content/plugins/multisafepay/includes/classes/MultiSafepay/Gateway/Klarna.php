@@ -79,7 +79,6 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
             '</p><div class="clear"></div>';
 
         $description .= '<p class="form-row form-row-wide">'.__('By confirming this order you agree with the ', 'multisafepay').'<br><a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">'. __('Terms and conditions of MultiFactor', 'multisafepay'). '</a>';
-
         $description_text = $this->get_option('description');
         if (!empty($description_text)) $description .= '<p>'.$description_text.'</p>';
 
