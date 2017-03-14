@@ -427,6 +427,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
                         "first_name"    => isset($order->shipping_first_name) ? $order->shipping_first_name : '',
                         "last_name"     => isset($order->shipping_last_name) ? $order->shipping_last_name : '',
                         "address1"      => $street,
+                        "address2"      => isset($order->shipping_address_2) ? $order->shipping_address_2 : '',
                         "house_number"  => $houseNumber,
                         "zip_code"      => isset($order->shipping_postcode) ? $order->shipping_postcode : '',
                         "city"          => isset($order->shipping_city) ? $order->shipping_city : '',
@@ -439,6 +440,8 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
     public function setCustomer($msp, $order)
     {
         $address = isset($order->billing_address_1) ? $order->billing_address_1 : '';
+
+
         list ($street, $houseNumber) = $msp->parseCustomerAddress($address);
 
         return ( array( "locale"        => $this->getLocale(),
@@ -448,6 +451,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
                         "first_name"    => isset($order->billing_first_name) ? $order->billing_first_name : '',
                         "last_name"     => isset($order->billing_last_name) ? $order->billing_last_name : '',
                         "address1"      => $street,
+                        "address2"      => isset($order->billing_address_2) ? $order->billing_address_2 : '',
                         "house_number"  => $houseNumber,
                         "zip_code"      => isset($order->billing_postcode) ? $order->billing_postcode : '',
                         "city"          => isset($order->billing_city) ? $order->billing_city : '',
