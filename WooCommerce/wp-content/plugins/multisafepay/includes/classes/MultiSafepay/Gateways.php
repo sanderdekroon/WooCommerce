@@ -37,10 +37,10 @@ class MultiSafepay_Gateways
         dbDelta($woocommerce_tables);
     }
 
-    
+
     public static function _getGateways($arrDefault)
     {
-        
+
         $paymentOptions = array(
               'MultiSafepay_Gateway_Amex'
             , 'MultiSafepay_Gateway_Bancontact'
@@ -245,7 +245,7 @@ class MultiSafepay_Gateways
         }
         // If no timestamp there is nothing to process..
         if (!isset($_GET['timestamp'])) {
-            return;
+//            return;
         }
 
 
@@ -253,7 +253,7 @@ class MultiSafepay_Gateways
 
         $msp = new Client();
         $helper= new Multisafepay_Helper_Helper();
-    
+
         $msp->setApiKey($helper->getApiKey());
         $msp->setApiUrl($helper->getTestMode());
 
@@ -276,7 +276,6 @@ class MultiSafepay_Gateways
         $tablename  = $wpdb->prefix . 'woocommerce_multisafepay';
         $sql        = $wpdb->prepare("SELECT orderid FROM {$tablename} WHERE trixid = %s", $transactionid);
         $orderid    = $wpdb->get_var($sql);
-
 
         if (!empty($orderid)) {
             $order  = new WC_Order( $orderid);
@@ -398,7 +397,7 @@ class MultiSafepay_Gateways
 
 /*
                     // Ordercoupon
-                    $applied_discount_tax = 0;                    
+                    $applied_discount_tax = 0;
                     if (!empty($sku->ordercoupon)) {
                         $code = $sku->ordercoupon;
                         $amount = (float) str_replace('-', '', $product['unit_price']);
@@ -431,7 +430,7 @@ class MultiSafepay_Gateways
                 }
             }
         }
-        
+
         switch ($status) {
             case 'cancelled':
                 $order->cancel_order();
@@ -469,7 +468,6 @@ class MultiSafepay_Gateways
                 } else {
                     $updated = true;
                 }
-
                 if ($status == 'completed' && $gateway == 'KLARNA') {
                     $order->add_order_note(__('Klarna Reservation number: ', 'multisafepay') . $transactie->payment_details->external_transaction_id);
                 }
@@ -506,38 +504,30 @@ class MultiSafepay_Gateways
         }
 
         $return_url         = $order->get_checkout_order_received_url();
-        $cancel_url         = $order->get_cancel_order_url();
-        $view_order_url     = $order->get_view_order_url();
         $retry_payment_url  = $order->get_checkout_payment_url();
-
 
         if ($redirect) {
             wp_redirect($return_url);
-            exit;
+            exit();
         }
-        if ($initial_request) {
-//            $location = add_query_arg('key', $order->order_key, add_query_arg('order', $orderid, get_permalink(woocommerce_get_page_id('thanks'))));
-//            $location = WC_Order::get_checkout_order_received_url();
-//            echo '<a href=' . $location . '>' . __('Return to website', 'multisafepay') . '</a>';
-            exit;
-        } else {
 
-            header("Content-type: text/plain");
-            if (isset($_GET['cancel_order'])) {
-                $order->cancel_order();
-                $location = $woocommerce->cart->get_cart_url();
-                wp_safe_redirect($location);
-                exit();
-            } elseif (isset($_GET['order']) || isset($_GET['key'])) {
-                $location = $order->get_checkout_order_received_url();
-                wp_safe_redirect($location);
-                exit();
-            } else {
-                echo 'OK';
-            }
-            exit;
+        if ($initial_request)
+            exit();
+
+//        header("Content-type: text/plain");
+        if (isset($_GET['cancel_order'])) {
+            $order->cancel_order();
+            $location = $woocommerce->cart->get_cart_url();
+            wp_safe_redirect($location);
+            exit();
         }
-        exit;        
+
+        if (isset($_GET['order']) || isset($_GET['key'])) {
+            wp_safe_redirect($return_url);
+            exit();
+        }
+
+        echo 'OK';
     }
 
 
@@ -572,12 +562,12 @@ class MultiSafepay_Gateways
 
     public function doFastCheckout() {
 
-  
+
         global $woocommerce;
         $fco   = new MultiSafepay_Gateways();
         $msp   = new Client();
         $helper= new Multisafepay_Helper_Helper();
-    
+
         $msp->setApiKey($helper->getApiKey());
         $msp->setApiUrl($helper->getTestMode());
 

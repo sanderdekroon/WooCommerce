@@ -170,7 +170,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
 
     public function process_payment($order_id)
     {
-
+        global $woocommerce;
         $order = new WC_Order($order_id);
         $msp   = new Client();
 
@@ -220,7 +220,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
             $this->write_log('msp->End debug');
 
             return array(   'result'    => 'error',
-                            'redirect'  => $url);
+                            'redirect'  => $woocommerce->cart->get_cart_url() );
         } else {
             return array(   'result'    => 'success',
                             'redirect'  => $url);
@@ -398,11 +398,11 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
 
         return (array(  'referrer'      => $_SERVER['HTTP_REFERER'],
                         'user_agent'    => $_SERVER['HTTP_USER_AGENT'],
-                        'birthday'      => $_POST['birthday'] ? $_POST['birthday'] : '' ,
-                        'bankaccount'   => $_POST['account']  ? $_POST['account'] : '',
+                        'birthday'      => isset ($_POST['birthday']) ? $_POST['birthday'] : '' ,
+                        'bankaccount'   => isset ($_POST['account'])  ? $_POST['account'] : '',
                         'phone'         => $order->billing_phone,
                         'email'         => $order->billing_email,
-                        'gender'        => $_POST['gender']   ? $_POST['gender'] : '') );
+                        'gender'        => isset ($_POST['gender'])   ? $_POST['gender'] : '') );
     }
 
     public function setItemList($items)
