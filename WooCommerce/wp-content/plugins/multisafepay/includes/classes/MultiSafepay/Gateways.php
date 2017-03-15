@@ -60,9 +60,9 @@ class MultiSafepay_Gateways
             , 'MultiSafepay_Gateway_Paypal'
             , 'MultiSafepay_Gateway_Paysafecard'
             , 'MultiSafepay_Gateway_Sofort'
-            , 'MultiSafepay_Gateway_Visa');
+            , 'MultiSafepay_Gateway_Visa' );
 
-    $giftCards = array(
+        $giftCards = array(
               'MultiSafepay_Gateway_Babygiftcard'
             , 'MultiSafepay_Gateway_Beautyandwellness'
             , 'MultiSafepay_Gateway_Boekenbon'
@@ -86,11 +86,12 @@ class MultiSafepay_Gateways
             , 'MultiSafepay_Gateway_Winkelcheque'
             , 'MultiSafepay_Gateway_Yourgift' );
 
-
+             
         $giftcards_enabled = get_option("multisafepay_giftcards_enabled") == 'yes' ? true : false;
         if ($giftcards_enabled){
             $paymentOptions = array_merge($paymentOptions, $giftCards);
         }
+        
         $paymentOptions = array_merge($arrDefault, $paymentOptions);
 
         return $paymentOptions;
@@ -564,10 +565,10 @@ class MultiSafepay_Gateways
 
 
         global $woocommerce;
-        $fco   = new MultiSafepay_Gateways();
         $msp   = new Client();
         $helper= new Multisafepay_Helper_Helper();
-
+        $fco   = new MultiSafepay_Gateway_Fastcheckout();
+        
         $msp->setApiKey($helper->getApiKey());
         $msp->setApiUrl($helper->getTestMode());
 
@@ -579,17 +580,17 @@ class MultiSafepay_Gateways
                 "currency"              => get_woocommerce_currency(),
                 "amount"                => round(WC()->cart->subtotal * 100),
                 "description"           => 'Order #' . $order_id,
-                "items"                 => Multisafepay_Gateway_Abstract::setItemList ($fco->setItemsFCO()),
+                "items"                 => $fco->setItemList ($fco->getItemsFCO()),
                 "manual"                => false,
-                "seconds_active"        => Multisafepay_Gateway_Abstract::getTimeActive(),
+                "seconds_active"        => $fco->getTimeActive(),
                 "payment_options"       => array(
-                    "notification_url"  => Multisafepay_Gateway_Abstract::getNurl() . '&type=initial',
-                    "redirect_url"      => Multisafepay_Gateway_Abstract::getNurl() . '&type=redirect',
+                    "notification_url"  => $fco->getNurl() . '&type=initial',
+                    "redirect_url"      => $fco->getNurl() . '&type=redirect',
                     "cancel_url"		=> WC()->cart->get_cart_url() . 'index.php?type=cancel&cancel_order=true',
                     "close_window"      => true
                 ),
-                "google_analytics"      => Multisafepay_Gateway_Abstract::setGoogleAnalytics(),
-                "plugin"                => Multisafepay_Gateway_Abstract::setPlugin($woocommerce),
+                "google_analytics"      => $fco->setGoogleAnalytics(),
+                "plugin"                => $fco->setPlugin($woocommerce),
                 "gateway_info"          => '',
                 "shopping_cart"         => $fco->setCartFCO(),
                 "checkout_options"      => $fco->setCheckoutOptionsFCO(),
@@ -619,138 +620,6 @@ class MultiSafepay_Gateways
             wp_redirect($url);
         }
     }
-
-    public function setItemsFCO () {
-        $items = array();
-        foreach (WC()->cart->get_cart() as $values) {
-            $items[] = array ( 'name' => $values['data']->get_title(), 'qty' => $values['quantity'] );
-        }
-        return ($items);
-    }
-
-    public function setCartFCO() {
-
-        $shopping_cart = array();
-        foreach (WC()->cart->get_cart() as $values) {
-
-            $_product = $values['data'];
-
-            $qty    = absint($values['quantity']);
-            $sku    = $_product->get_sku();
-            $name   = html_entity_decode($_product->get_title(), ENT_NOQUOTES, 'UTF-8');
-            $descr  = html_entity_decode(get_post($_product)->post->post_content, ENT_NOQUOTES, 'UTF-8');
-
-            if ($_product->product_type == 'variation') {
-                $meta = WC()->cart->get_item_data($values, true);
-
-                if (empty($sku))
-                    $sku = $_product->parent->get_sku();
-
-                if (!empty($meta))
-                    $name .= " - " . str_replace(", \n", " - ", $meta);
-            }
-
-            $product_price       = $values['line_subtotal'] / $qty;
-            $percentage          = round ($values['line_subtotal_tax'] /$values['line_subtotal'] ,2);
-
-            $json_array = array();
-            $json_array['sku'] = $sku;
-
-            $shopping_cart['items'][] = array (
-                'name'  			 => $name,
-                'description' 		 => $descr,
-                'unit_price'  		 => $product_price,
-                'quantity'    		 => $qty,
-                'merchant_item_id' 	 => json_encode($json_array),
-                'tax_table_selector' => 'Tax-'. $percentage,
-                'weight' 			 => array ('unit'=> '0',  'value'=> 'KG')
-            );
-        }
-
-
-        // Add custom Woo cart fees as line items
-        foreach (WC()->cart->get_fees() as $fee) {
-            if ($fee->tax > 0)
-                $fee_tax_percentage = round($fee->tax / $fee->amount, 2);
-            else
-                $fee_tax_percentage = 0;
-
-            $json_array = array();
-            $json_array['fee'] = $fee->name;
-
-            $shopping_cart['items'][] = array (
-                'name'  			 => $fee->name,
-                'description' 		 => $fee->name,
-                'unit_price'  		 => number_format($fee->amount, 2, '.', ''),
-                'quantity'    		 => 1,
-                'merchant_item_id' 	 => json_encode($json_array),
-                'tax_table_selector' => 'Tax-'. $fee_tax_percentage,
-                'weight' 			 => array ('unit'=> '',  'value'=> 'KG')
-            );
-        }
-
-        // Get discount(s)
-        foreach (WC()->cart->applied_coupons as $code) {
-
-            $unit_price     = WC()->cart->coupon_discount_amounts[$code];
-            $unit_price_tax = WC()->cart->coupon_discount_tax_amounts[$code];
-            $percentage     = round ($unit_price_tax/$unit_price ,2);
-
-            $json_array = array();
-            $json_array['Coupon-code'] = $code;
-
-            $shopping_cart['items'][] = array (
-                'name'  			 => 'Discount Code: ' . $code,
-                'description' 		 => '',
-                'unit_price'  		 => -round ($unit_price, 5),
-                'quantity'    		 => 1,
-                'merchant_item_id' 	 => json_encode($json_array),
-                'tax_table_selector' => 'Tax-'. ($percentage*100),
-                'weight' 			 => array ('unit'=> '',  'value'=> 'KG')
-            );
-        }
-
-        return ($shopping_cart);
-    }
-
-    private function setCheckoutOptionsFCO(){
-
-        $checkout_options = array ();
-        $checkout_options['no_shipping_method']         = false;
-        $checkout_options['tax_tables']['alternate']    = array ();
-        $checkout_options['tax_tables']['default']      = array ('shipping_taxed'=> 'true', 'rate' => '0.21');
-
-        foreach (WC()->cart->get_cart() as $values) {
-            $percentage = round ($values['line_subtotal_tax'] /$values['line_subtotal'] ,2);
-            array_push($checkout_options['tax_tables']['alternate'], array ('name' => 'Tax-'. $percentage, 'rules' => array (array ('rate' => $percentage ))));
-        }
-
-        /* Get CartFee tax */
-        foreach (WC()->cart->get_fees() as $fee) {
-            if ($fee->tax > 0)
-                $fee_tax_percentage = round($fee->tax / $fee->amount, 2);
-            else
-                $fee_tax_percentage = 0;
-
-            array_push($checkout_options['tax_tables']['alternate'], array ('name' => 'Tax-'. $fee_tax_percentage, 'rules' => array (array ('rate' => $fee_tax_percentage/100 ))));
-        }
-
-        /*Get discount(s) tax    */
-        if (WC()->cart->get_cart_discount_total()) {
-            array_push($checkout_options['tax_tables']['alternate'], array ('name' => 'Tax-0', 'rules' => array (array ('rate' => '0.00' ))));
-        }
-
-
-        WC()->shipping->calculate_shipping($this->get_shipping_packagesFCO());
-        foreach (WC()->shipping->packages[0]['rates'] as $rate) {
-            $checkout_options['shipping_methods']['flat_rate_shipping'][] = array(  "name"  => $rate->label,
-                                                                                    "price" => number_format($rate->cost, '2', '.', ''));
-        }
-
-        return ($checkout_options);
-    }
-
-    private function get_shipping_packagesFCO() {
         // Packages array for storing 'carts'
         $packages = array();
         $packages[0]['contents']                = WC()->cart->cart_contents;            // Items in the package
