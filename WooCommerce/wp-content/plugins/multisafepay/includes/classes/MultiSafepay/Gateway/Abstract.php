@@ -440,8 +440,6 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
     public function setCustomer($msp, $order)
     {
         $address = isset($order->billing_address_1) ? $order->billing_address_1 : '';
-
-
         list ($street, $houseNumber) = $msp->parseCustomerAddress($address);
 
         return ( array( "locale"        => $this->getLocale(),

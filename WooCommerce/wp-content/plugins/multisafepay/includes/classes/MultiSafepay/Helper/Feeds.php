@@ -102,8 +102,6 @@ function getLog() {
 }
 
 
-
-
 function productById($product_id = 0)
 {
     $results = array();
@@ -162,8 +160,6 @@ function shipping()
 {
     $active_methods   = array();
     $shipping_methods = WC()->shipping->get_shipping_methods();
-
-    print_r ($shipping_methods);
 
     foreach ($shipping_methods as $id => $shipping_method) {
         if (isset($shipping_method->enabled) && $shipping_method->enabled == 'yes') {
