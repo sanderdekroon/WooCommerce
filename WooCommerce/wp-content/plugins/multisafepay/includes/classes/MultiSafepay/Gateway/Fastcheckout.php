@@ -11,7 +11,7 @@ class MultiSafepay_Gateway_Fastcheckout extends MultiSafepay_Gateway_Abstract
         return;
     }
     
-    private function getItemsFCO () {
+    public function getItemsFCO () {
         $items = array();
         foreach (WC()->cart->get_cart() as $values) {
             $items[] = array ( 'name' => $values['data']->get_title(), 'qty' => $values['quantity'] );
@@ -19,7 +19,7 @@ class MultiSafepay_Gateway_Fastcheckout extends MultiSafepay_Gateway_Abstract
         return ($items);
     }
 
-    private function setCartFCO() {
+    public function setCartFCO() {
 
         $shopping_cart = array();
         foreach (WC()->cart->get_cart() as $values) {
@@ -104,7 +104,7 @@ class MultiSafepay_Gateway_Fastcheckout extends MultiSafepay_Gateway_Abstract
         return ($shopping_cart);
     }
 
-    private function setCheckoutOptionsFCO(){
+    public function setCheckoutOptionsFCO(){
 
         $checkout_options = array ();
         $checkout_options['no_shipping_method']         = false;

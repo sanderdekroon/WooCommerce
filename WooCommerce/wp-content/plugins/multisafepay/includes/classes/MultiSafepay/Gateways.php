@@ -620,23 +620,4 @@ class MultiSafepay_Gateways
             wp_redirect($url);
         }
     }
-        // Packages array for storing 'carts'
-        $packages = array();
-        $packages[0]['contents']                = WC()->cart->cart_contents;            // Items in the package
-        $packages[0]['contents_cost']           = 0;                                    // Cost of items in the package, set below
-        $packages[0]['applied_coupons']         = WC()->session->applied_coupon;
-        $packages[0]['destination']['country']  = WC()->customer->get_shipping_country();
-        $packages[0]['destination']['state']    = WC()->customer->get_shipping_state();
-        $packages[0]['destination']['postcode'] = WC()->customer->get_shipping_postcode();
-        $packages[0]['destination']['city']     = WC()->customer->get_shipping_city();
-        $packages[0]['destination']['address']  = WC()->customer->get_shipping_address();
-        $packages[0]['destination']['address_2']= WC()->customer->get_shipping_address_2();
-
-        foreach (WC()->cart->get_cart() as $item)
-            if ($item['data']->needs_shipping())
-                if (isset($item['line_total']))
-                    $packages[0]['contents_cost'] += $item['line_total'];
-
-        return apply_filters('woocommerce_cart_shipping_packages', $packages);
-    }
 }
