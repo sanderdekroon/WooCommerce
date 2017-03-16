@@ -561,7 +561,7 @@ class MultiSafepay_Gateways
         echo '</div>';
     }
 
-    public function doFastCheckout() {
+    public static function doFastCheckout() {
 
 
         global $woocommerce;
