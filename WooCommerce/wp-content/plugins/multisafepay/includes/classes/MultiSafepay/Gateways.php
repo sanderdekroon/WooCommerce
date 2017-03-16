@@ -63,8 +63,7 @@ class MultiSafepay_Gateways
             , 'MultiSafepay_Gateway_Visa' );
 
         $giftCards = array(
-              'MultiSafepay_Gateway_Babygiftcard'
-            , 'MultiSafepay_Gateway_Beautyandwellness'
+             'MultiSafepay_Gateway_Beautyandwellness'
             , 'MultiSafepay_Gateway_Boekenbon'
             , 'MultiSafepay_Gateway_Erotiekbon'
             , 'MultiSafepay_Gateway_Fashioncheque'
