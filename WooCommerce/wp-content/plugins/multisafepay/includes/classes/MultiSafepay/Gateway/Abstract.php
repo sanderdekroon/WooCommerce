@@ -306,9 +306,16 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
 
             $taxes = unserialize($shipping['taxes']);
             $taxes = array_shift($taxes);
+            $cost  = $shipping['cost'];
 
             $tax_table_selector = 'shipping';
-            $tax_percentage     = round($taxes / $shipping['cost'], 2);
+
+            if ( $cost > 0 ){
+                $tax_percentage  = round($taxes / $cost, 2);
+            }else{
+                $tax_percentage = 0;
+            }
+
 
             $method_id = explode(':', $shipping['method_id']);
 
