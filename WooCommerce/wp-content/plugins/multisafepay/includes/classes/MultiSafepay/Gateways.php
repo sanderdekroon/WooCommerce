@@ -37,10 +37,8 @@ class MultiSafepay_Gateways
         dbDelta($woocommerce_tables);
     }
 
-
     public static function _getGateways($arrDefault)
     {
-
         $paymentOptions = array(
               'MultiSafepay_Gateway_Amex'
             , 'MultiSafepay_Gateway_Bancontact'
@@ -63,7 +61,8 @@ class MultiSafepay_Gateways
             , 'MultiSafepay_Gateway_Visa' );
 
         $giftCards = array(
-             'MultiSafepay_Gateway_Beautyandwellness'
+              'MultiSafepay_Gateway_Babygiftcard'
+            , 'MultiSafepay_Gateway_Beautyandwellness'
             , 'MultiSafepay_Gateway_Boekenbon'
             , 'MultiSafepay_Gateway_Erotiekbon'
             , 'MultiSafepay_Gateway_Fashioncheque'
@@ -85,12 +84,12 @@ class MultiSafepay_Gateways
             , 'MultiSafepay_Gateway_Winkelcheque'
             , 'MultiSafepay_Gateway_Yourgift' );
 
-             
+
         $giftcards_enabled = get_option("multisafepay_giftcards_enabled") == 'yes' ? true : false;
         if ($giftcards_enabled){
             $paymentOptions = array_merge($paymentOptions, $giftCards);
         }
-        
+
         $paymentOptions = array_merge($arrDefault, $paymentOptions);
 
         return $paymentOptions;
@@ -98,7 +97,6 @@ class MultiSafepay_Gateways
 
 	public static function _addGlobalSettings($settings)
     {
-
         $updatedSettings = array();
         $addedSettings   = array();
 
@@ -153,7 +151,6 @@ class MultiSafepay_Gateways
 
         );
         $addedSettings[] = array(
-//            'name'      => __('', 'multisafepay'),
             'type'      => 'select',
             'options'   => array(   'days'      => __('days',    'multisafepay'),
                                     'hours'     => __('hours',   'multisafepay'),
@@ -217,46 +214,47 @@ class MultiSafepay_Gateways
 
     public static function Multisafepay_Response() {
 
+        if (empty($_GET)) {
+            return;
+        }
+
         global $wpdb, $wp_version, $woocommerce;
         $helper = new MultiSafepay_Helper_Helper();
 
         $redirect        = false;
         $initial_request = false;
 
-        if (isset($_GET['type'])) {
-            if ($_GET['type'] == 'initial')
+        $type = filter_input(INPUT_GET, 'type', FILTER_SANITIZE_STRING);
+        switch ($type){
+            case 'initial':
                 $initial_request = true;
-
-            if ($_GET['type'] == 'redirect')
+                break;
+            case 'redirect':
                 $redirect = true;
-
-            if ($_GET['type'] == 'cancel')
+                break;
+            case 'cancel':
                 return true;
-
-            if ($_GET['type'] == 'feeds'){
+                break;
+            case 'feeds':
                 require_once dirname(__FILE__) . '/Helper/Feeds.php';
                 return true;
-            }
+                break;
+            default:
+                break;
         }
+
 
         // If no transaction-id there is nothing to process..
-        if (!isset($_GET['transactionid'])) {
+        $transactionid = filter_input(INPUT_GET, 'transactionid', FILTER_SANITIZE_STRING);
+        if (!$transactionid){
             return;
         }
-        // If no timestamp there is nothing to process..
-        if (!isset($_GET['timestamp'])) {
-//            return;
-        }
-
-
-        $transactionid = $_GET['transactionid'];
-
-        $msp = new Client();
-        $helper= new Multisafepay_Helper_Helper();
+        
+        $msp    = new Client();
+        $helper = new Multisafepay_Helper_Helper();
 
         $msp->setApiKey($helper->getApiKey());
         $msp->setApiUrl($helper->getTestMode());
-
 
         try {
             $msg = null;
@@ -394,7 +392,6 @@ class MultiSafepay_Gateways
                         $id = $order->add_coupon($code, $unit_price, $applied_discount_tax);
                     }
 
-
 /*
                     // Ordercoupon
                     $applied_discount_tax = 0;
@@ -453,11 +450,11 @@ class MultiSafepay_Gateways
                 if ($order->get_total() != $amount) {
                     if ($order->status != 'processing') {
                         $order->update_status('wc-on-hold', sprintf(__('Validation error: Multisafepay amounts do not match (gross %s).', 'multisafepay'), $amount));
-                        if ($redirect) {
-                            $return_url = $order->get_checkout_order_received_url();
-                            wp_redirect($return_url);
-                            exit;
-                        }
+//                        if ($redirect) {
+//                            $return_url = $order->get_checkout_order_received_url();
+//                            wp_redirect($return_url);
+//                            exit;
+//                        }
                     }
                 }
 
@@ -504,30 +501,32 @@ class MultiSafepay_Gateways
         }
 
         $return_url         = $order->get_checkout_order_received_url();
-        $retry_payment_url  = $order->get_checkout_payment_url();
 
         if ($redirect) {
             wp_redirect($return_url);
             exit();
         }
+        if ($initial_request){
+            return;
+        }
 
-        if ($initial_request)
-            exit();
-
-//        header("Content-type: text/plain");
-        if (isset($_GET['cancel_order'])) {
+        header("Content-type: text/plain");
+        $cancel_order = filter_input(INPUT_GET, 'cancel_order', FILTER_SANITIZE_STRING);
+        if ($cancel_order) {
             $order->cancel_order();
             $location = $woocommerce->cart->get_cart_url();
             wp_safe_redirect($location);
             exit();
         }
 
-        if (isset($_GET['order']) || isset($_GET['key'])) {
+        $getOrder = filter_input(INPUT_GET, 'order', FILTER_SANITIZE_STRING);
+        $getKey   = filter_input(INPUT_GET, 'key', FILTER_SANITIZE_STRING);
+        if ($getOrder || $getKey ) {
             wp_safe_redirect($return_url);
             exit();
         }
 
-        echo 'OK';
+        return ('OK');
     }
 
 
@@ -567,7 +566,7 @@ class MultiSafepay_Gateways
         $msp   = new Client();
         $helper= new Multisafepay_Helper_Helper();
         $fco   = new MultiSafepay_Gateway_Fastcheckout();
-        
+
         $msp->setApiKey($helper->getApiKey());
         $msp->setApiUrl($helper->getTestMode());
 

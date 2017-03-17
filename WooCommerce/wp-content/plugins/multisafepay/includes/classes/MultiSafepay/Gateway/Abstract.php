@@ -300,7 +300,6 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
           }
          */
 
-
         // Shipping
         foreach ($order->get_items('shipping') as $shipping) {
 
@@ -315,7 +314,6 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
             }else{
                 $tax_percentage = 0;
             }
-
 
             $method_id = explode(':', $shipping['method_id']);
 
