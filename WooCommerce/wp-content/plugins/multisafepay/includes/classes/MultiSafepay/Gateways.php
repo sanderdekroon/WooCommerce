@@ -526,7 +526,7 @@ class MultiSafepay_Gateways
             exit();
         }
 
-        return ('OK');
+        exit ('OK');
     }
 
 
