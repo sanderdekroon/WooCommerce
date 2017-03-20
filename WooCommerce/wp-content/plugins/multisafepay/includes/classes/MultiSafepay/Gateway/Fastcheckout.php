@@ -28,6 +28,8 @@ class MultiSafepay_Gateway_Fastcheckout extends MultiSafepay_Gateway_Abstract
 
             $qty    = absint($values['quantity']);
             $sku    = $_product->get_sku();
+            $id     = $_product->get_id();
+
             $name   = html_entity_decode($_product->get_title(), ENT_NOQUOTES, 'UTF-8');
             $descr  = html_entity_decode(get_post($_product)->post->post_content, ENT_NOQUOTES, 'UTF-8');
 
@@ -46,6 +48,7 @@ class MultiSafepay_Gateway_Fastcheckout extends MultiSafepay_Gateway_Abstract
 
             $json_array = array();
             $json_array['sku'] = $sku;
+            $json_array['id']  = $id;
 
             $shopping_cart['items'][] = array (
                 'name'  			 => $name,

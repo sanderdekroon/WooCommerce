@@ -365,8 +365,14 @@ class MultiSafepay_Gateways
                     $sku = json_decode($product->merchant_item_id);
 
                     // Product
+                    $product_id = null;
                     if (!empty($sku->sku)) {
-                        $product_id         = $wpdb->get_var($wpdb->prepare("SELECT post_id FROM $wpdb->postmeta WHERE meta_key='_sku' AND meta_value='%s' LIMIT 1", $sku->sku));
+                        $product_id  = $wpdb->get_var($wpdb->prepare("SELECT post_id FROM $wpdb->postmeta WHERE meta_key='_sku' AND meta_value='%s' LIMIT 1", $sku->sku));
+                    }elseif(!empty ($sku->id)) {
+                        $product_id  = $wpdb->get_var($wpdb->prepare("SELECT post_id FROM $wpdb->postmeta WHERE post_id='%s' LIMIT 1", $sku->id));
+                    }
+
+                    if ($product_id){
                         $product_item       = new WC_Product($product_id);
                         $product_item->qty  = $product->quantity;
                         $order->add_product($product_item, $product->quantity);
