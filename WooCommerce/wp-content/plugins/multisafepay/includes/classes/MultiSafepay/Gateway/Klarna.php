@@ -48,6 +48,12 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
             'label'         => sprintf(__('Direct %s', 'multisafepay'), $this->getName()),
             'default'       => 'no');
 
+        $this->form_fields['eid'] = array(
+            'title'         => __('Merchant-ID', 'multisafepay'),
+            'type'          => 'text',
+            'description'   => __('The EID from Klarna (Merchant-ID)', 'multisafepay'),
+            'default'       => 'no');
+
         $this->form_fields['minamount'] = array(
             'title'         => __('Minimal order amount', 'multisafepay'),
             'type'          => 'text',
@@ -66,20 +72,39 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
     public function payment_fields()
     {
 
+        $settings = (array) get_option("woocommerce_multisafepay_klarna_settings");
+        $klarna_eid = $settings['eid'];
+
         $description = '';
-        $description = '<p class="form-row form-row-wide  validate-required"><label for="birthday" class="">'.__('Birthday', 'multisafepay').'<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="birthday" id="birthday" placeholder="dd-mm-yyyy"/>
+        $description =
+        '<p class="form-row form-row-wide  validate-required">
+            <label for="birthday" class="">'.__('Birthday', 'multisafepay').
+                '<abbr class="required" title="required">*</abbr>
+            </label>
+            <input type="text" class="input-text" name="birthday" id="birthday" placeholder="dd-mm-yyyy"/>
         </p><div class="clear"></div>';
 
-        $description .= '<p class="form-row form-row-wide  validate-required">
-        <label for="account" class="">'.__('Gender', 'multisafepay').
-            '<abbr class="required" title="required">*</abbr>
-        </label> '.
-            '<input style="display:inline !important"  type="radio" name="gender" id="gender" value="male"/> '.__("Male", "multisafepay").'<br/>'.
+        $description .=
+        '<p class="form-row form-row-wide  validate-required">
+            <label for="account" class="">'.__('Gender', 'multisafepay').
+                '<abbr class="required" title="required">*</abbr>
+            </label> '.
+            '<input style="display:inline !important"  type="radio" name="gender" id="gender" value="male"/> '  .__("Male", "multisafepay").'<br/>'.
             '<input style="display:inline !important"  type="radio" name="gender" id="gender" value="female"/> '.__("Female", "multisafepay").'<br/>'.
-            '</p><div class="clear"></div>';
+        '</p><div class="clear"></div>';
 
-        $description .= '<p class="form-row form-row-wide">'.__('By confirming this order you agree with the ', 'multisafepay').'<br><a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">'. __('Terms and conditions of MultiFactor', 'multisafepay'). '</a>';
+        $description .= sprintf(   '<p><script src="https://cdn.klarna.com/public/kitt/core/v1.0/js/klarna.min.js"></script>
+                                    <script src="https://cdn.klarna.com/public/kitt/toc/v1.1/js/klarna.terms.min.js"></script>
+                                    <script type="text/javascript">
+                                        new Klarna.Terms.Account({  el: "MSP_Klarna",
+                                                                    eid: "%s",
+                                                                    locale: "%s",
+                                                                    })
+                                    </script></p>
+                                    <span id="MSP_Klarna"></span>', $klarna_eid, get_locale());
+
         $description_text = $this->get_option('description');
+
         if (!empty($description_text)) $description .= '<p>'.$description_text.'</p>';
 
         echo $description;
@@ -96,14 +121,14 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
         global $woocommerce;
 
         $settings = (array) get_option("woocommerce_multisafepay_klarna_settings");
-       
+
         if ( !empty($settings['minamount']) && $woocommerce->cart->total < $settings['minamount'])
             unset($gateways['multisafepay_klarna']);
 
         if ( !empty($settings['maxamount']) && $woocommerce->cart->total > $settings['maxamount'])
             unset($gateways['multisafepay_klarna']);
 
-        
+
 
         return $gateways;
     }
