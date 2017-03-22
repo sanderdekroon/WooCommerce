@@ -322,7 +322,8 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
                 'description'       => $shipping['name'],
                 'unit_price'        => $shipping['cost'],
                 'quantity'          => 1,
-                'merchant_item_id'  => $method_id[0],
+                'merchant_item_id'  => 'msp-shipping',
+//                'merchant_item_id'  => $method_id[0],
                 'tax_table_selector'=> $tax_table_selector,
                 'weight'            => array('unit' => 0, 'value' => 'KG') );
 
