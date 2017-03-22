@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: MultiSafepay\n"
-"POT-Creation-Date: 2017-03-08 12:45+0100\n"
-"PO-Revision-Date: 2017-03-08 12:45+0100\n"
+"POT-Creation-Date: 2017-03-22 08:35+0100\n"
+"PO-Revision-Date: 2017-03-22 08:40+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: nl_NL\n"
@@ -46,19 +46,8 @@ msgstr "Omschrijving voor gebruiker"
 msgid "Pay with %s"
 msgstr "Betaal met %s"
 
-#: includes/classes/MultiSafepay/Gateway/Abstract.php:216
-#: includes/classes/MultiSafepay/Gateway/Abstract.php:259
-#: includes/classes/MultiSafepay/Gateways.php:609
-#: includes/classes/MultiSafepay/Gateways.php:613
-msgid "Payment error:"
-msgstr "Betalingsfout:"
-
 #: includes/classes/MultiSafepay/Gateway/Amex.php:12
 msgid "Amex"
-msgstr ""
-
-#: includes/classes/MultiSafepay/Gateway/Babygiftcard.php:13
-msgid "Babygiftcard"
 msgstr ""
 
 #: includes/classes/MultiSafepay/Gateway/Bancontact.php:13
@@ -98,16 +87,16 @@ msgstr ""
 msgid "Creditcard"
 msgstr ""
 
-#: includes/classes/MultiSafepay/Gateway/Creditcard.php:52
+#: includes/classes/MultiSafepay/Gateway/Creditcard.php:53
 msgid "Select CreditCard"
 msgstr "Selecteer  CreditCard"
 
-#: includes/classes/MultiSafepay/Gateway/Creditcard.php:74
-#: includes/classes/MultiSafepay/Gateway/Ideal.php:103
+#: includes/classes/MultiSafepay/Gateway/Creditcard.php:75
+#: includes/classes/MultiSafepay/Gateway/Ideal.php:106
 msgid "Error: "
 msgstr "Fout:"
 
-#: includes/classes/MultiSafepay/Gateway/Creditcard.php:74
+#: includes/classes/MultiSafepay/Gateway/Creditcard.php:75
 msgid "Please select a CreditCard."
 msgstr "Selecteer een CreditCard"
 
@@ -124,13 +113,13 @@ msgid "E-Invoice"
 msgstr ""
 
 #: includes/classes/MultiSafepay/Gateway/Einvoice.php:51
-#: includes/classes/MultiSafepay/Gateway/Klarna.php:52
+#: includes/classes/MultiSafepay/Gateway/Klarna.php:58
 #: includes/classes/MultiSafepay/Gateway/Payafter.php:52
 msgid "Minimal order amount"
 msgstr "Minimum orderbedrag"
 
 #: includes/classes/MultiSafepay/Gateway/Einvoice.php:53
-#: includes/classes/MultiSafepay/Gateway/Klarna.php:54
+#: includes/classes/MultiSafepay/Gateway/Klarna.php:60
 #: includes/classes/MultiSafepay/Gateway/Payafter.php:54
 msgid ""
 "The minimal order amount in euro's  for an order to use this payment method"
@@ -139,13 +128,13 @@ msgstr ""
 "afrekenen"
 
 #: includes/classes/MultiSafepay/Gateway/Einvoice.php:57
-#: includes/classes/MultiSafepay/Gateway/Klarna.php:58
+#: includes/classes/MultiSafepay/Gateway/Klarna.php:64
 #: includes/classes/MultiSafepay/Gateway/Payafter.php:58
 msgid "Maximal order amount"
 msgstr "Maximum orderbedrag"
 
 #: includes/classes/MultiSafepay/Gateway/Einvoice.php:59
-#: includes/classes/MultiSafepay/Gateway/Klarna.php:60
+#: includes/classes/MultiSafepay/Gateway/Klarna.php:66
 #: includes/classes/MultiSafepay/Gateway/Payafter.php:60
 msgid ""
 "The maximal order amount in euro's  for an order to use this payment method"
@@ -154,7 +143,7 @@ msgstr ""
 "afrekenen"
 
 #: includes/classes/MultiSafepay/Gateway/Einvoice.php:68
-#: includes/classes/MultiSafepay/Gateway/Klarna.php:70
+#: includes/classes/MultiSafepay/Gateway/Klarna.php:81
 #: includes/classes/MultiSafepay/Gateway/Payafter.php:69
 msgid "Birthday"
 msgstr "Geboortedatum"
@@ -164,10 +153,9 @@ msgid "Account"
 msgstr "Rekening"
 
 #: includes/classes/MultiSafepay/Gateway/Einvoice.php:74
-#: includes/classes/MultiSafepay/Gateway/Klarna.php:81
 #: includes/classes/MultiSafepay/Gateway/Payafter.php:75
 msgid "By confirming this order you agree with the "
-msgstr "Met het bevestigen van deze order gaat u akkoord met"
+msgstr "Met het bevestigen van deze order gaat u akkoord met de"
 
 #: includes/classes/MultiSafepay/Gateway/Eps.php:13
 msgid "EPS"
@@ -217,15 +205,15 @@ msgstr ""
 msgid "iDEAL"
 msgstr ""
 
-#: includes/classes/MultiSafepay/Gateway/Ideal.php:85
+#: includes/classes/MultiSafepay/Gateway/Ideal.php:88
 msgid "Choose your bank"
 msgstr "Selecteer een bank"
 
-#: includes/classes/MultiSafepay/Gateway/Ideal.php:87
+#: includes/classes/MultiSafepay/Gateway/Ideal.php:90
 msgid "Please choose..."
 msgstr "Selecteer..."
 
-#: includes/classes/MultiSafepay/Gateway/Ideal.php:103
+#: includes/classes/MultiSafepay/Gateway/Ideal.php:106
 msgid "Please select an issuer."
 msgstr "Selecteer een bank.."
 
@@ -233,25 +221,36 @@ msgstr "Selecteer een bank.."
 msgid "Klarna"
 msgstr ""
 
-#: includes/classes/MultiSafepay/Gateway/Klarna.php:74
+#: includes/classes/MultiSafepay/Gateway/Klarna.php:52
+msgid "Merchant-ID"
+msgstr "Klantnummer"
+
+#: includes/classes/MultiSafepay/Gateway/Klarna.php:54
+msgid "The EID from Klarna (Merchant-ID)"
+msgstr "Het EID van Klarna ( klantnummer)"
+
+#: includes/classes/MultiSafepay/Gateway/Klarna.php:89
 msgid "Gender"
 msgstr "Geslacht"
 
-#: includes/classes/MultiSafepay/Gateway/Klarna.php:77
+#: includes/classes/MultiSafepay/Gateway/Klarna.php:92
 msgid "Male"
 msgstr "Man"
 
-#: includes/classes/MultiSafepay/Gateway/Klarna.php:78
+#: includes/classes/MultiSafepay/Gateway/Klarna.php:93
 msgid "Female"
 msgstr "Vrouw"
 
-#: includes/classes/MultiSafepay/Gateway/Klarna.php:81
-#: includes/classes/MultiSafepay/Gateway/Payafter.php:75
-msgid "Terms and conditions of MultiFactor"
-msgstr "Algemene voorwaarden MultiFactor"
+#: includes/classes/MultiSafepay/Gateway/Klarna.php:96
+msgid ""
+"By submitting this form I hereby agree with the Terms and conditions for "
+"Klarna "
+msgstr ""
+"Met het bevestigen van deze order gaat u akkoord met de Algeneme voorwaarden "
+"van Klarna"
 
-#: includes/classes/MultiSafepay/Gateway/Klarna.php:162
-#: includes/classes/MultiSafepay/Gateways.php:490
+#: includes/classes/MultiSafepay/Gateway/Klarna.php:189
+#: includes/classes/MultiSafepay/Gateways.php:503
 msgid "Klarna Invoice: "
 msgstr "Klarna Factuur"
 
@@ -276,12 +275,16 @@ msgid "Parfum-cadeaukaart"
 msgstr ""
 
 #: includes/classes/MultiSafepay/Gateway/Payafter.php:13
-msgid "PayAfter"
-msgstr "Betaal Na Ontvangst"
+msgid "Pay After Delivery"
+msgstr ""
 
 #: includes/classes/MultiSafepay/Gateway/Payafter.php:72
 msgid "Bankaccount"
 msgstr "Bankrekening"
+
+#: includes/classes/MultiSafepay/Gateway/Payafter.php:75
+msgid "Terms and conditions of MultiFactor"
+msgstr "Algemene voorwaarden MultiFactor"
 
 #: includes/classes/MultiSafepay/Gateway/Paypal.php:13
 msgid "PayPal"
@@ -331,127 +334,127 @@ msgstr ""
 msgid "Yourgift"
 msgstr ""
 
-#: includes/classes/MultiSafepay/Gateways.php:105
+#: includes/classes/MultiSafepay/Gateways.php:103
 msgid "MultiSafepay settings"
 msgstr "MultiSafepay instellingen"
 
-#: includes/classes/MultiSafepay/Gateways.php:107
+#: includes/classes/MultiSafepay/Gateways.php:105
 msgid ""
 "The following options are needed to make use of the MultiSafepay plug-in"
 msgstr ""
 "De volgende opties zijn verplicht om gebruik te kunnen maken van de "
 "MultiSafepay plug-in"
 
-#: includes/classes/MultiSafepay/Gateways.php:111
+#: includes/classes/MultiSafepay/Gateways.php:109
 msgid "API key"
 msgstr "API-Sleutel"
 
-#: includes/classes/MultiSafepay/Gateways.php:113
+#: includes/classes/MultiSafepay/Gateways.php:111
 msgid "Copy the API-Key from your MultiSafepay account"
 msgstr "Kopieer de API-Sleutel vanuit het MultiSafepay account"
 
-#: includes/classes/MultiSafepay/Gateways.php:119
-#: includes/classes/MultiSafepay/Gateways.php:120
+#: includes/classes/MultiSafepay/Gateways.php:117
+#: includes/classes/MultiSafepay/Gateways.php:118
 msgid "Test Mode"
 msgstr "Test modus"
 
-#: includes/classes/MultiSafepay/Gateways.php:120
-#: includes/classes/MultiSafepay/Gateways.php:129
-#: includes/classes/MultiSafepay/Gateways.php:138
+#: includes/classes/MultiSafepay/Gateways.php:118
+#: includes/classes/MultiSafepay/Gateways.php:127
+#: includes/classes/MultiSafepay/Gateways.php:136
 #, php-format
 msgid "Activate %s"
 msgstr "Aktiveer %s"
 
-#: includes/classes/MultiSafepay/Gateways.php:123
+#: includes/classes/MultiSafepay/Gateways.php:121
 msgid "Only enable if the API-Key is from a MultiSafepay Test-account."
 msgstr ""
 "Enkel aktiveren indien de API-Sleutel van een MultiSafepay Test-account is."
 
-#: includes/classes/MultiSafepay/Gateways.php:128
-#: includes/classes/MultiSafepay/Gateways.php:129
-#: includes/classes/MultiSafepay/Gateways.php:132
+#: includes/classes/MultiSafepay/Gateways.php:126
+#: includes/classes/MultiSafepay/Gateways.php:127
+#: includes/classes/MultiSafepay/Gateways.php:130
 msgid "FastCheckout"
 msgstr ""
 
-#: includes/classes/MultiSafepay/Gateways.php:132
-#: includes/classes/MultiSafepay/Gateways.php:141
+#: includes/classes/MultiSafepay/Gateways.php:130
+#: includes/classes/MultiSafepay/Gateways.php:139
 #, php-format
 msgid "When enabled %s will be available during checkout."
 msgstr "Indien geaktiveerd is %s beschikbaar tijdens het afrekenen."
 
-#: includes/classes/MultiSafepay/Gateways.php:137
-#: includes/classes/MultiSafepay/Gateways.php:138
-#: includes/classes/MultiSafepay/Gateways.php:141
+#: includes/classes/MultiSafepay/Gateways.php:135
+#: includes/classes/MultiSafepay/Gateways.php:136
+#: includes/classes/MultiSafepay/Gateways.php:139
 msgid "GiftCards"
 msgstr ""
 
-#: includes/classes/MultiSafepay/Gateways.php:146
+#: includes/classes/MultiSafepay/Gateways.php:144
 msgid "Expire order"
 msgstr "Verlopen order"
 
-#: includes/classes/MultiSafepay/Gateways.php:149
+#: includes/classes/MultiSafepay/Gateways.php:147
 msgid "Time before unfinished order is set to expired"
 msgstr "Tijd voordat een afgebroken order de status expired krijgt"
 
-#: includes/classes/MultiSafepay/Gateways.php:157
+#: includes/classes/MultiSafepay/Gateways.php:154
 msgid "days"
 msgstr "dagen"
 
-#: includes/classes/MultiSafepay/Gateways.php:158
+#: includes/classes/MultiSafepay/Gateways.php:155
 msgid "hours"
 msgstr "uren"
 
-#: includes/classes/MultiSafepay/Gateways.php:159
+#: includes/classes/MultiSafepay/Gateways.php:156
 msgid "seconds"
 msgstr "seconden"
 
-#: includes/classes/MultiSafepay/Gateways.php:163
+#: includes/classes/MultiSafepay/Gateways.php:160
 msgid "Images"
 msgstr "Afbeelding"
 
-#: includes/classes/MultiSafepay/Gateways.php:164
-#: includes/classes/MultiSafepay/Gateways.php:168
+#: includes/classes/MultiSafepay/Gateways.php:161
+#: includes/classes/MultiSafepay/Gateways.php:165
 msgid "Show gateway images"
 msgstr "Toon afbeeldingen van betaalmethodes"
 
-#: includes/classes/MultiSafepay/Gateways.php:168
+#: includes/classes/MultiSafepay/Gateways.php:165
 #, php-format
 msgid "%s during checkout."
 msgstr "%s tijdens het afrekenen"
 
-#: includes/classes/MultiSafepay/Gateways.php:172
+#: includes/classes/MultiSafepay/Gateways.php:169
 msgid "Invoice"
 msgstr "Factuur"
 
-#: includes/classes/MultiSafepay/Gateways.php:173
+#: includes/classes/MultiSafepay/Gateways.php:170
 msgid "Send Invoice"
 msgstr "Verzend een factuur"
 
-#: includes/classes/MultiSafepay/Gateways.php:176
+#: includes/classes/MultiSafepay/Gateways.php:173
 msgid "When enabled an invoice is send after a transaction is completed"
 msgstr ""
 "Indien geaktiveerd wordt er een factuur gestuurd nadat de betaling is "
 "afgerond"
 
-#: includes/classes/MultiSafepay/Gateways.php:181
+#: includes/classes/MultiSafepay/Gateways.php:178
 msgid "Debug"
 msgstr "Debug"
 
-#: includes/classes/MultiSafepay/Gateways.php:182
+#: includes/classes/MultiSafepay/Gateways.php:179
 msgid "Activate debug mode"
 msgstr "Aktiveer debug modus"
 
-#: includes/classes/MultiSafepay/Gateways.php:185
+#: includes/classes/MultiSafepay/Gateways.php:182
 msgid "When enabled (and wordpress debug is enabled it will log transactions)"
 msgstr ""
 "Indien geaktiveerd ( en de WordPress Debug-modus is aktief) worden de "
 "transacties naar een logbestand geschreven"
 
-#: includes/classes/MultiSafepay/Gateways.php:189
+#: includes/classes/MultiSafepay/Gateways.php:186
 msgid "Notification-URL"
 msgstr "Notificatie-URL"
 
-#: includes/classes/MultiSafepay/Gateways.php:192
+#: includes/classes/MultiSafepay/Gateways.php:189
 msgid ""
 "Copy&Paste this URL to your website configuration Notification-URL at your "
 "Multisafepay dashboard."
@@ -459,49 +462,41 @@ msgstr ""
 "Kopieer & plak deze URL in de website configuratie binnen het MultiSafepay "
 "dashboard"
 
-#: includes/classes/MultiSafepay/Gateways.php:256
-msgid "Unable to get transaction. Error: "
-msgstr "Kan de transactie niet vinden. Fout:"
-
-#: includes/classes/MultiSafepay/Gateways.php:425
-#: includes/classes/MultiSafepay/Gateways.php:436
-#: includes/classes/MultiSafepay/Gateways.php:453
-#: includes/classes/MultiSafepay/Gateways.php:468
-#: includes/classes/MultiSafepay/Gateways.php:474
+#: includes/classes/MultiSafepay/Gateways.php:439
+#: includes/classes/MultiSafepay/Gateways.php:450
+#: includes/classes/MultiSafepay/Gateways.php:467
 #: includes/classes/MultiSafepay/Gateways.php:481
-#: includes/classes/MultiSafepay/Gateways.php:486
+#: includes/classes/MultiSafepay/Gateways.php:487
+#: includes/classes/MultiSafepay/Gateways.php:494
+#: includes/classes/MultiSafepay/Gateways.php:499
 #, php-format
 msgid "Multisafepay payment status %s"
 msgstr "MultiSafepay betaalstatus %s"
 
-#: includes/classes/MultiSafepay/Gateways.php:430
+#: includes/classes/MultiSafepay/Gateways.php:444
 msgid "Banktransfer payment. Waiting for payment update"
 msgstr "Bankoverboeking. Wacht op betaling"
 
-#: includes/classes/MultiSafepay/Gateways.php:443
+#: includes/classes/MultiSafepay/Gateways.php:457
 #, php-format
 msgid "Validation error: Multisafepay amounts do not match (gross %s)."
 msgstr "Validatie fout: Het orderbedrag komt niet overeen. %s"
 
-#: includes/classes/MultiSafepay/Gateways.php:461
+#: includes/classes/MultiSafepay/Gateways.php:474
 msgid "Klarna Reservation number: "
 msgstr "Klarna reserverings nummer"
 
-#: includes/classes/MultiSafepay/Gateways.php:467
 #: includes/classes/MultiSafepay/Gateways.php:480
+#: includes/classes/MultiSafepay/Gateways.php:493
 #, php-format
 msgid "Payment %s via Multisafepay."
 msgstr "Betaling %s door MultiSafepay"
 
-#: includes/classes/MultiSafepay/Gateways.php:508
-msgid "Return to website"
-msgstr "Keer terug naar de website"
-
-#: includes/classes/MultiSafepay/Gateways.php:553
+#: includes/classes/MultiSafepay/Gateways.php:562
 msgid "Pay with FastCheckout"
 msgstr "Betaal via FastCheckout"
 
-#: includes/classes/MultiSafepay/Gateways.php:607
+#: includes/classes/MultiSafepay/Gateways.php:618
 msgid ""
 "There are no shipping methods available. Please double check your address, "
 "or contact us if you need any help."
@@ -555,6 +550,18 @@ msgstr "of"
 #: multisafepay.php:98
 msgid "download now."
 msgstr "download nu."
+
+#~ msgid "Payment error:"
+#~ msgstr "Betalingsfout:"
+
+#~ msgid "PayAfter"
+#~ msgstr "Betaal Na Ontvangst"
+
+#~ msgid "Unable to get transaction. Error: "
+#~ msgstr "Kan de transactie niet vinden. Fout:"
+
+#~ msgid "Return to website"
+#~ msgstr "Keer terug naar de website"
 
 #~ msgid "Accountnumber"
 #~ msgstr "Rekeningnummer"

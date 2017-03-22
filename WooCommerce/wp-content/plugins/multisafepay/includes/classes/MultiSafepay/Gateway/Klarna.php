@@ -93,6 +93,7 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
             '<input style="display:inline !important"  type="radio" name="gender" id="gender" value="female"/> '.__("Female", "multisafepay").'<br/>'.
         '</p><div class="clear"></div>';
 
+        $description .= '<p class="form-row form-row-wide">'.__('By submitting this form I hereby agree with the Terms and conditions for Klarna ', 'multisafepay');
         $description .= sprintf(   '<p><script src="https://cdn.klarna.com/public/kitt/core/v1.0/js/klarna.min.js"></script>
                                     <script src="https://cdn.klarna.com/public/kitt/toc/v1.1/js/klarna.terms.min.js"></script>
                                     <script type="text/javascript">
@@ -102,6 +103,7 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
                                                                     })
                                     </script></p>
                                     <span id="MSP_Klarna"></span>', $klarna_eid, get_locale());
+
 
         $description_text = $this->get_option('description');
 
