@@ -73,9 +73,8 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
     {
 
         $settings = (array) get_option("woocommerce_multisafepay_klarna_settings");
-        $klarna_eid = $settings['eid'];
+        $klarna_eid = $settings['eid'] ? $settings['eid'] : 1;
 
-        $description = '';
         $description =
         '<p class="form-row form-row-wide  validate-required">
             <label for="birthday" class="">'.__('Birthday', 'multisafepay').
