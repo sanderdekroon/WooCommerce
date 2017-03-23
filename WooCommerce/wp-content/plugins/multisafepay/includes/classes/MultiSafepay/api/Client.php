@@ -80,18 +80,30 @@ class Client
      * Parses and splits up an address in street and housenumber
      */
      
-    private function parseAddress($street_address)
+    private function parseAddress($adress)
     {
-        $matches= explode(" ", $street_address);
-        if (count($matches) == 1) {
-            $apartment = '0';
-            $street    = $street_address;
-        } else {
-            $apartment = array_pop($matches);
-            $street    = implode(" ", $matches);
+        $street         = '';
+        $number         = '';
+        $numberAddition = '';
+
+        $results        = array();
+        $pattern_adress = "/^(.*)\s(\d+)(.*)/";
+
+        preg_match($pattern_adress, trim($adress), $results);
+        if (count ($results) == 0 ){
+            $street         = trim($adress);
+        }else{
+            $street         = trim((isset($results[1])) ? $results[1] : '');
+            $number         = trim((isset($results[2])) ? $results[2] : '');
+            $numberAddition = trim((isset($results[3])) ? $results[3] : '');
         }
-        return array($street, $apartment);
-      
+
+        $pattern_addition     = '/^([\s|-]*)(.*)/';
+        $replacement_addition = '$2';
+        $numberAddition = trim (preg_replace($pattern_addition, $replacement_addition, $numberAddition));
+
+        return array($street, $number, $numberAddition);
+    //  return array('street' => $street, 'number' => $number, 'numberAddition' => $numberAddition);
     }
 
 
