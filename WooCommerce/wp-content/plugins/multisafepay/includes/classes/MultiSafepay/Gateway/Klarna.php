@@ -75,22 +75,20 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
         $settings = (array) get_option("woocommerce_multisafepay_klarna_settings");
         $klarna_eid = $settings['eid'] ? $settings['eid'] : 1;
 
-        $description =
-        '<p class="form-row form-row-wide  validate-required">
-            <label for="msp_birthday" class="">'.__('Birthday', 'multisafepay').
-                '<abbr class="required" title="required">*</abbr>
-            </label>
-            <input type="text" class="input-text" name="msp_birthday" id="msp_birthday" placeholder="dd-mm-yyyy"/>
-        </p><div class="clear"></div>';
+        $description =  '<p class="form-row form-row-wide  validate-required">
+                            <label for="msp_birthday" class="">'.__('Birthday', 'multisafepay').
+                                '<abbr class="required" title="required">*</abbr>
+                            </label>
+                            <input type="text" class="input-text" name="klarna_birthday" id="klarna_birthday" placeholder="dd-mm-yyyy"/>
+                        </p>
 
-        $description .=
-        '<p class="form-row form-row-wide  validate-required">
-            <label for="msp_gender" class="">'.__('Gender', 'multisafepay').
-                '<abbr class="required" title="required">*</abbr>
-            </label> '.
-            '<input style="display:inline !important"  type="radio" name="msp_gender" id="msp_gender" value="male"/> '  .__("Male", "multisafepay").'<br/>'.
-            '<input style="display:inline !important"  type="radio" name="msp_gender" id="msp_gender" value="female"/> '.__("Female", "multisafepay").'<br/>'.
-        '</p><div class="clear"></div>';
+                        <p class="form-row form-row-wide  validate-required">
+                            <label for="msp_gender" class="">'.__('Gender', 'multisafepay').
+                                '<abbr class="required" title="required">*</abbr>
+                            </label> '.
+                            '<input style="display:inline !important"  type="radio" name="klarna_gender" id="klarna_gender" value="male"/> '  .__("Male", "multisafepay").'<br/>'.
+                            '<input style="display:inline !important"  type="radio" name="klarna_gender" id="klarna_gender" value="female"/> '.__("Female", "multisafepay").'<br/>'.
+                        '</p>';
 
         $description .= '<p class="form-row form-row-wide">'.__('By submitting this form I hereby agree with the Terms and conditions for Klarna ', 'multisafepay');
         $description .= sprintf(   '<p><script src="https://cdn.klarna.com/public/kitt/core/v1.0/js/klarna.min.js"></script>

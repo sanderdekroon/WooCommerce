@@ -402,13 +402,37 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
     {
         $order = new WC_Order($order_id);
 
+        $this->write_log( print_r ($_POST, true));
+
+
+        switch ($this->getGatewayCode()){
+
+            case 'KLARNA':
+                $gender = $_POST['klarna_gender'];
+                $gebdat = $_POST['klarna_birthday'];
+
+                // Swap format to YYYY-MM-DD and replace delimiter to - so YYYY/MM/DD will become YYYY-MM-DD
+                $gebdat = preg_replace("/(^(\d{2}).(\d{2}).(\d{4}))/", "$4-$3-$2", $gebdat);
+                $gebdat = preg_replace("/[^0-9]/", "-", $gebdat);
+                break;
+            case 'PAYAFTER':
+                $gebdat = $_POST['pad_birthday'];
+                $account = $_POST['pad_account'];
+                break;
+            case 'EINVOICE':
+                $account = $_POST['einvoice_account'];
+                $gender = $_POST['einvoice_gender'];
+                break;
+        }
+
+
         return (array(  'referrer'      => $_SERVER['HTTP_REFERER'],
                         'user_agent'    => $_SERVER['HTTP_USER_AGENT'],
-                        'birthday'      => isset ($_POST['msp_birthday']) ? $_POST['msp_birthday'] : '' ,
-                        'bankaccount'   => isset ($_POST['msp_account'])  ? $_POST['msp_account'] : '',
+                        'birthday'      => $gebdat ,
+                        'bankaccount'   => $account,
                         'phone'         => $order->billing_phone,
                         'email'         => $order->billing_email,
-                        'gender'        => isset ($_POST['msp_gender'])   ? $_POST['msp_gender'] : '') );
+                        'gender'        => $gender) );
     }
 
     public function setItemList($items)
