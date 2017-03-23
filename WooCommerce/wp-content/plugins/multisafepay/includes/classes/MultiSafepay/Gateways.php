@@ -207,8 +207,10 @@ class MultiSafepay_Gateways
         return $updatedSettings;
     }
 
-    public function validate_fields() {
-        return false;
+
+    public function validate_fields()
+    {
+        return true;
     }
 
     public static function Multisafepay_Response() {

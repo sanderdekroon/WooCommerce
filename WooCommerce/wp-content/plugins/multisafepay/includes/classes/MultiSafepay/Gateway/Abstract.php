@@ -168,6 +168,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
         echo $this->get_option('description');
     }
 
+
     public function process_payment($order_id)
     {
         global $woocommerce;
