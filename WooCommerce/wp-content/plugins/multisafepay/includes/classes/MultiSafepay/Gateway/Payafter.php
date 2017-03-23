@@ -66,10 +66,10 @@ class MultiSafepay_Gateway_Payafter extends MultiSafepay_Gateway_Abstract
     public function payment_fields()
     {
         $description = '';
-        $description = '<p class="form-row form-row-wide  validate-required"><label for="birthday" class="">'.__('Birthday', 'multisafepay').'<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="birthday" id="birthday" placeholder="dd-mm-yyyy"/>
+        $description = '<p class="form-row form-row-wide  validate-required"><label for="msp_birthday" class="">'.__('Birthday', 'multisafepay').'<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="msp_birthday" id="msp_birthday" placeholder="dd-mm-yyyy"/>
         </p><div class="clear"></div>';
 
-        $description .= '<p class="form-row form-row-wide  validate-required"><label for="account" class="">'.__('Bankaccount', 'multisafepay').'<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="account" id="account" placeholder=""/>
+        $description .= '<p class="form-row form-row-wide  validate-required"><label for="msp_account" class="">'.__('Bankaccount', 'multisafepay').'<abbr class="required" title="required">*</abbr></label><input type="text" class="input-text" name="msp_account" id="msp_account" placeholder=""/>
         </p><div class="clear"></div>';
 
         $description .= '<p class="form-row form-row-wide">'.__('By confirming this order you agree with the ', 'multisafepay').'<br><a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">'. __('Terms and conditions of MultiFactor', 'multisafepay'). '</a>';

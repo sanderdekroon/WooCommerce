@@ -77,19 +77,19 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
 
         $description =
         '<p class="form-row form-row-wide  validate-required">
-            <label for="birthday" class="">'.__('Birthday', 'multisafepay').
+            <label for="msp_birthday" class="">'.__('Birthday', 'multisafepay').
                 '<abbr class="required" title="required">*</abbr>
             </label>
-            <input type="text" class="input-text" name="birthday" id="birthday" placeholder="dd-mm-yyyy"/>
+            <input type="text" class="input-text" name="msp_birthday" id="msp_birthday" placeholder="dd-mm-yyyy"/>
         </p><div class="clear"></div>';
 
         $description .=
         '<p class="form-row form-row-wide  validate-required">
-            <label for="account" class="">'.__('Gender', 'multisafepay').
+            <label for="msp_gender" class="">'.__('Gender', 'multisafepay').
                 '<abbr class="required" title="required">*</abbr>
             </label> '.
-            '<input style="display:inline !important"  type="radio" name="gender" id="gender" value="male"/> '  .__("Male", "multisafepay").'<br/>'.
-            '<input style="display:inline !important"  type="radio" name="gender" id="gender" value="female"/> '.__("Female", "multisafepay").'<br/>'.
+            '<input style="display:inline !important"  type="radio" name="msp_gender" id="msp_gender" value="male"/> '  .__("Male", "multisafepay").'<br/>'.
+            '<input style="display:inline !important"  type="radio" name="msp_gender" id="msp_gender" value="female"/> '.__("Female", "multisafepay").'<br/>'.
         '</p><div class="clear"></div>';
 
         $description .= '<p class="form-row form-row-wide">'.__('By submitting this form I hereby agree with the Terms and conditions for Klarna ', 'multisafepay');
