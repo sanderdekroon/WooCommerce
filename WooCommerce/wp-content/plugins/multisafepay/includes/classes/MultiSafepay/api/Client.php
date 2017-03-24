@@ -80,7 +80,7 @@ class Client
      * Parses and splits up an address in street and housenumber
      */
      
-    private function parseAddress($adress)
+    private function parseAddress($adress, $seperaatAddition = false)
     {
         $street         = '';
         $number         = '';
@@ -98,7 +98,7 @@ class Client
             $numberAddition = trim((isset($results[3])) ? $results[3] : '');
         }
 
-        if ( $seperaatAddition == true) {
+        if ( $seperaatAddition === true) {
             $pattern_addition     = '/^([\s|-]*)(.*)/';
             $replacement_addition = '$2';
             $numberAddition = trim (preg_replace($pattern_addition, $replacement_addition, $numberAddition));
