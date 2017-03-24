@@ -98,9 +98,14 @@ class Client
             $numberAddition = trim((isset($results[3])) ? $results[3] : '');
         }
 
-        $pattern_addition     = '/^([\s|-]*)(.*)/';
-        $replacement_addition = '$2';
-        $numberAddition = trim (preg_replace($pattern_addition, $replacement_addition, $numberAddition));
+        if ( $seperaatAddition == true) {
+            $pattern_addition     = '/^([\s|-]*)(.*)/';
+            $replacement_addition = '$2';
+            $numberAddition = trim (preg_replace($pattern_addition, $replacement_addition, $numberAddition));
+        }else{
+            $number .= $numberAddition;
+            $numberAddition = '';
+        }
 
         return array($street, $number, $numberAddition);
     //  return array('street' => $street, 'number' => $number, 'numberAddition' => $numberAddition);
