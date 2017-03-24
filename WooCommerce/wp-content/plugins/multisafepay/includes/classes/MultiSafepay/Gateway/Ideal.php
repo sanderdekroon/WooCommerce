@@ -50,11 +50,11 @@ class MultiSafepay_Gateway_Ideal extends MultiSafepay_Gateway_Abstract
         if (is_array($warning))
             $this->form_fields['warning'] = $warning;
 
-        $this->form_fields['direct'] = array(   'title'     => __('Direct', 'multisafepay'),
-                                                'type'      => 'checkbox',
-                                                'label'     => sprintf(__('Direct %s', 'multisafepay'), $this->getName()),
-                                                'default'   => 'no' );
-
+        $this->form_fields['direct'] = array(   'title'         => __('Enable',  'multisafepay'),
+                                                'type'          => 'checkbox',
+                                                'label'         => sprintf(__('Direct %s', 'multisafepay'), $this->getName()),
+                                                'description'   => __('Enable of disable the selection of the preferred bank within the website.', 'multisafepay'),
+                                                'default'       => 'yes' );
         parent::init_settings($this->form_fields);
     }
 

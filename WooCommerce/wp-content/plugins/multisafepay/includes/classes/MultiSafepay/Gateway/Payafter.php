@@ -42,23 +42,21 @@ class MultiSafepay_Gateway_Payafter extends MultiSafepay_Gateway_Abstract
         if (is_array($warning))
             $this->form_fields['warning'] = $warning;
 
-        $this->form_fields['direct'] = array(
-            'title'         => __('Direct', 'multisafepay'),
-            'type'          => 'checkbox',
-            'label'         => sprintf(__('Direct %s', 'multisafepay'), $this->getName()),
-            'default'       => 'no');
+        $this->form_fields['direct'] = array(   'title'         => __('Enable',  'multisafepay'),
+                                                'type'          => 'checkbox',
+                                                'label'         => sprintf(__('Direct %s', 'multisafepay'), $this->getName()),
+                                                'description'   => __('If enable extra credentials can be filled in checkout form, otherwise an extra form will be used.', 'multisafepay'),
+                                                'default'       => 'yes' );
 
-        $this->form_fields['minamount'] = array(
-            'title'         => __('Minimal order amount', 'multisafepay'),
-            'type'          => 'text',
-            'description'   => __('The minimal order amount in euro\'s  for an order to use this payment method', 'multisafepay'),
-            'css'           => 'width: 100px;');
+        $this->form_fields['minamount'] = array('title'         => __('Minimal order amount', 'multisafepay'),
+                                                'type'          => 'text',
+                                                'description'   => __('The minimal order amount in euro\'s  for an order to use this payment method', 'multisafepay'),
+                                                'css'           => 'width: 100px;');
 
-        $this->form_fields['maxamount'] = array(
-            'title'         => __('Maximal order amount', 'multisafepay'),
-            'type'          => 'text',
-            'description'   => __('The maximal order amount in euro\'s  for an order to use this payment method', 'multisafepay'),
-            'css'           => 'width: 100px;');
+        $this->form_fields['maxamount'] = array('title'         => __('Maximal order amount', 'multisafepay'),
+                                                'type'          => 'text',
+                                                'description'   => __('The maximal order amount in euro\'s  for an order to use this payment method', 'multisafepay'),
+                                                'css'           => 'width: 100px;');
 
         parent::init_settings($this->form_fields);
     }

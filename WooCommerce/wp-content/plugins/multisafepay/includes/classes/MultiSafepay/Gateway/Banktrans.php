@@ -47,6 +47,11 @@ class MultiSafepay_Gateway_Banktrans extends MultiSafepay_Gateway_Abstract
                 'label'     => sprintf(__('Direct %s', 'multisafepay'), $this->getName()),
                 'default'   => 'no' );
 
+        $this->form_fields['direct'] = array(   'title'         => __('Enable',  'multisafepay'),
+                                                'type'          => 'checkbox',
+                                                'label'         => sprintf(__('Direct %s', 'multisafepay'), $this->getName()),
+                                                'description' => __('If enabled, the consumer receives an e-mail with payment details, no extra credentals are needed during checkout.', 'multisafepay'),
+                                                'default'       => 'no' );
         parent::init_settings($this->form_fields);
     }
 }

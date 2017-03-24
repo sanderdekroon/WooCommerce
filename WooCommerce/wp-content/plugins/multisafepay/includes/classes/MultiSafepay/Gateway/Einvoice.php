@@ -47,6 +47,14 @@ class MultiSafepay_Gateway_Einvoice extends MultiSafepay_Gateway_Abstract
             'label'         => sprintf(__('Direct %s', 'multisafepay'), $this->getName()),
             'default'       => 'no');
 
+
+        $this->form_fields['direct'] = array(   'title'         => __('Enable',  'multisafepay'),
+                                                'type'          => 'checkbox',
+                                                'label'         => sprintf(__('Direct %s', 'multisafepay'), $this->getName()),
+                                                'description'   => __('If enable extra credentials can be filled in checkout form, otherwise an extra form will be used.', 'multisafepay'),
+                                                'default'       => 'yes' );
+
+
         $this->form_fields['minamount'] = array(
             'title'         => __('Minimal order amount', 'multisafepay'),
             'type'          => 'text',
