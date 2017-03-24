@@ -217,7 +217,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
 
         if ($msg) {
             $this->write_log('msp->transactiondata:');
-            $this->write_log(print_r($msp, true));
+            $this->write_log($msp);
             $this->write_log('msp->End debug');
 
             return array(   'result'    => 'error',
@@ -402,9 +402,6 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
     public function getGatewayInfo($order_id)
     {
         $order = new WC_Order($order_id);
-
-        $this->write_log( print_r ($_POST, true));
-
 
         switch ($this->getGatewayCode()){
 
