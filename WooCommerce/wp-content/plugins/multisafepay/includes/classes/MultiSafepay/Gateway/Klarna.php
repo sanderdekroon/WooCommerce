@@ -71,37 +71,39 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
     {
 
         $settings = (array) get_option("woocommerce_multisafepay_klarna_settings");
-        $klarna_eid = $settings['eid'] ? $settings['eid'] : 1;
 
-        $description =  '<p class="form-row form-row-wide  validate-required">
-                            <label for="msp_birthday" class="">'.__('Birthday', 'multisafepay').
-                                '<abbr class="required" title="required">*</abbr>
-                            </label>
-                            <input type="text" class="input-text" name="klarna_birthday" id="klarna_birthday" placeholder="dd-mm-yyyy"/>
-                        </p>
+        if ($settings['direct'] == 'yes') {
 
-                        <p class="form-row form-row-wide  validate-required">
-                            <label for="msp_gender" class="">'.__('Gender', 'multisafepay').
-                                '<abbr class="required" title="required">*</abbr>
-                            </label> '.
-                            '<input style="display:inline !important"  type="radio" name="klarna_gender" id="klarna_gender" value="male"/> '  .__("Male", "multisafepay").'<br/>'.
-                            '<input style="display:inline !important"  type="radio" name="klarna_gender" id="klarna_gender" value="female"/> '.__("Female", "multisafepay").'<br/>'.
-                        '</p>';
+            $klarna_eid = $settings['eid'] ? $settings['eid'] : 1;
 
-        $description .= '<p class="form-row form-row-wide">'.__('By submitting this form I hereby agree with the Terms and conditions for Klarna ', 'multisafepay');
-        $description .= sprintf(   '<p><script src="https://cdn.klarna.com/public/kitt/core/v1.0/js/klarna.min.js"></script>
-                                    <script src="https://cdn.klarna.com/public/kitt/toc/v1.1/js/klarna.terms.min.js"></script>
-                                    <script type="text/javascript">
-                                        new Klarna.Terms.Account({  el: "MSP_Klarna",
-                                                                    eid: "%s",
-                                                                    locale: "%s",
-                                                                    })
-                                    </script></p>
-                                    <span id="MSP_Klarna"></span>', $klarna_eid, get_locale());
+            $description =  '<p class="form-row form-row-wide  validate-required">
+                                <label for="msp_birthday" class="">'.__('Birthday', 'multisafepay').
+                                    '<abbr class="required" title="required">*</abbr>
+                                </label>
+                                <input type="text" class="input-text" name="klarna_birthday" id="klarna_birthday" placeholder="dd-mm-yyyy"/>
+                            </p>
 
+                            <p class="form-row form-row-wide  validate-required">
+                                <label for="msp_gender" class="">'.__('Gender', 'multisafepay').
+                                    '<abbr class="required" title="required">*</abbr>
+                                </label> '.
+                                '<input style="display:inline !important"  type="radio" name="klarna_gender" id="klarna_gender" value="male"/> '  .__("Male", "multisafepay").'<br/>'.
+                                '<input style="display:inline !important"  type="radio" name="klarna_gender" id="klarna_gender" value="female"/> '.__("Female", "multisafepay").'<br/>'.
+                            '</p>';
+
+            $description .= '<p class="form-row form-row-wide">'.__('By submitting this form I hereby agree with the Terms and conditions for Klarna ', 'multisafepay');
+            $description .= sprintf(   '<p><script src="https://cdn.klarna.com/public/kitt/core/v1.0/js/klarna.min.js"></script>
+                                        <script src="https://cdn.klarna.com/public/kitt/toc/v1.1/js/klarna.terms.min.js"></script>
+                                        <script type="text/javascript">
+                                            new Klarna.Terms.Account({  el: "MSP_Klarna",
+                                                                        eid: "%s",
+                                                                        locale: "%s",
+                                                                        })
+                                        </script></p>
+                                        <span id="MSP_Klarna"></span>', $klarna_eid, get_locale());
+        }
 
         $description_text = $this->get_option('description');
-
         if (!empty($description_text)) $description .= '<p>'.$description_text.'</p>';
 
         echo $description;

@@ -60,15 +60,12 @@ class MultiSafepay_Gateway_Ideal extends MultiSafepay_Gateway_Abstract
 
     public function payment_fields()
     {
-        $description = '';
 
-        $description_text = $this->get_option('description');
-        if (!empty($description_text))
-            $description .= '<p>'.$description_text.'</p>';
-
-        $settings = get_option('woocommerce_multisafepay_ideal_settings');
-
+        $settings = (array) get_option('woocommerce_multisafepay_ideal_settings');
         if ($settings['direct'] == 'yes') {
+
+            $description = '';
+
             $msp = new Client();
 
             $msp->setApiKey($this->getApiKey());
@@ -94,6 +91,10 @@ class MultiSafepay_Gateway_Ideal extends MultiSafepay_Gateway_Abstract
             $description .= '</select>';
             $description .= '</p>';
         }
+
+        $description_text = $this->get_option('description');
+        if (!empty($description_text))
+            $description .= '<p>'.$description_text.'</p>';
 
         echo $description;
     }

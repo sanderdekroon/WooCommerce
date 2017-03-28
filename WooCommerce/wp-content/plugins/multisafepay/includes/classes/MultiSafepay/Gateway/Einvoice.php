@@ -72,24 +72,28 @@ class MultiSafepay_Gateway_Einvoice extends MultiSafepay_Gateway_Abstract
 
     public function payment_fields()
     {
-        $description =  '<p class="form-row form-row-wide  validate-required">
-                            <label for="msp_birthday" class="">'.__('Birthday', 'multisafepay').
-                                '<abbr class="required" title="required">*</abbr>
-                            </label>
-                            <input type="text" class="input-text" name="einvoice_birthday" id="einvoice_birthday" placeholder="dd-mm-yyyy"/>
-                        </p>
+        $settings = (array) get_option("woocommerce_multisafepay_einvoice_settings");
 
-                        <p class="form-row form-row-wide  validate-required">
-                            <label for="msp_account" class="">'.__('Account', 'multisafepay').
-                                '<abbr class="required" title="required">*</abbr>
-                            </label>
-                            <input type="text" class="input-text" name="einvoice_account" id="einvoice_account" placeholder=""/>
-                        </p>
+        if ($settings['direct'] == 'yes') {
 
-                        <p class="form-row form-row-wide">'.__('By confirming this order you agree with the ', 'multisafepay').
-                            '<a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">Terms and conditions of MultiFactor</a>
-                        </p>';
+            $description =  '<p class="form-row form-row-wide  validate-required">
+                                <label for="msp_birthday" class="">'.__('Birthday', 'multisafepay').
+                                    '<abbr class="required" title="required">*</abbr>
+                                </label>
+                                <input type="text" class="input-text" name="einvoice_birthday" id="einvoice_birthday" placeholder="dd-mm-yyyy"/>
+                            </p>
 
+                            <p class="form-row form-row-wide  validate-required">
+                                <label for="msp_account" class="">'.__('Account', 'multisafepay').
+                                    '<abbr class="required" title="required">*</abbr>
+                                </label>
+                                <input type="text" class="input-text" name="einvoice_account" id="einvoice_account" placeholder=""/>
+                            </p>
+
+                            <p class="form-row form-row-wide">'.__('By confirming this order you agree with the ', 'multisafepay').
+                                '<a href="http://www.multifactor.nl/consument-betalingsvoorwaarden-2/" target="_blank">Terms and conditions of MultiFactor</a>
+                            </p>';
+        }
         $description_text = $this->get_option('description');
         if (!empty($description_text))
             $description .= '<p>'.$description_text.'</p>';
