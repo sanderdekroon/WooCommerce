@@ -60,7 +60,7 @@ class MultiSafepay_Gateway_Ideal extends MultiSafepay_Gateway_Abstract
 
     public function payment_fields()
     {
-
+        $description = '';
         $settings = (array) get_option('woocommerce_multisafepay_ideal_settings');
         if ($settings['direct'] == 'yes') {
 

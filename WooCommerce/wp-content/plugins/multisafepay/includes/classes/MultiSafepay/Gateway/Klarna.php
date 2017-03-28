@@ -69,7 +69,7 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
 
     public function payment_fields()
     {
-
+        $description = '';
         $settings = (array) get_option("woocommerce_multisafepay_klarna_settings");
 
         if ($settings['direct'] == 'yes') {
@@ -104,7 +104,8 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
         }
 
         $description_text = $this->get_option('description');
-        if (!empty($description_text)) $description .= '<p>'.$description_text.'</p>';
+        if (!empty($description_text))
+            $description .= '<p>'.$description_text.'</p>';
 
         echo $description;
     }

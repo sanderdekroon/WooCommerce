@@ -63,7 +63,9 @@ class MultiSafepay_Gateway_Payafter extends MultiSafepay_Gateway_Abstract
 
     public function payment_fields()
     {
+        $description = '';
         $settings = (array)  get_option('woocommerce_multisafepay_payafter_settings');
+
         if ($settings['direct'] == 'yes') {
 
             $description = '<p class="form-row form-row-wide  validate-required">

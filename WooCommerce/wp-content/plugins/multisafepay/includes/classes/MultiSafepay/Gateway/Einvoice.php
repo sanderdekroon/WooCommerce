@@ -72,6 +72,7 @@ class MultiSafepay_Gateway_Einvoice extends MultiSafepay_Gateway_Abstract
 
     public function payment_fields()
     {
+        $description = '';
         $settings = (array) get_option("woocommerce_multisafepay_einvoice_settings");
 
         if ($settings['direct'] == 'yes') {
