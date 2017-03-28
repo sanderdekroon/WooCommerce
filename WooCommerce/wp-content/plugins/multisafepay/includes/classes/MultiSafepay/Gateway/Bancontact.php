@@ -20,7 +20,7 @@ class MultiSafepay_Gateway_Bancontact extends MultiSafepay_Gateway_Abstract
 
     public static function getGatewayCode()
     {
-        return "BANCONTACT";
+        return "MISTERCASH";
     }
 
     public function getType()
