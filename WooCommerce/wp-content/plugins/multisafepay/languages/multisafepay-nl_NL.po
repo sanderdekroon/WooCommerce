@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: MultiSafepay\n"
-"POT-Creation-Date: 2017-03-24 09:57+0100\n"
-"PO-Revision-Date: 2017-03-24 10:03+0100\n"
+"POT-Creation-Date: 2017-03-28 15:52+0200\n"
+"PO-Revision-Date: 2017-03-28 16:34+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: nl_NL\n"
@@ -275,7 +275,7 @@ msgid ""
 "By submitting this form I hereby agree with the Terms and conditions for "
 "Klarna "
 msgstr ""
-"Met het bevestigen van deze order gaat u akkoord met de Algeneme voorwaarden "
+"Met het bevestigen van deze order gaat u akkoord met de Algemene voorwaarden "
 "van Klarna"
 
 #: includes/classes/MultiSafepay/Gateway/Klarna.php:184
@@ -546,11 +546,11 @@ msgid "Unknown error. Probably the API-Key is not correct. Error-code: "
 msgstr ""
 "Onbekende fout. Waarschijnlijk is de API sleutel niet correct. Fout-code:"
 
-#: includes/classes/MultiSafepay/api/Client.php:130
+#: includes/classes/MultiSafepay/api/Client.php:135
 msgid "Please configure your MultiSafepay API Key."
 msgstr "Configureer de MultiSafepay API-Sleutel"
 
-#: includes/classes/MultiSafepay/api/Client.php:164
+#: includes/classes/MultiSafepay/api/Client.php:169
 msgid "Unable to communicatie with the MultiSafepay payment server"
 msgstr "Niet mogelijk te communiserern met de server van MultiSafepay"
 
