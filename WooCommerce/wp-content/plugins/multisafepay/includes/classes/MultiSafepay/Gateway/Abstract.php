@@ -505,7 +505,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
 
     public function getLocale()
     {
-        return (str_replace('-', '_', get_bloginfo('language')));
+        return (getLocale());
     }
 
     public function write_log($log)
