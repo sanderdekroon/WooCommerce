@@ -237,10 +237,10 @@ class MultiSafepay_Gateways
             case 'cancel':
                 return true;
                 break;
-            case 'feeds':
+//            case 'feeds':
 //                require_once dirname(__FILE__) . '/Helper/Feeds.php';
-                return true;
-                break;
+//                return true;
+//                break;
             default:
                 break;
         }
