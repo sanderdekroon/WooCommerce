@@ -18,6 +18,12 @@ class MultiSafepay_Gateway_Nationaletuinbon extends MultiSafepay_Gateway_Abstrac
         return get_option('woocommerce_multisafepay_nationaletuinbon_settings');
     }
 
+    public static function getTitle()
+    {
+        $settings =  self::getSettings();
+        return ($settings['title']);
+    }
+
     public static function getGatewayCode()
     {
         return "NATIONALETUINBON";

@@ -18,6 +18,12 @@ class MultiSafepay_Gateway_Wellnessgiftcard extends MultiSafepay_Gateway_Abstrac
         return get_option('woocommerce_multisafepay_wellnessgiftcard_settings');
     }
 
+    public static function getTitle()
+    {
+        $settings =  self::getSettings();
+        return ($settings['title']);
+    }
+
     public static function getGatewayCode()
     {
         return "WELLNESS-GIFTCARD";

@@ -18,6 +18,12 @@ class MultiSafepay_Gateway_Creditcard extends MultiSafepay_Gateway_Abstract
         return get_option('woocommerce_multisafepay_creditcard_settings');
     }
 
+    public static function getTitle()
+    {
+        $settings =  self::getSettings();
+        return ($settings['title']);
+    }
+
     public static function getGatewayCode()
     {
         return ( empty($_POST['cc_issuer']) ? "CREDITCARDS" : $_POST['cc_issuer']);

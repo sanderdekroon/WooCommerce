@@ -11,6 +11,11 @@ class MultiSafepay_Gateway_Fastcheckout extends MultiSafepay_Gateway_Abstract
         return;
     }
     
+    public static function getTitle()
+    {
+        return;
+    }
+
     public function getItemsFCO () {
         $items = array();
         foreach (WC()->cart->get_cart() as $values) {

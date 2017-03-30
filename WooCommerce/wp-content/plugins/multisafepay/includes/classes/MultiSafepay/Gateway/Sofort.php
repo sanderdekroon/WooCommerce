@@ -18,6 +18,12 @@ class MultiSafepay_Gateway_Sofort extends MultiSafepay_Gateway_Abstract
         return get_option('woocommerce_multisafepay_sofort_settings');
     }
 
+    public static function getTitle()
+    {
+        $settings =  self::getSettings();
+        return ($settings['title']);
+    }
+
     public static function getGatewayCode()
     {
         return "DIRECTBANK";

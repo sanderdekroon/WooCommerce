@@ -18,6 +18,12 @@ class MultiSafepay_Gateway_Payafter extends MultiSafepay_Gateway_Abstract
         return get_option('woocommerce_multisafepay_payafter_settings');
     }
 
+     public static function getTitle()
+    {
+        $settings =  self::getSettings();
+        return ($settings['title']);
+    }
+
     public static function getGatewayCode()
     {
         return "PAYAFTER";
