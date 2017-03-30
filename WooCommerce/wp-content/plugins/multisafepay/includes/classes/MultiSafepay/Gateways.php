@@ -216,7 +216,12 @@ class MultiSafepay_Gateways
 
     public static function Multisafepay_Response() {
 
-        if (empty($_GET)) {
+        if ($_SERVER['REMOTE_ADDR'] == '89.20.162.110'){
+            error_log(date ('Y-m-d H:i:s') . '   '. __FUNCTION__ . " request received: " . $_SERVER['REQUEST_URI'] . "\n", 3, "MultiSafepay_debug.log");
+        }
+
+
+        if (!isset ($_GET['transactionid'])) {
             return;
         }
 
