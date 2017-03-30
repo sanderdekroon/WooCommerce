@@ -238,7 +238,7 @@ class MultiSafepay_Gateways
                 return true;
                 break;
             case 'feeds':
-                require_once dirname(__FILE__) . '/Helper/Feeds.php';
+//                require_once dirname(__FILE__) . '/Helper/Feeds.php';
                 return true;
                 break;
             default:
