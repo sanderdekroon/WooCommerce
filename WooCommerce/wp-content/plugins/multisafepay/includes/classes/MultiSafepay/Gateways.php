@@ -186,7 +186,7 @@ class MultiSafepay_Gateways
         $addedSettings[] = array(
             'name'      => __('Notification-URL', 'multisafepay'),
             'type'      => 'text',
-            'default'   => sprintf('%s/index.php?page=multisafepaynotify', site_url()),
+            'default'   => sprintf('%s/?page=multisafepaynotify', site_url()),
             'desc'      => __('Copy&Paste this URL to your website configuration Notification-URL at your Multisafepay dashboard.', 'multisafepay'),
             'id'        => 'multisafepay_nurl',
             'desc_tip'  => true,

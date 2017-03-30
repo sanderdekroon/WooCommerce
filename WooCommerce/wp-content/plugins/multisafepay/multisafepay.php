@@ -71,9 +71,10 @@ class update_available {
     }
 }
 
-if ($message = new_plugin_version_available()) {
-    new update_available( $message );
-}
+// Slow down the performance to much, So temporarly disabled
+//if ($message = new_plugin_version_available()) {
+//    new update_available( $message );
+//}
 
 function new_plugin_version_available(){
 
