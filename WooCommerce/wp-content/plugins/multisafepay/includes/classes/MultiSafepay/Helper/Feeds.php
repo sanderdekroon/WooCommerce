@@ -1,9 +1,9 @@
 <?php
 
 
-echo '<pre>';
-echo 'Parameters<br/>-----------------------<br/>';
-print_r($_GET);
+//echo '<pre>';
+//echo 'Parameters<br/>-----------------------<br/>';
+//print_r($_GET);
 
 $results = feeds($_GET);
 
@@ -12,32 +12,54 @@ $results = reOrderArray($results);
 
 // create JSON
 $json = json_encode($results);
-echo 'JSON<br/>-----------------------<br/>';
-echo prettyPrint($json);
+//echo 'JSON<br/>-----------------------<br/>';
+//echo prettyPrint($json);
 
 
-die(PHP_EOL.'------------------------------'.PHP_EOL.'Ready with the feed');
-return ($json);
+$json = gzcompress($json);
+
+// die(PHP_EOL.'------------------------------'.PHP_EOL.'Ready with the feed');
+// return ( gzcompress($json) );
+die($json);
+
 
 
 
 function feeds($params)
 {
-    if ($params['identifier'] == 'test')
-        return (array('Feed wordt correct aangeroepen'));
 
-    // no API-Key provided
-    if (!isset($params['api_key']))
-        die('no API-Key provided');
+    //get full url of the call
+    $api_key = 'MjQyM2JmZDZkNWEzODEyYjk4MTg2YjFm';
 
-    // Invalid API-Key
-    if ($params['api_key'] != get_option('multisafepay_api_key'))
-        die('Invalid API-Key');
+    // This should be the full URL including parameters
+    $base_url = ( isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']=='on' ? 'https' : 'http' ) . '://' .  $_SERVER['HTTP_HOST'];
+    $url = $base_url . $_SERVER["REQUEST_URI"];
+
+    $header = get_nginx_headers();
+
+    echo '<pre>' . $url . '<br>';
+    print_r ($header);
+    print_r ($_SERVER);
+
+    // This can be found within your website profile at MultiSafepay
+    $hash_id = 'ZmQ5NjJmOTM1NTUzMWI3OGU1Mjg0Yzdk';
+
+    $timestamp = microtime_float();
+    $auth = explode('|', base64_decode($header['Auth']));
+
+    $message = $url.$auth[0].$hash_id;
+    $token = hash_hmac('sha512', $message, $api_key);
+         return (array('token'=> $token, 'auth'=> $auth[1] ));
+
+
+    if($token !== $auth[1] and round($timestamp - $auth[0]) > 10)
+    {
+        return (array('This is not a valid Feed command'));
+    }
 
     // no identifier provided
-
     if (!isset($params['identifier']))
-        die(' no identifier provided');
+        return ('no identifier provided');
 
     if ($params['identifier'] == 'products' && isset($params['product_id']) && $params['product_id'] != '')
         return (productById($params['product_id']));
@@ -57,49 +79,16 @@ function feeds($params)
     if ($params['identifier'] == 'shipping')
         return (shipping($params));
 
-    if ($params['identifier'] == 'getInfo')
-//        return (getInfo());
-    if ($params['identifier'] == 'getLog')
-//        return (getLog());
-
-
     return (array('No results available'));
 }
 
 
-function getInfo()
+function microtime_float()
 {
-    global $wpdb;
-
-    $results = array();
-    $tablename = $wpdb->prefix . "options";
-
-    // Get general settings
-    $sql = "SELECT option_name, option_value FROM `" . $tablename . "` WHERE option_name like 'multisafepay%' order by option_name";
-    foreach ($wpdb->get_results($sql) as $key => $values)
-        $results['multisafepay'][$values->option_name] = $values->option_value;
-
-    // Get gatewaye specific settings
-    $sql = "SELECT option_name, option_value FROM `" . $tablename . "` WHERE option_name like 'woocommerce_multisafepay%' order by option_name";
-    foreach ($wpdb->get_results($sql) as $key => $values) {
-        $data = @unserialize($values->option_value);
-        $value = $data ? array ($data) : array ('value'=> $values->option_value);
-        $results[$values->option_name] = $value;
-    }
-    return ($results);
+    list($usec, $sec) = explode(" ", microtime());
+    return ((float)$usec + (float)$sec);
 }
 
-
-function getLog() {
-    $logInfo = 'No logfile available';
-    $file = WP_CONTENT_DIR . '/debug.log';
-    if (file_exists ($file)){
-        $logInfo = file_get_contents($file, null,null, 0, 5120);
-        $logInfo = str_replace ("\n", "<br>", $logInfo);
-        $results['logInfo'] = $logInfo;
-    }
-    return ($results);
-}
 
 
 function productById($product_id = 0)
@@ -180,6 +169,8 @@ function shipping()
 
 function stores()
 {
+    global $wpdb;
+    global $woocommerce;
 
     $store = array( 'allowed_countries'     => WC()->countries->get_countries(),
                     'shipping_countries'    => array(),
@@ -428,4 +419,38 @@ function prettyPrint($json)
 
     return $result;
 }
+
+function get_nginx_headers($function_name='getallheaders'){
+
+        $all_headers=array();
+
+        if(function_exists($function_name)){
+
+            $all_headers=$function_name();
+        }
+        else{
+
+            foreach($_SERVER as $name => $value){
+
+                if(substr($name,0,5)=='HTTP_'){
+
+                    $name=substr($name,5);
+                    $name=str_replace('_',' ',$name);
+                    $name=strtolower($name);
+                    $name=ucwords($name);
+                    $name=str_replace(' ', '-', $name);
+
+                    $all_headers[$name] = $value;
+                }
+                elseif($function_name=='apache_request_headers'){
+
+                    $all_headers[$name] = $value;
+                }
+            }
+        }
+
+
+        return $all_headers;
+}
+
 ?>
