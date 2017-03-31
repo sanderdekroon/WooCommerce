@@ -221,7 +221,7 @@ class MultiSafepay_Gateways
         }
 
 
-        if (!isset ($_GET['transactionid'])) {
+        if (!isset ($_GET['transactionid']) && !isset ($_GET['identifier'])) {
             return;
         }
 

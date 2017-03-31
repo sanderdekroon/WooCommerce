@@ -1,26 +1,44 @@
 <?php
+ini_set('display_errors', 'On');
+error_reporting(E_ALL);
+error_log(date ('Y-m-d H:i:s') . '1.' . "\n", 3, "MultiSafepay_debug.log");
 
-
-//echo '<pre>';
-//echo 'Parameters<br/>-----------------------<br/>';
-//print_r($_GET);
+if (isset ($_GET['test'])){
+    echo '<pre>';
+    echo 'Parameters<br/>-----------------------<br/>';
+    print_r($_GET);
+}
 
 $results = feeds($_GET);
-
+error_log(date ('Y-m-d H:i:s') . '2.' . "\n", 3, "MultiSafepay_debug.log");
 // Reindex array
 $results = reOrderArray($results);
 
+
 // create JSON
 $json = json_encode($results);
-//echo 'JSON<br/>-----------------------<br/>';
-//echo prettyPrint($json);
+$json = utf8_encode($json);
+
+
+if (isset ($_GET['test'])){
+    echo 'JSON<br/>-----------------------<br/>';
+    echo prettyPrint($json);
+    echo '<br/>-----------------------<br/>';
+}
+
+error_log(date ('Y-m-d H:i:s') . 'JSON: '. $json . "\n", 3, "MultiSafepay_debug.log");
+
+if (isset ($_GET['test'])){
+    die($json);
+}
+
 
 
 $json = gzcompress($json);
+error_log(date ('Y-m-d H:i:s') . 'GZCOMPRESS: '. $json . "\n", 3, "MultiSafepay_debug.log");
 
-// die(PHP_EOL.'------------------------------'.PHP_EOL.'Ready with the feed');
-// return ( gzcompress($json) );
 die($json);
+
 
 
 
@@ -28,35 +46,32 @@ die($json);
 function feeds($params)
 {
 
-    //get full url of the call
-    $api_key = 'MjQyM2JmZDZkNWEzODEyYjk4MTg2YjFm';
+    if (!isset ($_GET['test'])){
+        //get full url of the call
+        $api_key = 'MjQyM2JmZDZkNWEzODEyYjk4MTg2YjFm';
 
-    // This should be the full URL including parameters
-    $base_url = ( isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']=='on' ? 'https' : 'http' ) . '://' .  $_SERVER['HTTP_HOST'];
-    $url = $base_url . $_SERVER["REQUEST_URI"];
+        // This should be the full URL including parameters
+        $base_url = ( isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']=='on' ? 'https' : 'http' ) . '://' .  $_SERVER['HTTP_HOST'];
+        $url = $base_url . $_SERVER["REQUEST_URI"];
 
-    $header = get_nginx_headers();
+        $header = get_nginx_headers();
 
-    echo '<pre>' . $url . '<br>';
-    print_r ($header);
-    print_r ($_SERVER);
+        // This can be found within your website profile at MultiSafepay
+        $hash_id = 'ZmQ5NjJmOTM1NTUzMWI3OGU1Mjg0Yzdk';
 
-    // This can be found within your website profile at MultiSafepay
-    $hash_id = 'ZmQ5NjJmOTM1NTUzMWI3OGU1Mjg0Yzdk';
+        $timestamp = microtime_float();
+        $auth = explode('|', base64_decode($header['Auth']));
 
-    $timestamp = microtime_float();
-    $auth = explode('|', base64_decode($header['Auth']));
+        $message = $url.$auth[0].$hash_id;
+        $token = hash_hmac('sha512', $message, $api_key);
 
-    $message = $url.$auth[0].$hash_id;
-    $token = hash_hmac('sha512', $message, $api_key);
-         return (array('token'=> $token, 'auth'=> $auth[1] ));
-
-
-    if($token !== $auth[1] and round($timestamp - $auth[0]) > 10)
-    {
-        return (array('This is not a valid Feed command'));
+        if($token !== $auth[1] and round($timestamp - $auth[0]) > 10)
+        {
+error_log(date ('Y-m-d H:i:s') . 'ERROR.' . "\n", 3, "MultiSafepay_debug.log");
+            return (array('This is not a valid Feed command'));
+        }
     }
-
+error_log(date ('Y-m-d H:i:s') . '4.' . "\n", 3, "MultiSafepay_debug.log");
     // no identifier provided
     if (!isset($params['identifier']))
         return ('no identifier provided');
@@ -90,13 +105,13 @@ function microtime_float()
 }
 
 
-
 function productById($product_id = 0)
 {
     $results = array();
     $product = WC()->product_factory->get_product($product_id);
     if ($product)
         $results = get_product_details($product);
+
 
     return($results);
 }
@@ -174,14 +189,21 @@ function stores()
 
     $store = array( 'allowed_countries'     => WC()->countries->get_countries(),
                     'shipping_countries'    => array(),
-                    'languages'             => array(),
+                    'languages'             => array(get_locale()),
+
                     'stock_updates'         => get_option('woocommerce_manage_stock') == 'yes' ? true : false,
-                    'allowed_currencies'    => get_woocommerce_currency(),
+                    'supported_currencies'  => get_woocommerce_currency(),
+
                     'including_tax'         => get_option('woocommerce_prices_include_tax') == 'yes' ? true : false,
-                    'shipping_tax'          => array(),
+                    'shipping_tax'          => array(   'id'    => '',
+                                                        'name'  => '',
+                                                        'rules' => array(get_locale() => '')),
+
                     'require_shipping'      => wc_shipping_enabled(),
                     'base_url'              => get_home_url(),
+                    'logo'                  => '',
                     'order_push_url'        => get_option('multisafepay_nurl'),
+                    'order_notification'    => '',
                     'coc'                   => '',
                     'email'                 => '',
                     'contact_phone'         => '',
@@ -204,11 +226,8 @@ function stores()
                                                         'saturday'  => true),
                     'social'                => array(   'facebook' => '',
                                                         'twitter' => '',
-                                                        'linkedin' => ''),
-                    'languages'             => array(get_locale()),
-                    'shipping_tax'          => array(   'id'    => '',
-                                                        'name'  => '',
-                                                        'rules' => array(get_locale() => '')));
+                                                        'linkedin' => ''));
+
     return ($store);
 }
 
@@ -328,7 +347,10 @@ function _categories($id = 0)
             # Add the child to the list of children, and get its subchildren
             $children[$result->term_id]['id']       = $result->term_id;
             $children[$result->term_id]['title']    = array(get_locale() => $result->name);
-            $children[$result->term_id]['children'] = _categories($result->term_id);
+
+            $childs = _categories($result->term_id);
+            if (count ($childs) > 0 )
+                $children[$result->term_id]['children'] = $childs;
         }
     }
     return $children;
