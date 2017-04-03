@@ -577,7 +577,7 @@ class MultiSafepay_Gateways
 
         global $woocommerce;
         $msp   = new Client();
-        $helper= new Multisafepay_Helper_Helper();
+        $helper= new MultiSafepay_Helper_Helper();
         $fco   = new MultiSafepay_Gateway_Fastcheckout();
 
         $msp->setApiKey($helper->getApiKey());
