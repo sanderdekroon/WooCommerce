@@ -8,7 +8,7 @@ class MultiSafepay_Gateways
         add_filter('woocommerce_payment_gateways'               , array(__CLASS__, '_getGateways'));
         add_filter('woocommerce_payment_gateways_settings'      , array(__CLASS__, '_addGlobalSettings'),1);
 
-        add_action('init'                                       , array(__CLASS__, 'MultiSafepay_Response'));
+        add_action('wp_loaded'                                  , array(__CLASS__, 'MultiSafepay_Response'));
         add_action('init'                                       , array(__CLASS__, 'addFCO'));
         add_action('woocommerce_api_' . strtolower(get_class()) , array(__CLASS__, 'doFastCheckout'));
 
@@ -258,7 +258,7 @@ class MultiSafepay_Gateways
         }
         
         $msp    = new Client();
-        $helper = new Multisafepay_Helper_Helper();
+        $helper = new MultiSafepay_Helper_Helper();
 
         $msp->setApiKey($helper->getApiKey());
         $msp->setApiUrl($helper->getTestMode());
