@@ -1,54 +1,47 @@
 <?php
-ini_set('display_errors', 'On');
-error_reporting(E_ALL);
-error_log(date ('Y-m-d H:i:s') . '1.' . "\n", 3, "MultiSafepay_debug.log");
 
-if (isset ($_GET['test'])){
-    echo '<pre>';
-    echo 'Parameters<br/>-----------------------<br/>';
-    print_r($_GET);
+define ('DEBUG', false);
+
+if (DEBUG) {
+    ini_set('display_errors', 'On');
+    error_reporting(E_ALL)
+    error_log(date ('Y-m-d H:i:s') . "Parameters: " . print_r ($_GET, true) . "\n", 3, "MultiSafepay_Feed.log");
 }
 
+
 $results = feeds($_GET);
-error_log(date ('Y-m-d H:i:s') . '2.' . "\n", 3, "MultiSafepay_debug.log");
+
 // Reindex array
 $results = reOrderArray($results);
+if (DEBUG)
+    error_log(date ('Y-m-d H:i:s') . "results: " . print_r ($results, true) . "\n", 3, "MultiSafepay_Feed.log");
 
 
 // create JSON
 $json = json_encode($results);
 $json = utf8_encode($json);
+$json = prettyPrint($json);
+if (DEBUG)
+    error_log(date ('Y-m-d H:i:s') . "json: " . $json . "\n", 3, "MultiSafepay_Feed.log");
 
 
 if (isset ($_GET['test'])){
-    echo 'JSON<br/>-----------------------<br/>';
-    echo prettyPrint($json);
-    echo '<br/>-----------------------<br/>';
+    echo '<pre>';
+}else{
+    $json = gzcompress($json);
+    if (DEBUG)
+        error_log(date ('Y-m-d H:i:s') . "json: " . $json .  "\n", 3, "MultiSafepay_Feed.log");
 }
-
-error_log(date ('Y-m-d H:i:s') . 'JSON: '. $json . "\n", 3, "MultiSafepay_debug.log");
-
-if (isset ($_GET['test'])){
-    die($json);
-}
-
-
-
-$json = gzcompress($json);
-error_log(date ('Y-m-d H:i:s') . 'GZCOMPRESS: '. $json . "\n", 3, "MultiSafepay_debug.log");
 
 die($json);
 
 
 
-
-
 function feeds($params)
 {
-
     if (!isset ($_GET['test'])){
         //get full url of the call
-        $api_key = 'MjQyM2JmZDZkNWEzODEyYjk4MTg2YjFm';
+        $api_key = '';
 
         // This should be the full URL including parameters
         $base_url = ( isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']=='on' ? 'https' : 'http' ) . '://' .  $_SERVER['HTTP_HOST'];
@@ -57,7 +50,7 @@ function feeds($params)
         $header = get_nginx_headers();
 
         // This can be found within your website profile at MultiSafepay
-        $hash_id = 'ZmQ5NjJmOTM1NTUzMWI3OGU1Mjg0Yzdk';
+        $hash_id = '';
 
         $timestamp = microtime_float();
         $auth = explode('|', base64_decode($header['Auth']));
@@ -67,11 +60,10 @@ function feeds($params)
 
         if($token !== $auth[1] and round($timestamp - $auth[0]) > 10)
         {
-error_log(date ('Y-m-d H:i:s') . 'ERROR.' . "\n", 3, "MultiSafepay_debug.log");
             return (array('This is not a valid Feed command'));
         }
     }
-error_log(date ('Y-m-d H:i:s') . '4.' . "\n", 3, "MultiSafepay_debug.log");
+
     // no identifier provided
     if (!isset($params['identifier']))
         return ('no identifier provided');
@@ -82,7 +74,7 @@ error_log(date ('Y-m-d H:i:s') . '4.' . "\n", 3, "MultiSafepay_debug.log");
     if ($params['identifier'] == 'products' && isset($params['category_id']) && $params['category_id'] != '')
         return (productByCategory($params['category_id']));
 
-    if ($params['identifier'] == 'category')
+    if ($params['identifier'] == 'categories')
         return (categories($params));
 
     if ($params['identifier'] == 'stock' && isset($params['product_id']) && $params['product_id'] != '')
@@ -160,10 +152,48 @@ function categories()
     return ($results);
 }
 
+function _categories($id = 0)
+{
+    global $wpdb;
+    $sql = "SELECT wp_terms.term_id, wp_terms.name
+				FROM wp_terms
+				LEFT JOIN wp_term_taxonomy ON wp_terms.term_id = wp_term_taxonomy.term_id
+				WHERE wp_term_taxonomy.taxonomy = 'product_cat'
+ 				  AND wp_term_taxonomy.parent =".$id;
+
+    $results  = $wpdb->get_results($sql);
+
+    $children = array();
+
+    if (count($results) > 0) {
+
+        # It has children, let's get them.
+        foreach ($results as $key => $result) {
+            # Add the child to the list of children, and get its subchildren
+            $children[$result->term_id]['id']       = $result->term_id;
+            $children[$result->term_id]['title']    = array(get_locale() => $result->name);
+
+            $childs = _categories($result->term_id);
+            if (count ($childs) > 0 )
+                $children[$result->term_id]['children'] = $childs;
+        }
+    }
+    return $children;
+}
+
+
+
 function shipping()
 {
     $active_methods   = array();
-    $shipping_methods = WC()->shipping->get_shipping_methods();
+
+    // Get shippingmethods based on cart
+    $shipping_methods = WC()->shipping->calculate_shipping(get_shipping_packagesFCO());
+
+    // If no results, get global shipping methods
+    if (count($shipping_methods) === 0)
+        $shipping_methods = WC()->shipping->get_shipping_methods();
+
 
     foreach ($shipping_methods as $id => $shipping_method) {
         if (isset($shipping_method->enabled) && $shipping_method->enabled == 'yes') {
@@ -182,10 +212,31 @@ function shipping()
     return $active_methods;
 }
 
+
+function get_shipping_packagesFCO() {
+    // Packages array for storing 'carts'
+    $packages = array();
+    $packages[0]['contents']                = WC()->cart->cart_contents;            // Items in the package
+    $packages[0]['contents_cost']           = 0;                                    // Cost of items in the package, set below
+    $packages[0]['applied_coupons']         = WC()->session->applied_coupon;
+    $packages[0]['destination']['country']  = WC()->customer->get_shipping_country();
+    $packages[0]['destination']['state']    = WC()->customer->get_shipping_state();
+    $packages[0]['destination']['postcode'] = WC()->customer->get_shipping_postcode();
+    $packages[0]['destination']['city']     = WC()->customer->get_shipping_city();
+    $packages[0]['destination']['address']  = WC()->customer->get_shipping_address();
+    $packages[0]['destination']['address_2']= WC()->customer->get_shipping_address_2();
+
+    foreach (WC()->cart->get_cart() as $item)
+        if ($item['data']->needs_shipping())
+            if (isset($item['line_total']))
+                $packages[0]['contents_cost'] += $item['line_total'];
+
+    return apply_filters('woocommerce_cart_shipping_packages', $packages);
+}
+
+
 function stores()
 {
-    global $wpdb;
-    global $woocommerce;
 
     $store = array( 'allowed_countries'     => WC()->countries->get_countries(),
                     'shipping_countries'    => array(),
@@ -246,18 +297,22 @@ function get_product_details($product)
     $metadata = array();
     $tags     = explode(", ", strip_tags($product->get_tags()));
     foreach ($tags as $tag) {
-        array_push($metadata, array(get_locale() => array(  'title'         => $tag,
-                                                            'keyword'       => $tag,
-                                                            'description'   => $tag)));
+        if ($tag) {
+
+            array_push($metadata, array(get_locale() => array(  'title'         => $tag,
+                                                                'keyword'       => $tag,
+                                                                'description'   => $tag)));
+        }
     }
 
     // get main image
-    $images['product_image_urls'] = array();
+    $images = array();
     $_images                      = wp_get_attachment_image_src(get_post_thumbnail_id($product->get_id()), 'single-post-thumbnail');
     if ($_images) {
         $main_image = reset($_images);
-        array_push($images['product_image_urls'], array('url'   => $main_image,
+        array_push($images, array('url'   => $main_image,
                                                         'main'  => true));
+
     }
 
     // get other images
@@ -265,8 +320,9 @@ function get_product_details($product)
     foreach ($attachment_ids as $attachment_id) {
         $_images = wp_get_attachment_url($attachment_id);
         if ($_images != $main_image)
-            array_push($images['product_image_urls'], array('url'   => $_images,
-                                                            'main'  => false));
+            array_push($images, array('url'   => $_images,
+                                      'main'  => false));
+
     }
 
     // Variens?
@@ -279,82 +335,60 @@ function get_product_details($product)
             $attributes = array();
             foreach ($variation['attributes'] as $key => $attr) {
                 $key                            = str_replace('attribute_pa_', '', $key);
-                $attributes['attributes'][$key] = array(get_locale() => array('label' => $key, 'value' => $attr));
+//                $attributes['attributes'][$key] = array(get_locale() => array('label' => $key, 'value' => $attr));
+                $attributes[$key] = array(get_locale() => array('label' => $key, 'value' => $attr));
             }
 
             $variants[] = array('product_id'        => $variation['variation_id'],
                                 'sku_number'        => $variation['sku'],
-                                'gtin'              => false,
+                                'gtin'              => null,
                                 'unique_identifier' => false,
                                 'product_image_url' => $images,
-                                'stock'             => $variation['max_qty'],
-                                'sale_price'        => $variation['display_regular_price'],
-                                'retail_price'      => $variation['display_regular_price'],
-                                'attributes'        => $attributes);
+                                'stock'             => $variation['max_qty']+0,
+                                'sale_price'        => number_format((double) $variation['display_price'], 2, '.', ''),
+                                'retail_price'      => number_format((double) $variation['display_regular_price'], 2, '.', ''),
+                                'attributes'        => $attributes
+                                );
         }
     }
 
     return ( array( 'product_id'                => $product->get_id(),
-                    'parentproduct_id'          => $product->get_parent(),
                     'product_name'              => $product->get_title(),
                     'brand'                     => null,
                     'sku_number'                => $product->get_sku(),
                     'product_url'               => $product->post->guid,
                     'primary_category'          => array(get_locale() => $primary_category),
                     'secondary_category'        => array(get_locale() => $secondary_category),
-                    'shortproduct_description'  => array(get_locale() => $product->post->post_excerpt),
-                    'longproduct_description'   => array(get_locale() => $product->post->post_content),
-                    'sale_price'                => $product->get_regular_price(),
-                    'retail_price'              => $product->get_regular_price(),
+                    'short_product_description' => array(get_locale() => $product->post->post_excerpt ? $product->post->post_excerpt : $product->get_title()),
+                    'long_product_description'  => array(get_locale() => $product->post->post_content ? $product->post->post_content : $product->get_title()),
+                    'sale_price'                => number_format ((double) $product->get_sale_price(), 2, '.', ''),
+                    'retail_price'              => number_format ((double) $product->get_regular_price(), 2, '.', ''),
                     'tax'                       => array(   'id'    => $tax_id,
                                                             'name'  => $rates['label'],
                                                             'rules' => array($location[0] => $rates['rate'])),
-                    'gtin'                      => '',
-                    'mpn'                       => '',
+                    'gtin'                      => null,
+                    'mpn'                       => null,
                     'unique_identifier'         => false,
-                    'stock'                     => $product->get_stock_quantity(),
-                    'options'                   => '',
-                    'attributes'                => '',
+                    'stock'                     => (int)$product->get_stock_quantity(),
+                    'options'                   => null,
+                    'attributes'                => array(),
                     'metadata'                  => $metadata,
                     'created'                   => $product->post->post_date,
                     'updated'                   => $product->post->post_modified,
                     'downloadable'              => $product->is_downloadable(),
-                    'package_dimensions'        => $product->get_length().'x'.$product->get_width().'x'.$product->get_height(),
+                    'package_dimensions'        => (int)$product->get_length().'x'.(int)$product->get_width().'x'.(int)$product->get_height(),
                     'dimension_unit'            => get_option('woocommerce_dimension_unit'),
-                    'weight'                    => $product->get_weight(),
+                    'weight'                    => number_format ((double) $product->get_weight(), 5, '.', ''),
                     'weight_unit'               => get_option('woocommerce_weight_unit'),
                     'product_image_urls'        => $images,
                     'variants'                  => $variants ));
 
 }
 
-function _categories($id = 0)
-{
-    global $wpdb;
-    $sql = "SELECT wp_terms.term_id, wp_terms.name
-				FROM wp_terms
-				LEFT JOIN wp_term_taxonomy ON wp_terms.term_id = wp_term_taxonomy.term_id
-				WHERE wp_term_taxonomy.taxonomy = 'product_cat'
- 				  AND wp_term_taxonomy.parent =".$id;
 
-    $results  = $wpdb->get_results($sql);
-    $children = array();
 
-    if (count($results) > 0) {
 
-        # It has children, let's get them.
-        foreach ($results as $key => $result) {
-            # Add the child to the list of children, and get its subchildren
-            $children[$result->term_id]['id']       = $result->term_id;
-            $children[$result->term_id]['title']    = array(get_locale() => $result->name);
 
-            $childs = _categories($result->term_id);
-            if (count ($childs) > 0 )
-                $children[$result->term_id]['children'] = $childs;
-        }
-    }
-    return $children;
-}
 
 function reOrderArray($array)
 {
