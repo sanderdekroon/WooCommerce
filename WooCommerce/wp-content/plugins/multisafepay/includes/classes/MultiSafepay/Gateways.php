@@ -216,9 +216,9 @@ class MultiSafepay_Gateways
 
     public static function Multisafepay_Response() {
 
-        if ($_SERVER['REMOTE_ADDR'] == '89.20.162.110'){
-            error_log(date ('Y-m-d H:i:s') . '   '. __FUNCTION__ . " request received: " . $_SERVER['REQUEST_URI'] . "\n", 3, "MultiSafepay_debug.log");
-        }
+
+
+
 
 
         if (!isset ($_GET['transactionid']) && !isset ($_GET['identifier'])) {
@@ -256,7 +256,7 @@ class MultiSafepay_Gateways
         if (!$transactionid){
             return;
         }
-        
+
         $msp    = new Client();
         $helper = new MultiSafepay_Helper_Helper();
 
@@ -441,6 +441,7 @@ class MultiSafepay_Gateways
             }
         }
 
+
         switch ($status) {
             case 'cancelled':
                 $order->cancel_order();
@@ -463,11 +464,11 @@ class MultiSafepay_Gateways
                 if ($order->get_total() != $amount) {
                     if ($order->status != 'processing') {
                         $order->update_status('wc-on-hold', sprintf(__('Validation error: Multisafepay amounts do not match (gross %s).', 'multisafepay'), $amount));
-//                        if ($redirect) {
-//                            $return_url = $order->get_checkout_order_received_url();
-//                            wp_redirect($return_url);
-//                            exit;
-//                        }
+
+
+
+
+
                     }
                 }
 
@@ -490,7 +491,11 @@ class MultiSafepay_Gateways
                 }
                 $updated = true;
                 break;
-            case 'uncleared' :
+            case 'uncleared':
+
+                if ($order->status == 'on-hold')
+                    break;
+
                 $order->update_status('wc-on-hold');
                 $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                 $updated = true;
@@ -498,6 +503,9 @@ class MultiSafepay_Gateways
             case 'reserved':
             case 'declined':
             case 'expired':
+                if ($order->status == 'failed')
+                    break;
+
                 $order->update_status('wc-failed', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
                 $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                 $updated = true;
