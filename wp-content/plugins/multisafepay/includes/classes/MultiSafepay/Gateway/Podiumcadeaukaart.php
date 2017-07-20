@@ -41,6 +41,9 @@ class MultiSafepay_Gateway_Podiumcadeaukaart extends MultiSafepay_Gateway_Abstra
     public static function getTitle()
     {
         $settings = self::getSettings();
+        if (!isset ($settings['title']))
+            $settings['title'] = '';
+
         return ($settings['title']);
     }
 

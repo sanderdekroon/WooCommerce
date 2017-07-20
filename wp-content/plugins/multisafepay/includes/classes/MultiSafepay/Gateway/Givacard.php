@@ -41,6 +41,9 @@ class MultiSafepay_Gateway_Givacard extends MultiSafepay_Gateway_Abstract
     public static function getTitle()
     {
         $settings = self::getSettings();
+        if (!isset ($settings['title']))
+            $settings['title'] = '';
+
         return ($settings['title']);
     }
 
