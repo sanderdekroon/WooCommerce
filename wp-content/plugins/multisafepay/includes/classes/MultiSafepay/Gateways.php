@@ -236,11 +236,6 @@ class MultiSafepay_Gateways
     public static function Multisafepay_Response()
     {
 
-
-
-
-
-
         if (!isset($_GET['transactionid']) && !isset($_GET['identifier'])) {
             return;
         }
@@ -277,6 +272,11 @@ class MultiSafepay_Gateways
             return;
         }
 
+        // If no timestamp don't continue
+        if (!isset ($_GET['timestamp'])) {
+            return;
+        }
+        
         $msp = new Client();
         $helper = new MultiSafepay_Helper_Helper();
 
