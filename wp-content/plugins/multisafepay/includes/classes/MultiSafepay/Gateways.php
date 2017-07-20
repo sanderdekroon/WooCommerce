@@ -62,9 +62,10 @@ class MultiSafepay_Gateways
     public static function _getGateways($arrDefault)
     {
         $paymentOptions = array(
-            'MultiSafepay_Gateway_Amex'
+              'MultiSafepay_Gateway_Amex'
             , 'MultiSafepay_Gateway_Bancontact'
             , 'MultiSafepay_Gateway_Banktrans'
+          , 'MultiSafepay_Gateway_Belfius'
             , 'MultiSafepay_Gateway_Creditcard'
             , 'MultiSafepay_Gateway_Dirdeb'
             , 'MultiSafepay_Gateway_Dotpay'
@@ -73,6 +74,8 @@ class MultiSafepay_Gateways
             , 'MultiSafepay_Gateway_Ferbuy'
             , 'MultiSafepay_Gateway_Giropay'
             , 'MultiSafepay_Gateway_Ideal'
+          , 'MultiSafepay_Gateway_Ing'
+          , 'MultiSafepay_Gateway_Kbc'
             , 'MultiSafepay_Gateway_Klarna'
             , 'MultiSafepay_Gateway_Maestro'
             , 'MultiSafepay_Gateway_Mastercard'
