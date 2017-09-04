@@ -23,6 +23,12 @@
 class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
 {
 
+    public function __construct()
+    {
+        add_action('woocommerce_order_status_completed', array($this, 'setToShipped'), 13);
+        parent::__construct();
+    }
+
     public static function getCode()
     {
         return "multisafepay_klarna";
