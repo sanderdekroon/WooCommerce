@@ -550,7 +550,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
 
     public function setGoogleAnalytics()
     {
-        return ( array("account" => "UA-XXXXXXXXX"));
+        return ( array("account" => get_option('multisafepay_ga')));
     }
 
     public function setPlugin()

@@ -199,6 +199,14 @@ class MultiSafepay_Gateways
         );
 
         $addedSettings[] = array(
+            'name' => __('Analytics', 'multisafepay'),
+            'desc' => __('Google Analytics', 'multisafepay'),
+            'type' => 'text',
+            'desc_tip' => __('Your Google Analytics tracking code', 'multisafepay'),
+            'id' => 'multisafepay_ga',
+        );
+
+        $addedSettings[] = array(
             'name' => __('Debug', 'multisafepay'),
             'desc' => __('Activate debug mode', 'multisafepay'),
             'type' => 'checkbox',
