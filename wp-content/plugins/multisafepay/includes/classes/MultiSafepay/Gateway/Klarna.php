@@ -193,7 +193,7 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
             return new WP_Error('multisafepay', 'Can\'t receive transaction data to update correct information at MultiSafepay:' . $msp->error_code . ' - ' . $msp->error);
         }
 
-        $ext_trns_id = $transactie->payment_details->externaltransactionid;
+        $ext_trns_id = $transactie->payment_details->external_transaction_id;
 
         $endpoint = 'orders/' . $order_id;
         $setShipping = array("tracktrace_code" => null,
