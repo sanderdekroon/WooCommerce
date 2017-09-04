@@ -484,12 +484,12 @@ class MultiSafepay_Gateways
                 }
             case 'completed':
                 if ($order->get_total() != $amount) {
-                    if ($orderStatus != 'processing') {
+                    if ($order->status != 'processing') {
                         $order->update_status('wc-on-hold', sprintf(__('Validation error: Multisafepay amounts do not match (gross %s).', 'multisafepay'), $amount));
                     }
                 }
 
-                if ($orderStatus != 'processing' && $orderStatus != 'completed' && $orderStatus != 'wc-completed') {
+                if ($order->status != 'processing' && $order->status != 'completed' && $order->status != 'wc-completed') {
                     $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                     $order->payment_complete();
                     $woocommerce->cart->empty_cart();
@@ -510,7 +510,7 @@ class MultiSafepay_Gateways
                 break;
             case 'uncleared':
 
-                if ($orderStatus == 'on-hold')
+                if ($order->status == 'on-hold')
                     break;
 
                 $order->update_status('wc-on-hold');
@@ -520,7 +520,7 @@ class MultiSafepay_Gateways
             case 'reserved':
             case 'declined':
             case 'expired':
-                if ($orderStatus == 'failed')
+                if ($order->status == 'failed')
                     break;
 
                 $order->update_status('wc-failed', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
