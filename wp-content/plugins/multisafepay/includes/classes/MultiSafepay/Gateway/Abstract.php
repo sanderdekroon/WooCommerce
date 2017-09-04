@@ -371,7 +371,11 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
         foreach ($order->get_items('coupon') as $coupon) {
 
             $tax_table_selector = $coupon['type'];
-            $tax_percentage     = round($coupon['discount_amount_tax'] / $coupon['discount_amount'], 2);
+            if ( $coupon['discount_amount'] > 0 ){
+                $tax_percentage     = round($coupon['discount_amount_tax'] / $coupon['discount_amount'], 2);
+            }else{
+                $tax_percentage = 0;
+            }
 
             $shopping_cart['items'][] = array(
                 'name'              => $coupon['type'],
@@ -397,7 +401,12 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
 
             $items .= "<li>".$item['qty'].' x : '.$item['name']."</li>\n";
 
-            $tax_percentage = round($item['line_subtotal_tax'] / $item['line_subtotal'], 2);
+            if ( $item['line_subtotal'] > 0 ){
+                $tax_percentage = round($item['line_subtotal_tax'] / $item['line_subtotal'], 2);
+            }else{
+                $tax_percentage = 0;
+            }
+
             $product_price  = round($item['line_subtotal'] / $item['qty'], 5);
 
             if ($item['line_subtotal_tax'] > 0) {
