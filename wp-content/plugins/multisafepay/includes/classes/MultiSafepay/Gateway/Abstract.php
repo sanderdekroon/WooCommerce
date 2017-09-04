@@ -332,8 +332,9 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
         // Shipping
         foreach ($order->get_items('shipping') as $shipping) {
 
-            $taxes = unserialize($shipping['taxes']);
+            $taxes = $shipping['taxes']['total'];
             $taxes = array_shift($taxes);
+
             $cost  = $shipping['cost'];
 
             $tax_table_selector = 'shipping';
