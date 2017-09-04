@@ -28,7 +28,7 @@ class ObjectOrders extends ObjectCore
 
     public function patch($body, $endpoint = '')
     {
-        $result = parent::post(json_encode($body), $endpoint);
+        $result = parent::patch(json_encode($body), $endpoint);
         $this->success = $result->success;
         $this->data = $result->data;
         return $result;
