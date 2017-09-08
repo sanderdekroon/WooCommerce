@@ -207,6 +207,8 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
         // Compatiblity Woocommerce 2.x and 3.x
         $orderID     = (method_exists($order,'get_id'))     ? $order->get_id()      : $order->id;
 
+        list ($this->shopping_cart, $this->checkout_options) = $this->getCart($order_id);
+
         $my_order = array(
             "type"                  => $this->getType(),
             "order_id"              => $order->get_order_number(),

@@ -157,7 +157,6 @@ class MultiSafepay_Gateway_Payafter extends MultiSafepay_Gateway_Abstract
     {
         $this->type = $this->getType();
         $this->GatewayInfo = $this->getGatewayInfo($order_id);
-        list ($this->shopping_cart, $this->checkout_options) = $this->getCart($order_id);
 
         return parent::process_payment($order_id);
     }
