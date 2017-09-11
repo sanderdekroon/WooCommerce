@@ -65,7 +65,7 @@ class MultiSafepay_Gateways
               'MultiSafepay_Gateway_Amex'
             , 'MultiSafepay_Gateway_Bancontact'
             , 'MultiSafepay_Gateway_Banktrans'
-          , 'MultiSafepay_Gateway_Belfius'
+            , 'MultiSafepay_Gateway_Belfius'
             , 'MultiSafepay_Gateway_Creditcard'
             , 'MultiSafepay_Gateway_Dirdeb'
             , 'MultiSafepay_Gateway_Dotpay'
@@ -74,8 +74,8 @@ class MultiSafepay_Gateways
             , 'MultiSafepay_Gateway_Ferbuy'
             , 'MultiSafepay_Gateway_Giropay'
             , 'MultiSafepay_Gateway_Ideal'
-          , 'MultiSafepay_Gateway_Ing'
-          , 'MultiSafepay_Gateway_Kbc'
+            , 'MultiSafepay_Gateway_Ing'
+            , 'MultiSafepay_Gateway_Kbc'
             , 'MultiSafepay_Gateway_Klarna'
             , 'MultiSafepay_Gateway_Maestro'
             , 'MultiSafepay_Gateway_Mastercard'
@@ -126,108 +126,107 @@ class MultiSafepay_Gateways
         $addedSettings = array();
 
         $addedSettings[] = array(
-            'title' => __('MultiSafepay settings', 'multisafepay'),
-            'type' => 'title',
-            'desc' => '<p>' . __('The following options are needed to make use of the MultiSafepay plug-in', 'multisafepay') . '</p>',
-            'id' => 'multisafepay_general_settings'
+            'title'     => __('MultiSafepay settings', 'multisafepay'),
+            'type'      => 'title',
+            'desc'      => '<p>' . __('The following options are needed to make use of the MultiSafepay plug-in', 'multisafepay') . '</p>',
+            'id'        => 'multisafepay_general_settings'
         );
         $addedSettings[] = array(
-            'name' => __('API key', 'multisafepay'),
-            'type' => 'text',
-            'desc_tip' => __('Copy the API-Key from your MultiSafepay account', 'multisafepay'),
-            'id' => 'multisafepay_api_key',
-            'css' => 'min-width:350px;',
+            'name'      => __('API key', 'multisafepay'),
+            'type'      => 'text',
+            'desc_tip'  => __('Copy the API-Key from your MultiSafepay account', 'multisafepay'),
+            'id'        => 'multisafepay_api_key',
+            'css'       => 'min-width:350px;',
         );
         $addedSettings[] = array(
-            'name' => __('Test Mode', 'multisafepay'),
-            'desc' => sprintf(__('Activate %s', 'multisafepay'), __('Test Mode', 'multisafepay')),
-            'type' => 'checkbox',
-            'default' => 'yes',
-            'desc_tip' => __('Only enable if the API-Key is from a MultiSafepay Test-account.', 'multisafepay'),
-            'id' => 'multisafepay_testmode'
-        );
-
-        $addedSettings[] = array(
-            'name' => __('FastCheckout', 'multisafepay'),
-            'desc' => sprintf(__('Activate %s', 'multisafepay'), __('FastCheckout', 'multisafepay')),
-            'type' => 'checkbox',
-            'default' => 'no',
-            'desc_tip' => sprintf(__('When enabled %s will be available during checkout.', 'multisafepay'), __('FastCheckout', 'multisafepay')),
-            'id' => 'multisafepay_fco_enabled'
+            'name'      => __('Test Mode', 'multisafepay'),
+            'desc'      => sprintf(__('Activate %s', 'multisafepay'), __('Test Mode', 'multisafepay')),
+            'type'      => 'checkbox',
+            'default'   => 'yes',
+            'desc_tip'  => __('Only enable if the API-Key is from a MultiSafepay Test-account.', 'multisafepay'),
+            'id'        => 'multisafepay_testmode'
         );
 
         $addedSettings[] = array(
-            'name' => __('GiftCards', 'multisafepay'),
-            'desc' => sprintf(__('Activate %s', 'multisafepay'), __('GiftCards', 'multisafepay')),
-            'type' => 'checkbox',
-            'default' => 'no',
-            'desc_tip' => sprintf(__('When enabled %s will be available during checkout.', 'multisafepay'), __('GiftCards', 'multisafepay')),
-            'id' => 'multisafepay_giftcards_enabled'
+            'name'      => __('FastCheckout', 'multisafepay'),
+            'desc'      => sprintf(__('Activate %s', 'multisafepay'), __('FastCheckout', 'multisafepay')),
+            'type'      => 'checkbox',
+            'default'   => 'no',
+            'desc_tip'  => sprintf(__('When enabled %s will be available during checkout.', 'multisafepay'), __('FastCheckout', 'multisafepay')),
+            'id'        => 'multisafepay_fco_enabled'
         );
 
         $addedSettings[] = array(
-            'name' => __('Expire order', 'multisafepay'),
-            'type' => 'number',
-            'default' => 30,
-            'desc_tip' => __('Time before unfinished order is set to expired', 'multisafepay'),
-            'id' => 'multisafepay_time_active',
-            'css' => 'max-width:80px;',
-        );
-        $addedSettings[] = array(
-            'type' => 'select',
-            'options' => array('days' => __('days', 'multisafepay'),
-                'hours' => __('hours', 'multisafepay'),
-                'seconds' => __('seconds', 'multisafepay')),
-            'id' => 'multisafepay_time_unit',
-        );
-        $addedSettings[] = array(
-            'name' => __('Images', 'multisafepay'),
-            'desc' => __('Show gateway images', 'multisafepay'),
-            'type' => 'checkbox',
-            'default' => 'yes',
-            'id' => 'multisafepay_show_images',
-            'desc_tip' => sprintf(__('%s during checkout.', 'multisafepay'), __('Show gateway images', 'multisafepay'))
+            'name'      => __('GiftCards', 'multisafepay'),
+            'desc'      => sprintf(__('Activate %s', 'multisafepay'), __('GiftCards', 'multisafepay')),
+            'type'      => 'checkbox',
+            'default'   => 'no',
+            'desc_tip'  => sprintf(__('When enabled %s will be available during checkout.', 'multisafepay'), __('GiftCards', 'multisafepay')),
+            'id'        => 'multisafepay_giftcards_enabled'
         );
 
         $addedSettings[] = array(
-            'name' => __('Invoice', 'multisafepay'),
-            'desc' => __('Send Invoice', 'multisafepay'),
-            'type' => 'checkbox',
-            'default' => 'yes',
-            'desc_tip' => __('When enabled an invoice is send after a transaction is completed', 'multisafepay'),
-            'id' => 'multisafepay_send_invoice',
+            'name'      => __('Expire order', 'multisafepay'),
+            'type'      => 'number',
+            'default'   => 30,
+            'desc_tip'  => __('Time before unfinished order is set to expired', 'multisafepay'),
+            'id'        => 'multisafepay_time_active',
+            'css'       => 'max-width:80px;',
+        );
+        $addedSettings[] = array(
+            'type'      => 'select',
+            'options'   => array(   'days'      => __('days', 'multisafepay'),
+                                    'hours'     => __('hours', 'multisafepay'),
+                                    'seconds'   => __('seconds', 'multisafepay')),
+            'id'        => 'multisafepay_time_unit',
+        );
+        $addedSettings[] = array(
+            'name'      => __('Images', 'multisafepay'),
+            'desc'      => __('Show gateway images', 'multisafepay'),
+            'type'      => 'checkbox',
+            'default'   => 'yes',
+            'id'        => 'multisafepay_show_images',
+            'desc_tip'  => sprintf(__('%s during checkout.', 'multisafepay'), __('Show gateway images', 'multisafepay'))
         );
 
         $addedSettings[] = array(
-            'name' => __('Analytics', 'multisafepay'),
-            'desc' => __('Google Analytics', 'multisafepay'),
-            'type' => 'text',
-            'desc_tip' => __('Your Google Analytics tracking code', 'multisafepay'),
-            'id' => 'multisafepay_ga',
+            'name'      => __('Invoice', 'multisafepay'),
+            'desc'      => __('Send Invoice', 'multisafepay'),
+            'type'      => 'checkbox',
+            'default'   => 'yes',
+            'desc_tip'  => __('When enabled an invoice is send after a transaction is completed', 'multisafepay'),
+            'id'        => 'multisafepay_send_invoice',
         );
 
         $addedSettings[] = array(
-            'name' => __('Debug', 'multisafepay'),
-            'desc' => __('Activate debug mode', 'multisafepay'),
-            'type' => 'checkbox',
-            'default' => 'no',
-            'desc_tip' => __('When enabled (and wordpress debug is enabled it will log transactions)', 'multisafepay'),
-            'id' => 'multisafepay_debugmode',
-        );
-        $addedSettings[] = array(
-            'name' => __('Notification-URL', 'multisafepay'),
-            'type' => 'text',
-            'default' => sprintf('%s/?page=multisafepaynotify', site_url()),
-            'desc' => __('Copy&Paste this URL to your website configuration Notification-URL at your Multisafepay dashboard.', 'multisafepay'),
-            'id' => 'multisafepay_nurl',
-            'desc_tip' => true,
-            'css' => 'min-width:800px;',
+            'name'      => __('Analytics', 'multisafepay'),
+            'desc'      => __('Google Analytics', 'multisafepay'),
+            'type'      => 'text',
+            'desc_tip'  => __('Your Google Analytics tracking code', 'multisafepay'),
+            'id'        => 'multisafepay_ga',
         );
 
+        $addedSettings[] = array(
+            'name'      => __('Debug', 'multisafepay'),
+            'desc'      => __('Activate debug mode', 'multisafepay'),
+            'type'      => 'checkbox',
+            'default'   => 'no',
+            'desc_tip'  => __('When enabled (and wordpress debug is enabled it will log transactions)', 'multisafepay'),
+            'id'        => 'multisafepay_debugmode',
+        );
+        $addedSettings[] = array(
+            'name'      => __('Notification-URL', 'multisafepay'),
+            'type'      => 'text',
+            'default'   => sprintf('%s/?page=multisafepaynotify', site_url()),
+            'desc'      => __('Copy&Paste this URL to your website configuration Notification-URL at your Multisafepay dashboard.', 'multisafepay'),
+            'id'        => 'multisafepay_nurl',
+            'desc_tip'  => true,
+            'css'       => 'min-width:800px;',
+        );
 
         $addedSettings[] = array(
-            'type' => 'sectionend',
-            'id' => 'multisafepay_general_settings',
+            'type'      => 'sectionend',
+            'id'        => 'multisafepay_general_settings',
         );
         foreach ($settings as $setting) {
             if (isset($setting['id']) && $setting['id'] == 'payment_gateways_options' && $setting['type'] != 'sectionend') {
@@ -308,6 +307,8 @@ class MultiSafepay_Gateways
         $status = $transactie->status;
         $amount = $transactie->amount / 100;
         $gateway = $transactie->payment_details->type;
+
+        $realGateway = $this->getRealGateway($gateway);
 
         $tablename = $wpdb->prefix . 'woocommerce_multisafepay';
         $sql = $wpdb->prepare("SELECT orderid FROM {$tablename} WHERE trixid = %s", $transactionid);
@@ -499,6 +500,11 @@ class MultiSafepay_Gateways
 
                 if ($order->status != 'processing' && $order->status != 'completed' && $order->status != 'wc-completed') {
                     $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
+
+                    if ($realGateway){
+                        update_post_meta( $order->id, '_payment_method_title', $realGateway );
+                    }
+
                     $order->payment_complete();
                     $woocommerce->cart->empty_cart();
                 } else {
@@ -573,6 +579,25 @@ class MultiSafepay_Gateways
 
         exit('OK');
     }
+
+
+    private function getRealGateway($gateway)
+    {
+        global $wpdb;
+
+        $results = $wpdb->get_results("SELECT option_name, option_valuee
+                             FROM   `wp_options`
+                             WHERE  `option_name` like 'woocommerce_multisafepay_%'");
+
+        foreach( $results as $key => $row) {
+
+            if ($gateway == $row->gateway){
+                return $row->title;
+            }
+        }
+        return false;
+    }
+
 
     public static function addFCO()
     {

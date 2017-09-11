@@ -184,6 +184,12 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
             'type'          => 'textarea',
             'default'       => sprintf(__('Pay with %s', 'multisafepay'), $this->getName()),
         );
+
+        $this->form_fields['gateway'] = array(
+            'type'          => 'hidden',
+            'default'       => $this->getGatewayCode(),
+        );
+        
         $this->form_fields  = array_merge($this->form_fields, $form_fields);
 
         parent::init_settings();
