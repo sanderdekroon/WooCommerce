@@ -286,7 +286,7 @@ class MultiSafepay_Gateways
         if (!isset ($_GET['timestamp'])) {
             return;
         }
-        
+
         $msp = new Client();
         $helper = new MultiSafepay_Helper_Helper();
 
@@ -308,7 +308,15 @@ class MultiSafepay_Gateways
         $amount = $transactie->amount / 100;
         $gateway = $transactie->payment_details->type;
 
-        $realGateway = $this->getRealGateway($gateway);
+        $tablename = $wpdb->prefix . 'wp_options';
+        $results = $wpdb->get_results("SELECT option_name, option_value FROM {$tablename} WHERE `option_name` like 'woocommerce_multisafepay_%'");
+        $realGateway = false;
+        foreach( $results as $key => $row) {
+            if ($gateway == $row->gateway){
+                $realGateway = $row->title;
+            }
+        }
+
 
         $tablename = $wpdb->prefix . 'woocommerce_multisafepay';
         $sql = $wpdb->prepare("SELECT orderid FROM {$tablename} WHERE trixid = %s", $transactionid);
@@ -581,22 +589,7 @@ class MultiSafepay_Gateways
     }
 
 
-    private function getRealGateway($gateway)
-    {
-        global $wpdb;
 
-        $results = $wpdb->get_results("SELECT option_name, option_valuee
-                             FROM   `wp_options`
-                             WHERE  `option_name` like 'woocommerce_multisafepay_%'");
-
-        foreach( $results as $key => $row) {
-
-            if ($gateway == $row->gateway){
-                return $row->title;
-            }
-        }
-        return false;
-    }
 
 
     public static function addFCO()
