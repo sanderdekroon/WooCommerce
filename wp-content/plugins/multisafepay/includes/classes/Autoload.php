@@ -20,6 +20,7 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
 class MultiSafepay_Autoload
 {
 
@@ -28,20 +29,26 @@ class MultiSafepay_Autoload
         spl_autoload_register(array('self', 'spl_autoload_register'));
     }
 
-    public static function spl_autoload_register($class_name) {
-        $class_path = dirname(__FILE__) . '/' . str_replace('_', '/', $class_name) . '.php';
-        if (file_exists($class_path)) {
-            require_once $class_path;
+    public static function spl_autoload_register($class_name)
+    {
+
+        $file_name = dirname(__FILE__) . '/' . str_replace('_', '/', $class_name) . '.php';
+
+        if (file_exists($file_name)) {
+            require_once $file_name;
         }else{
 
-            $name = str_replace("Object", "Object/", $class_name);
-            $file_name = realpath(dirname(__FILE__) . "/{$name}.php");
-
+            $file_name = 'MultiSafepay/api/'. $class_name;
             if (file_exists($file_name)) {
                 require_once $file_name;
             }
+            else{
+                $name = str_replace("Object", "Object/", $file_name);
+                $file_name = realpath(dirname(__FILE__) . "/{$name}.php");
+                if (file_exists($file_name)) {
+                    require_once $file_name;
+                }
+            }
         }
     }
-
-
 }
