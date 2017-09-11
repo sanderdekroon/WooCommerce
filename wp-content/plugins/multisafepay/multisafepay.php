@@ -22,20 +22,15 @@
  */
 
 
-//Autoloader laden en registreren
-require_once dirname(__FILE__) . '/includes/classes/Autoload.php';
-require_once dirname(__FILE__) . '/includes/classes/MultiSafepay/api/Autoload.php';
-
-
-//plugin functies inladen
+// Load plugin functions
 require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
-//textdomain inladen
+// Load textdomain
 load_plugin_textdomain('multisafepay', false, plugin_basename(dirname(__FILE__)) . "/languages");
 
 function error_woocommerce_not_active()
 {
-    echo '<div class="error"><p>' . __('To use the Multisafepay plugin it is required that woocommerce is active', 'multisafepay') . '</p></div>';
+    echo '<div class="error"><p>' . __('To use the Multisafepay plug-in it is required that Woocommerce is active', 'multisafepay') . '</p></div>';
 }
 
 function error_curl_not_installed()
@@ -52,13 +47,11 @@ if (!function_exists('curl_version')) {
 
 if (is_plugin_active('woocommerce/woocommerce.php') || is_plugin_active_for_network('woocommerce/woocommerce.php')) {
 
-    //Autoloader registreren
-    MultiSafepay_Autoload::register();
-    API_Autoload::register();
+    //Autoloader laden en registreren
+    require_once dirname(__FILE__) . '/includes/classes/Autoload.php';
 
-    //MultiSafepay gateways aan woocommerce koppelen
+    MultiSafepay_Autoload::register();
     MultiSafepay_Gateways::register();
 } else {
-    // Woocommerce is niet actief. foutmelding weergeven
     add_action('admin_notices', error_woocommerce_not_active);
 }
