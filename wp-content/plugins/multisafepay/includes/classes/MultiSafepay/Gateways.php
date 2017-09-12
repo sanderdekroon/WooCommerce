@@ -308,17 +308,21 @@ class MultiSafepay_Gateways
         $amount = $transactie->amount / 100;
         $gateway = $transactie->payment_details->type;
 
-        $tablename = $wpdb->prefix . 'wp_options';
+        $realGatewayDescr = false;
+        $tablename = $wpdb->prefix . 'options';
         $results = $wpdb->get_results("SELECT option_name, option_value FROM {$tablename} WHERE `option_name` like 'woocommerce_multisafepay_%'");
-        $realGateway = false;
-        foreach( $results as $key => $row) {
-            if ($gateway == $row->gateway){
-                $realGateway = $row->title;
+
+        foreach( $results as $result) {
+
+            $options = get_option( $result->option_name, array() );
+
+            if ( isset ($options['gateway'])  && ( $gateway  == $options['gateway']) ){
+                $realGatewayDescr = $options['title'];
             }
         }
 
-
         $tablename = $wpdb->prefix . 'woocommerce_multisafepay';
+
         $sql = $wpdb->prepare("SELECT orderid FROM {$tablename} WHERE trixid = %s", $transactionid);
         $orderid = $wpdb->get_var($sql);
 
@@ -481,6 +485,7 @@ class MultiSafepay_Gateways
         }
 
 
+
         switch ($status) {
             case 'cancelled':
                 $order->cancel_order();
@@ -509,8 +514,8 @@ class MultiSafepay_Gateways
                 if ($order->status != 'processing' && $order->status != 'completed' && $order->status != 'wc-completed') {
                     $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
 
-                    if ($realGateway){
-                        update_post_meta( $order->id, '_payment_method_title', $realGateway );
+                    if ($realGatewayDescr){
+                        update_post_meta( $order->id, '_payment_method_title', $realGatewayDescr );
                     }
 
                     $order->payment_complete();
