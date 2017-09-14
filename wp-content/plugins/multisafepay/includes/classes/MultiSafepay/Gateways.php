@@ -27,17 +27,15 @@ class MultiSafepay_Gateways
     {
         add_option('multisafepay_version', '3.0.2', '', 'yes');
 
-        add_filter('woocommerce_payment_gateways',          array(__CLASS__, '_getGateways'));
-        add_filter('woocommerce_payment_gateways_settings', array(__CLASS__, '_addGlobalSettings'), 1);
+        add_filter('woocommerce_payment_gateways',              array(__CLASS__, '_getGateways'));
+        add_filter('woocommerce_payment_gateways_settings',     array(__CLASS__, '_addGlobalSettings'), 1);
 
-        add_action('wp_loaded',         array(__CLASS__, 'MultiSafepay_Response'));
-        add_action('init',              array(__CLASS__, 'addFCO'));
-        add_action('woocommerce_api_' . strtolower(get_class()), array(__CLASS__, 'doFastCheckout'));
+        add_action('wp_loaded',                                 array(__CLASS__, 'MultiSafepay_Response'));
+        add_action('init',                                      array(__CLASS__, 'addFCO'));
+        add_action('woocommerce_api_' . strtolower(get_class()),array(__CLASS__, 'doFastCheckout'));
 
-        add_action('template_redirect',                   array(__CLASS__, 'custom_process_order'), 10, 1);
-        add_action('woocommerce_order_status_completed',  array(__CLASS__, 'custom_process_order'), 10, 1);
-
-
+        add_action('template_redirect',                         array(__CLASS__, 'getRealPaymentMethod'), 10, 1);
+        add_action('woocommerce_order_status_completed',        array(__CLASS__, 'getRealPaymentMethod'), 10, 1);
 
         global $wpdb;
         $wpdb->hide_errors();
@@ -65,19 +63,15 @@ class MultiSafepay_Gateways
     }
 
 
-   public function custom_process_order() { 
+   public function getRealPaymentMethod() {
         global $wpdb;
 
         $transactionid  = filter_input(INPUT_GET, 'transactionid',  FILTER_SANITIZE_STRING);
         
-        error_log('transactionid-' .  print_r ($transactionid, true) . "\n", 3, "MultiSafepay.log");
-
-        if ( !isset($transactionid ))
-        {
+        if ( !isset($transactionid )) {
             return;
         }
 
-        
         // Get real payment method
         //
         $msp    = new Client();
@@ -109,7 +103,7 @@ class MultiSafepay_Gateways
         {
             $options = get_option( $result->option_name, array());
 
-            if ( isset ($options['gateway'])  && ( $gateway  == $options['gateway']) )
+            if ( isset ($options['gateway'])  && ( $gateway == $options['gateway']) )
             {
                 preg_match('/woocommerce_(.*)_settings/', $result->option_name, $matches);
                 $payment_method         = $matches[1];
@@ -327,7 +321,7 @@ class MultiSafepay_Gateways
             return;
         }
 
-        global $wpdb, $wp_version, $woocommerce;
+        global $wpdb, $woocommerce;
         $helper = new MultiSafepay_Helper_Helper();
 
         $redirect        = false;
@@ -342,7 +336,6 @@ class MultiSafepay_Gateways
                 break;
             case 'cancel':
                 return true;
-                break;
 /*
             case 'feeds':
                 require_once dirname(__FILE__) . '/Helper/Feeds.php';
@@ -395,8 +388,6 @@ class MultiSafepay_Gateways
             $order = new WC_Order($transactie->var2);
         }
         
-
-
                     
         if ($transactie->fastcheckout == 'YES' && empty($orderid)) {
             // No correct transaction, go back to checkout-page.
@@ -413,7 +404,6 @@ class MultiSafepay_Gateways
 
                 // Compatiblity Woocommerce 2.x and 3.x
                 $orderID     = (method_exists($order,'get_id'))     ? $order->get_id()      : $order->id;
-                $orderStatus = (method_exists($order,'get_status')) ? $order->get_status()  : $order->status;
 
                 $wpdb->query("INSERT INTO " . $wpdb->prefix . 'woocommerce_multisafepay' . " (trixid, orderid, status) VALUES ('" . $transactionid . "', '" . $orderID . "', '" . $status . "'  )");
 
@@ -508,10 +498,11 @@ class MultiSafepay_Gateways
                         update_post_meta($orderID, '_cart_discount_tax', 0);
 
                         $order->calculate_taxes();
+                        $tax_percentage = 0;
                         $order_data = get_post_meta($orderID);
                         $new_order_tax = round($order_data['_order_tax'][0] - (($unit_price * (1 + $tax_percentage)) - $unit_price), 2);
                         update_post_meta($orderID, '_order_tax', $new_order_tax);
-                        $id = $order->add_coupon($code, $unit_price, $applied_discount_tax);
+                        $order->add_coupon($code, $unit_price, $applied_discount_tax);
                     }
 
 /*
@@ -597,8 +588,9 @@ class MultiSafepay_Gateways
                 break;
             case 'uncleared':
 
-                if ($order->status == 'on-hold')
+                if ($order->status == 'on-hold') {
                     break;
+                }
 
                 $order->update_status('wc-on-hold');
                 $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
@@ -607,8 +599,9 @@ class MultiSafepay_Gateways
             case 'reserved':
             case 'declined':
             case 'expired':
-                if ($order->status == 'failed')
+                if ($order->status == 'failed') {
                     break;
+                }
 
                 $order->update_status('wc-failed', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
                 $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
@@ -661,9 +654,10 @@ class MultiSafepay_Gateways
     {
         global $woocommerce;
 
-        if (!empty($woocommerce->fco_added))
+        if (!empty($woocommerce->fco_added)) {
             return;
-
+        }
+        
         if (get_option('multisafepay_fco_enabled') == "yes") {
             $woocommerce->fco_added = true;
             add_action('woocommerce_proceed_to_checkout', array(__CLASS__, 'getButtonFCO'), 12);
@@ -674,8 +668,9 @@ class MultiSafepay_Gateways
     public static function getButtonFCO()
     {
 
-        if (get_woocommerce_currency() != 'EUR')
+        if (get_woocommerce_currency() != 'EUR') {
             return;
+        }
 
 //        $button_locale_code = get_locale();
 //        $image = plugins_url('/Images/' . $button_locale_code . '/button.png', __FILE__);
@@ -739,9 +734,9 @@ class MultiSafepay_Gateways
             $helper->write_log(print_r($my_order, true));
             $helper->write_log('MSP->End debug');
 
-            if (strpos($msg, '1037') === 0)
+            if (strpos($msg, '1037') === 0) {
                 $msg = __('There are no shipping methods available. Please double check your address, or contact us if you need any help.', 'multisafepay');
-
+            }
             wc_add_notice($msg, 'error');
             wp_redirect(WC()->cart->get_checkout_url());
         } else {
