@@ -402,8 +402,7 @@ class MultiSafepay_Gateways
 
                 $order = wc_create_order();
 
-                // Compatiblity Woocommerce 2.x and 3.x
-                $orderID     = (method_exists($order,'get_id'))     ? $order->get_id()      : $order->id;
+                $orderID = $order->get_id();
 
                 $wpdb->query("INSERT INTO " . $wpdb->prefix . 'woocommerce_multisafepay' . " (trixid, orderid, status) VALUES ('" . $transactionid . "', '" . $orderID . "', '" . $status . "'  )");
 
@@ -542,7 +541,8 @@ class MultiSafepay_Gateways
         }
 
 
-
+        $orderStatus = $order->get_status();
+        
         switch ($status) {
             case 'cancelled':
                 $order->cancel_order();
@@ -563,12 +563,12 @@ class MultiSafepay_Gateways
                 }
             case 'completed':
                 if ($order->get_total() != $amount) {
-                    if ($order->status != 'processing') {
+                    if ($orderStatus != 'processing') {
                         $order->update_status('wc-on-hold', sprintf(__('Validation error: Multisafepay amounts do not match (gross %s).', 'multisafepay'), $amount));
                     }
                 }
 
-                if ($order->status != 'processing' && $order->status != 'completed' && $order->status != 'wc-completed') {
+                if ($orderStatus != 'processing' && $orderStatus != 'completed' && $orderStatus != 'wc-completed') {
                     $order->payment_complete();
                     $woocommerce->cart->empty_cart();
                 } else {
@@ -588,7 +588,7 @@ class MultiSafepay_Gateways
                 break;
             case 'uncleared':
 
-                if ($order->status == 'on-hold') {
+                if ($orderStatus == 'on-hold') {
                     break;
                 }
 
@@ -599,7 +599,7 @@ class MultiSafepay_Gateways
             case 'reserved':
             case 'declined':
             case 'expired':
-                if ($order->status == 'failed') {
+                if ($orderStatus == 'failed') {
                     break;
                 }
 

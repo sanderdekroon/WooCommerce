@@ -210,8 +210,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
         $msp->setApiKey($this->getApiKey());
         $msp->setApiUrl($this->getTestMode());
 
-        // Compatiblity Woocommerce 2.x and 3.x
-        $orderID     = (method_exists($order,'get_id'))     ? $order->get_id()      : $order->id;
+        $orderID  = $order->get_id();
 
         list ($this->shopping_cart, $this->checkout_options) = $this->getCart($order_id);
 
@@ -470,9 +469,8 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
                 break;
         }
 
-        // Compatiblity Woocommerce 2.x and 3.x
-        $billingPhone  = (method_exists($order,'get_billing_phone'))     ? $order->get_billing_phone()      : $order->billing_phone;
-        $billingEmail  = (method_exists($order,'get_billing_email'))     ? $order->get_billing_email()      : $order->billing_email;
+        $billingPhone  = $order->get_billing_phone();
+        $billingEmail  = $order->get_billing_email();
 
         return (array(  'referrer'      => $_SERVER['HTTP_REFERER'],
                         'user_agent'    => $_SERVER['HTTP_USER_AGENT'],
@@ -496,65 +494,42 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
     public function setDelivery($msp, $order)
     {
 
-        // Compatiblity Woocommerce 2.x and 3.x
-        $shipping_address_1     = (method_exists($order,'get_shipping_address_1'))  ? $order->get_shipping_address_1()  : $order->shipping_address_1;
-        $shipping_first_name    = (method_exists($order,'get_shipping_first_name')) ? $order->get_shipping_first_name() : $order->shipping_first_name;
-        $shipping_last_name     = (method_exists($order,'get_shipping_last_name'))  ? $order->get_shipping_last_name()  : $order->shipping_last_name;
-        $shipping_address_2     = (method_exists($order,'get_shipping_address_2'))  ? $order->get_shipping_address_2()  : $order->shipping_address_2;
-        $shipping_postcode      = (method_exists($order,'get_shipping_postcode'))   ? $order->get_shipping_postcode()   : $order->shipping_postcode;
-        $shipping_city          = (method_exists($order,'get_shipping_city'))       ? $order->get_shipping_city()       : $order->shipping_city;
-        $shipping_state         = (method_exists($order,'get_shipping_state'))      ? $order->get_shipping_state()      : $order->shipping_state;
-        $shipping_country       = (method_exists($order,'get_shipping_country'))    ? $order->get_shipping_country()    : $order->shipping_country;
-
-        $address = $shipping_address_1;
-        list ($street, $houseNumber) = $msp->parseCustomerAddress($address);
+        list ($street, $houseNumber) = $msp->parseCustomerAddress($order->get_shipping_address_1() );
 
         return ( array( "locale"        => $this->getLocale(),
                         "ip_address"    => $_SERVER['REMOTE_ADDR'],
                         "referrer"      => $_SERVER['HTTP_REFERER'],
                         "user_agent"    => $_SERVER['HTTP_USER_AGENT'],
-                        "first_name"    => $shipping_first_name,
-                        "last_name"     => $shipping_last_name,
+                        "first_name"    => $order->get_shipping_first_name(),
+                        "last_name"     => $order->get_shipping_last_name(),
                         "address1"      => $street,
-                        "address2"      => $shipping_address_2,
+                        "address2"      => $order->get_shipping_address_2(),
                         "house_number"  => $houseNumber,
-                        "zip_code"      => $shipping_postcode,
-                        "city"          => $shipping_city,
-                        "state"         => $shipping_state,
-                        "country"       => $shipping_country ));
+                        "zip_code"      => $order->get_shipping_postcode(),
+                        "city"          => $order->get_shipping_city(),
+                        "state"         => $order->get_shipping_state(),
+                        "country"       => $order->get_shipping_country() ));
         }
 
     public function setCustomer($msp, $order)
     {
-        $billing_address_1     = (method_exists($order,'get_billing_address_1'))  ? $order->get_billing_address_1()  : $order->billing_address_1;
-        $billing_first_name    = (method_exists($order,'get_billing_first_name')) ? $order->get_billing_first_name() : $order->billing_first_name;
-        $billing_last_name     = (method_exists($order,'get_billing_last_name'))  ? $order->get_billing_last_name()  : $order->billing_last_name;
-        $billing_address_2     = (method_exists($order,'get_billing_address_2'))  ? $order->get_billing_address_2()  : $order->billing_address_2;
-        $billing_postcode      = (method_exists($order,'get_billing_postcode'))   ? $order->get_billing_postcode()   : $order->billing_postcode;
-        $billing_city          = (method_exists($order,'get_billing_city'))       ? $order->get_billing_city()       : $order->billing_city;
-        $billing_state         = (method_exists($order,'get_billing_state'))      ? $order->get_billing_state()      : $order->billing_state;
-        $billing_country       = (method_exists($order,'get_billing_country'))    ? $order->get_billing_country()    : $order->billing_country;
-        $billing_phone         = (method_exists($order,'get_billing_phone'))      ? $order->get_billing_phone()      : $order->billing_phone;
-        $billing_email         = (method_exists($order,'get_billing_email'))      ? $order->get_billing_email()      : $order->billing_email;
-
-        $address = $billing_address_1;
-        list ($street, $houseNumber) = $msp->parseCustomerAddress($address);
+        list ($street, $houseNumber) = $msp->parseCustomerAddress($order->get_billing_address_1());
 
         return ( array( "locale"        => $this->getLocale(),
                         "ip_address"    => $_SERVER['REMOTE_ADDR'],
                         "referrer"      => $_SERVER['HTTP_REFERER'],
                         "user_agent"    => $_SERVER['HTTP_USER_AGENT'],
-                        "first_name"    => $billing_first_name,
-                        "last_name"     => $billing_last_name,
+                        "first_name"    => $order->get_billing_first_name(),
+                        "last_name"     => $order->get_billing_last_name(),
                         "address1"      => $street,
-                        "address2"      => $billing_address_2,
+                        "address2"      => $order->get_billing_address_2(),
                         "house_number"  => $houseNumber,
-                        "zip_code"      => $billing_postcode,
-                        "city"          => $billing_city,
-                        "state"         => $billing_state,
-                        "country"       => $billing_country,
-                        "phone"         => $billing_phone,
-                        "email"         => $billing_email));
+                        "zip_code"      => $order->get_billing_postcode(),
+                        "city"          => $order->get_billing_city(),
+                        "state"         => $order->get_billing_state(),
+                        "country"       => $order->get_billing_country(),
+                        "phone"         => $order->get_billing_phone(),
+                        "email"         => $order->get_billing_email() ));
     }
 
     public function setGoogleAnalytics()
