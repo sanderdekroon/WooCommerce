@@ -229,6 +229,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
             "seconds_active"        => $this->getTimeActive(),
             "payment_options"       => array(
                 "notification_url"  => add_query_arg('type=initial', '', $this->getNurl()),
+//                "redirect_url"      => add_query_arg('type=redirect', '', $this->getNurl()),
                 "redirect_url"      => add_query_arg('utm_nooverride', '1', $this->get_return_url($order)),
                 "cancel_url"        => htmlspecialchars_decode(add_query_arg('key', $orderID, $order->get_cancel_order_url())),
                 "close_window"      => true
