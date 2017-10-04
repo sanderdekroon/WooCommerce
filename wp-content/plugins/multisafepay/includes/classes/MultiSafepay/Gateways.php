@@ -615,7 +615,9 @@ class MultiSafepay_Gateways
                 $updated = true;
                 break;
             case 'shipped' :
-                $order->add_order_note(__('Klarna Invoice: ') . '<br /><a href="https://online.klarna.com/invoices/' . $transactie->payment_details->external_transaction_id . '.pdf">https://online.klarna.com/invoices/' . $transactie->payment_details->external_transaction_id . '.pdf</a>');
+                if ($gateway == 'KLARNA') {
+                    $order->add_order_note(__('Klarna Invoice: ') . '<br /><a href="https://online.klarna.com/invoices/' . $transactie->payment_details->external_transaction_id . '.pdf">https://online.klarna.com/invoices/' . $transactie->payment_details->external_transaction_id . '.pdf</a>');
+                }
                 break;
         }
 
