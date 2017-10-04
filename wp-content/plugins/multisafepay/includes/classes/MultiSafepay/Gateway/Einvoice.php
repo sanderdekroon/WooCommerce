@@ -155,8 +155,9 @@ class MultiSafepay_Gateway_Einvoice extends MultiSafepay_Gateway_Abstract
         if (!empty($settings['maxamount']) && $woocommerce->cart->total > $settings['maxamount'])
             unset($gateways['multisafepay_einvoice']);
 
-        $billingCountry  = $woocommerce->customer->get_billing_country();
-
+        // Compatiblity Woocommerce 2.x and 3.x
+        $billingCountry  = (method_exists($woocommerce->customer,'get_billing_country'))  ? $woocommerce->customer->get_billing_country() : $woocommerce->customer->get_country();
+ 
         if (isset ($woocommerce->customer) && $billingCountry != 'NL')
             unset($gateways['multisafepay_einvoice']);
 

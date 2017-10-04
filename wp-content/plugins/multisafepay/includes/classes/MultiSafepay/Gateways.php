@@ -402,7 +402,9 @@ class MultiSafepay_Gateways
 
                 $order = wc_create_order();
 
-                $orderID = $order->get_id();
+                // Compatiblity Woocommerce 2.x and 3.x
+                $orderID     = (method_exists($order,'get_id'))     ? $order->get_id()      : $order->id;
+
 
                 $wpdb->query("INSERT INTO " . $wpdb->prefix . 'woocommerce_multisafepay' . " (trixid, orderid, status) VALUES ('" . $transactionid . "', '" . $orderID . "', '" . $status . "'  )");
 
