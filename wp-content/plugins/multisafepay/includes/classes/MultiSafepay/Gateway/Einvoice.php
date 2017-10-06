@@ -23,6 +23,12 @@
 class MultiSafepay_Gateway_Einvoice extends MultiSafepay_Gateway_Abstract
 {
 
+    public function __construct()
+    {
+        add_action('woocommerce_order_status_completed', array($this, 'setToShipped'), 13);
+        parent::__construct();
+    }
+
     public static function getCode()
     {
         return "multisafepay_einvoice";
@@ -150,7 +156,8 @@ class MultiSafepay_Gateway_Einvoice extends MultiSafepay_Gateway_Abstract
             unset($gateways['multisafepay_einvoice']);
 
         // Compatiblity Woocommerce 2.x and 3.x
-        $billingCountry  = (method_exists($woocommerce,'get_billing_country'))  ? $woocommerce->customer->get_billing_country() : $woocommerce->customer->get_country();
+        $billingCountry  = (method_exists($woocommerce->customer,'get_billing_country'))  ? $woocommerce->customer->get_billing_country() : $woocommerce->customer->get_country();
+ 
         if (isset ($woocommerce->customer) && $billingCountry != 'NL')
             unset($gateways['multisafepay_einvoice']);
 
@@ -161,7 +168,6 @@ class MultiSafepay_Gateway_Einvoice extends MultiSafepay_Gateway_Abstract
     {
         $this->type = $this->getType();
         $this->GatewayInfo = $this->getGatewayInfo($order_id);
-        list ($this->shopping_cart, $this->checkout_options) = $this->getCart($order_id);
 
         return parent::process_payment($order_id);
     }

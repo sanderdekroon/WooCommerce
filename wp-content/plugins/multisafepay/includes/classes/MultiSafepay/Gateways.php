@@ -27,12 +27,15 @@ class MultiSafepay_Gateways
     {
         add_option('multisafepay_version', '3.0.2', '', 'yes');
 
-        add_filter('woocommerce_payment_gateways', array(__CLASS__, '_getGateways'));
-        add_filter('woocommerce_payment_gateways_settings', array(__CLASS__, '_addGlobalSettings'), 1);
+        add_filter('woocommerce_payment_gateways',              array(__CLASS__, '_getGateways'));
+        add_filter('woocommerce_payment_gateways_settings',     array(__CLASS__, '_addGlobalSettings'), 1);
 
-        add_action('wp_loaded', array(__CLASS__, 'MultiSafepay_Response'));
-        add_action('init', array(__CLASS__, 'addFCO'));
-        add_action('woocommerce_api_' . strtolower(get_class()), array(__CLASS__, 'doFastCheckout'));
+        add_action('wp_loaded',                                 array(__CLASS__, 'MultiSafepay_Response'));
+        add_action('init',                                      array(__CLASS__, 'addFCO'));
+        add_action('woocommerce_api_' . strtolower(get_class()),array(__CLASS__, 'doFastCheckout'));
+
+        add_action('template_redirect',                         array(__CLASS__, 'getRealPaymentMethod'), 10, 1);
+        add_action('woocommerce_order_status_completed',        array(__CLASS__, 'getRealPaymentMethod'), 10, 1);
 
         global $wpdb;
         $wpdb->hide_errors();
@@ -59,13 +62,76 @@ class MultiSafepay_Gateways
         dbDelta($woocommerce_tables);
     }
 
+
+   public function getRealPaymentMethod() {
+        global $wpdb;
+
+        $transactionid  = filter_input(INPUT_GET, 'transactionid',  FILTER_SANITIZE_STRING);
+        
+        if ( !isset($transactionid )) {
+            return;
+        }
+
+        // Get real payment method
+        //
+        $msp    = new Client();
+        $helper = new MultiSafepay_Helper_Helper();
+
+        $msp->setApiKey($helper->getApiKey());
+        $msp->setApiUrl($helper->getTestMode());
+
+        try {
+            $msg = null;
+            $transactie = $msp->orders->get($transactionid, 'orders', array(), false);
+        } catch (Exception $e) {
+
+            $msg = htmlspecialchars($e->getMessage());
+            $helper->write_log($msg);
+            return;
+        }
+        $gateway    = $transactie->payment_details->type;
+
+        $order = new WC_Order( $transactionid );
+
+        $payment_method       = false;
+        $payment_method_title = false;
+        
+        $tablename = $wpdb->prefix . 'options';
+        $results = $wpdb->get_results("SELECT option_name, option_value FROM {$tablename} WHERE `option_name` like 'woocommerce_multisafepay_%'");
+
+        foreach( $results as $result)
+        {
+            $options = get_option( $result->option_name, array());
+
+            if ( isset ($options['gateway'])  && ( $gateway == $options['gateway']) )
+            {
+                preg_match('/woocommerce_(.*)_settings/', $result->option_name, $matches);
+                $payment_method         = $matches[1];
+                $payment_method_title   = $options['title'];
+                break;
+            }
+        }
+
+        // Initial payment method differens from real payment method.
+        if (get_post_meta( $order->id, '_payment_method', true ) != $payment_method) {
+
+            $order->add_order_note( sprintf(__('Payment started with %s, but finaly paid by %s', 'multisafepay'), get_post_meta( $order->id, '_payment_method_title', true ), $payment_method_title));
+
+            update_post_meta( $order->id, '_payment_method',        $payment_method);
+            update_post_meta( $order->id, '_payment_method_title',  $payment_method_title );
+        }
+        return;
+    }
+        
+
+
     public static function _getGateways($arrDefault)
     {
         $paymentOptions = array(
               'MultiSafepay_Gateway_Amex'
             , 'MultiSafepay_Gateway_Bancontact'
             , 'MultiSafepay_Gateway_Banktrans'
-          , 'MultiSafepay_Gateway_Belfius'
+            , 'MultiSafepay_Gateway_Belfius'
             , 'MultiSafepay_Gateway_Creditcard'
             , 'MultiSafepay_Gateway_Dirdeb'
             , 'MultiSafepay_Gateway_Dotpay'
@@ -74,8 +140,8 @@ class MultiSafepay_Gateways
             , 'MultiSafepay_Gateway_Ferbuy'
             , 'MultiSafepay_Gateway_Giropay'
             , 'MultiSafepay_Gateway_Ideal'
-          , 'MultiSafepay_Gateway_Ing'
-          , 'MultiSafepay_Gateway_Kbc'
+            , 'MultiSafepay_Gateway_Ing'
+            , 'MultiSafepay_Gateway_Kbc'
             , 'MultiSafepay_Gateway_Klarna'
             , 'MultiSafepay_Gateway_Maestro'
             , 'MultiSafepay_Gateway_Mastercard'
@@ -126,100 +192,107 @@ class MultiSafepay_Gateways
         $addedSettings = array();
 
         $addedSettings[] = array(
-            'title' => __('MultiSafepay settings', 'multisafepay'),
-            'type' => 'title',
-            'desc' => '<p>' . __('The following options are needed to make use of the MultiSafepay plug-in', 'multisafepay') . '</p>',
-            'id' => 'multisafepay_general_settings'
+            'title'     => __('MultiSafepay settings', 'multisafepay'),
+            'type'      => 'title',
+            'desc'      => '<p>' . __('The following options are needed to make use of the MultiSafepay plug-in', 'multisafepay') . '</p>',
+            'id'        => 'multisafepay_general_settings'
         );
         $addedSettings[] = array(
-            'name' => __('API key', 'multisafepay'),
-            'type' => 'text',
-            'desc_tip' => __('Copy the API-Key from your MultiSafepay account', 'multisafepay'),
-            'id' => 'multisafepay_api_key',
-            'css' => 'min-width:350px;',
+            'name'      => __('API key', 'multisafepay'),
+            'type'      => 'text',
+            'desc_tip'  => __('Copy the API-Key from your MultiSafepay account', 'multisafepay'),
+            'id'        => 'multisafepay_api_key',
+            'css'       => 'min-width:350px;',
         );
         $addedSettings[] = array(
-            'name' => __('Test Mode', 'multisafepay'),
-            'desc' => sprintf(__('Activate %s', 'multisafepay'), __('Test Mode', 'multisafepay')),
-            'type' => 'checkbox',
-            'default' => 'yes',
-            'desc_tip' => __('Only enable if the API-Key is from a MultiSafepay Test-account.', 'multisafepay'),
-            'id' => 'multisafepay_testmode'
-        );
-
-        $addedSettings[] = array(
-            'name' => __('FastCheckout', 'multisafepay'),
-            'desc' => sprintf(__('Activate %s', 'multisafepay'), __('FastCheckout', 'multisafepay')),
-            'type' => 'checkbox',
-            'default' => 'no',
-            'desc_tip' => sprintf(__('When enabled %s will be available during checkout.', 'multisafepay'), __('FastCheckout', 'multisafepay')),
-            'id' => 'multisafepay_fco_enabled'
+            'name'      => __('Test Mode', 'multisafepay'),
+            'desc'      => sprintf(__('Activate %s', 'multisafepay'), __('Test Mode', 'multisafepay')),
+            'type'      => 'checkbox',
+            'default'   => 'yes',
+            'desc_tip'  => __('Only enable if the API-Key is from a MultiSafepay Test-account.', 'multisafepay'),
+            'id'        => 'multisafepay_testmode'
         );
 
         $addedSettings[] = array(
-            'name' => __('GiftCards', 'multisafepay'),
-            'desc' => sprintf(__('Activate %s', 'multisafepay'), __('GiftCards', 'multisafepay')),
-            'type' => 'checkbox',
-            'default' => 'no',
-            'desc_tip' => sprintf(__('When enabled %s will be available during checkout.', 'multisafepay'), __('GiftCards', 'multisafepay')),
-            'id' => 'multisafepay_giftcards_enabled'
+            'name'      => __('FastCheckout', 'multisafepay'),
+            'desc'      => sprintf(__('Activate %s', 'multisafepay'), __('FastCheckout', 'multisafepay')),
+            'type'      => 'checkbox',
+            'default'   => 'no',
+            'desc_tip'  => sprintf(__('When enabled %s will be available during checkout.', 'multisafepay'), __('FastCheckout', 'multisafepay')),
+            'id'        => 'multisafepay_fco_enabled'
         );
 
         $addedSettings[] = array(
-            'name' => __('Expire order', 'multisafepay'),
-            'type' => 'number',
-            'default' => 30,
-            'desc_tip' => __('Time before unfinished order is set to expired', 'multisafepay'),
-            'id' => 'multisafepay_time_active',
-            'css' => 'max-width:80px;',
-        );
-        $addedSettings[] = array(
-            'type' => 'select',
-            'options' => array('days' => __('days', 'multisafepay'),
-                'hours' => __('hours', 'multisafepay'),
-                'seconds' => __('seconds', 'multisafepay')),
-            'id' => 'multisafepay_time_unit',
-        );
-        $addedSettings[] = array(
-            'name' => __('Images', 'multisafepay'),
-            'desc' => __('Show gateway images', 'multisafepay'),
-            'type' => 'checkbox',
-            'default' => 'yes',
-            'id' => 'multisafepay_show_images',
-            'desc_tip' => sprintf(__('%s during checkout.', 'multisafepay'), __('Show gateway images', 'multisafepay'))
+            'name'      => __('GiftCards', 'multisafepay'),
+            'desc'      => sprintf(__('Activate %s', 'multisafepay'), __('GiftCards', 'multisafepay')),
+            'type'      => 'checkbox',
+            'default'   => 'no',
+            'desc_tip'  => sprintf(__('When enabled %s will be available during checkout.', 'multisafepay'), __('GiftCards', 'multisafepay')),
+            'id'        => 'multisafepay_giftcards_enabled'
         );
 
         $addedSettings[] = array(
-            'name' => __('Invoice', 'multisafepay'),
-            'desc' => __('Send Invoice', 'multisafepay'),
-            'type' => 'checkbox',
-            'default' => 'yes',
-            'desc_tip' => __('When enabled an invoice is send after a transaction is completed', 'multisafepay'),
-            'id' => 'multisafepay_send_invoice',
+            'name'      => __('Expire order', 'multisafepay'),
+            'type'      => 'number',
+            'default'   => 30,
+            'desc_tip'  => __('Time before unfinished order is set to expired', 'multisafepay'),
+            'id'        => 'multisafepay_time_active',
+            'css'       => 'max-width:80px;',
+        );
+        $addedSettings[] = array(
+            'type'      => 'select',
+            'options'   => array(   'days'      => __('days', 'multisafepay'),
+                                    'hours'     => __('hours', 'multisafepay'),
+                                    'seconds'   => __('seconds', 'multisafepay')),
+            'id'        => 'multisafepay_time_unit',
+        );
+        $addedSettings[] = array(
+            'name'      => __('Images', 'multisafepay'),
+            'desc'      => __('Show gateway images', 'multisafepay'),
+            'type'      => 'checkbox',
+            'default'   => 'yes',
+            'id'        => 'multisafepay_show_images',
+            'desc_tip'  => sprintf(__('%s during checkout.', 'multisafepay'), __('Show gateway images', 'multisafepay'))
         );
 
         $addedSettings[] = array(
-            'name' => __('Debug', 'multisafepay'),
-            'desc' => __('Activate debug mode', 'multisafepay'),
-            'type' => 'checkbox',
-            'default' => 'no',
-            'desc_tip' => __('When enabled (and wordpress debug is enabled it will log transactions)', 'multisafepay'),
-            'id' => 'multisafepay_debugmode',
-        );
-        $addedSettings[] = array(
-            'name' => __('Notification-URL', 'multisafepay'),
-            'type' => 'text',
-            'default' => sprintf('%s/?page=multisafepaynotify', site_url()),
-            'desc' => __('Copy&Paste this URL to your website configuration Notification-URL at your Multisafepay dashboard.', 'multisafepay'),
-            'id' => 'multisafepay_nurl',
-            'desc_tip' => true,
-            'css' => 'min-width:800px;',
+            'name'      => __('Invoice', 'multisafepay'),
+            'desc'      => __('Send Invoice', 'multisafepay'),
+            'type'      => 'checkbox',
+            'default'   => 'yes',
+            'desc_tip'  => __('When enabled an invoice is send after a transaction is completed', 'multisafepay'),
+            'id'        => 'multisafepay_send_invoice',
         );
 
+        $addedSettings[] = array(
+            'name'      => __('Analytics', 'multisafepay'),
+            'desc'      => __('Google Analytics', 'multisafepay'),
+            'type'      => 'text',
+            'desc_tip'  => __('Your Google Analytics tracking code', 'multisafepay'),
+            'id'        => 'multisafepay_ga',
+        );
 
         $addedSettings[] = array(
-            'type' => 'sectionend',
-            'id' => 'multisafepay_general_settings',
+            'name'      => __('Debug', 'multisafepay'),
+            'desc'      => __('Activate debug mode', 'multisafepay'),
+            'type'      => 'checkbox',
+            'default'   => 'no',
+            'desc_tip'  => __('When enabled (and wordpress debug is enabled it will log transactions)', 'multisafepay'),
+            'id'        => 'multisafepay_debugmode',
+        );
+        $addedSettings[] = array(
+            'name'      => __('Notification-URL', 'multisafepay'),
+            'type'      => 'text',
+            'default'   => sprintf('%s/?page=multisafepaynotify', site_url()),
+            'desc'      => __('Copy&Paste this URL to your website configuration Notification-URL at your Multisafepay dashboard.', 'multisafepay'),
+            'id'        => 'multisafepay_nurl',
+            'desc_tip'  => true,
+            'css'       => 'min-width:800px;',
+        );
+
+        $addedSettings[] = array(
+            'type'      => 'sectionend',
+            'id'        => 'multisafepay_general_settings',
         );
         foreach ($settings as $setting) {
             if (isset($setting['id']) && $setting['id'] == 'payment_gateways_options' && $setting['type'] != 'sectionend') {
@@ -239,17 +312,21 @@ class MultiSafepay_Gateways
     public static function Multisafepay_Response()
     {
 
-        if (!isset($_GET['transactionid']) && !isset($_GET['identifier'])) {
+        $type           = filter_input(INPUT_GET, 'type',           FILTER_SANITIZE_STRING);
+        $transactionid  = filter_input(INPUT_GET, 'transactionid',  FILTER_SANITIZE_STRING);
+        $identifier     = filter_input(INPUT_GET, 'identifier',     FILTER_SANITIZE_STRING);
+        $timestamp      = filter_input(INPUT_GET, 'timestamp',      FILTER_SANITIZE_STRING);
+
+        if (!isset( $transactionid ) && !isset($identifier)) {
             return;
         }
 
-        global $wpdb, $wp_version, $woocommerce;
+        global $wpdb, $woocommerce;
         $helper = new MultiSafepay_Helper_Helper();
 
-        $redirect = false;
+        $redirect        = false;
         $initial_request = false;
 
-        $type = filter_input(INPUT_GET, 'type', FILTER_SANITIZE_STRING);
         switch ($type) {
             case 'initial':
                 $initial_request = true;
@@ -259,27 +336,27 @@ class MultiSafepay_Gateways
                 break;
             case 'cancel':
                 return true;
+/*
+            case 'feeds':
+                require_once dirname(__FILE__) . '/Helper/Feeds.php';
+                return true;
                 break;
-//            case 'feeds':
-//                require_once dirname(__FILE__) . '/Helper/Feeds.php';
-//                return true;
-//                break;
+*/
             default:
                 break;
         }
 
 
         // If no transaction-id there is nothing to process..
-        $transactionid = filter_input(INPUT_GET, 'transactionid', FILTER_SANITIZE_STRING);
         if (!$transactionid) {
             return;
         }
 
         // If no timestamp don't continue
-        if (!isset ($_GET['timestamp'])) {
+        if (!isset ($timestamp)) {
             return;
         }
-        
+
         $msp = new Client();
         $helper = new MultiSafepay_Helper_Helper();
 
@@ -296,10 +373,10 @@ class MultiSafepay_Gateways
             return;
         }
 
-        $updated = false;
-        $status = $transactie->status;
-        $amount = $transactie->amount / 100;
-        $gateway = $transactie->payment_details->type;
+        $updated    = false;
+        $status     = $transactie->status;
+        $amount     = $transactie->amount / 100;
+        $gateway    = $transactie->payment_details->type;
 
         $tablename = $wpdb->prefix . 'woocommerce_multisafepay';
         $sql = $wpdb->prepare("SELECT orderid FROM {$tablename} WHERE trixid = %s", $transactionid);
@@ -310,7 +387,8 @@ class MultiSafepay_Gateways
         } else {
             $order = new WC_Order($transactie->var2);
         }
-
+        
+                    
         if ($transactie->fastcheckout == 'YES' && empty($orderid)) {
             // No correct transaction, go back to checkout-page.
             if (empty($transactie->transaction_id)) {
@@ -326,7 +404,7 @@ class MultiSafepay_Gateways
 
                 // Compatiblity Woocommerce 2.x and 3.x
                 $orderID     = (method_exists($order,'get_id'))     ? $order->get_id()      : $order->id;
-                $orderStatus = (method_exists($order,'get_status')) ? $order->get_status()  : $order->status;
+
 
                 $wpdb->query("INSERT INTO " . $wpdb->prefix . 'woocommerce_multisafepay' . " (trixid, orderid, status) VALUES ('" . $transactionid . "', '" . $orderID . "', '" . $status . "'  )");
 
@@ -421,10 +499,11 @@ class MultiSafepay_Gateways
                         update_post_meta($orderID, '_cart_discount_tax', 0);
 
                         $order->calculate_taxes();
+                        $tax_percentage = 0;
                         $order_data = get_post_meta($orderID);
                         $new_order_tax = round($order_data['_order_tax'][0] - (($unit_price * (1 + $tax_percentage)) - $unit_price), 2);
                         update_post_meta($orderID, '_order_tax', $new_order_tax);
-                        $id = $order->add_coupon($code, $unit_price, $applied_discount_tax);
+                        $order->add_coupon($code, $unit_price, $applied_discount_tax);
                     }
 
 /*
@@ -464,6 +543,8 @@ class MultiSafepay_Gateways
         }
 
 
+        $orderStatus = $order->get_status();
+        
         switch ($status) {
             case 'cancelled':
                 $order->cancel_order();
@@ -490,7 +571,6 @@ class MultiSafepay_Gateways
                 }
 
                 if ($orderStatus != 'processing' && $orderStatus != 'completed' && $orderStatus != 'wc-completed') {
-                    $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
                     $order->payment_complete();
                     $woocommerce->cart->empty_cart();
                 } else {
@@ -510,8 +590,9 @@ class MultiSafepay_Gateways
                 break;
             case 'uncleared':
 
-                if ($orderStatus == 'on-hold')
+                if ($orderStatus == 'on-hold') {
                     break;
+                }
 
                 $order->update_status('wc-on-hold');
                 $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
@@ -520,8 +601,9 @@ class MultiSafepay_Gateways
             case 'reserved':
             case 'declined':
             case 'expired':
-                if ($orderStatus == 'failed')
+                if ($orderStatus == 'failed') {
                     break;
+                }
 
                 $order->update_status('wc-failed', sprintf(__('Payment %s via Multisafepay.', 'multisafepay'), strtolower($status)));
                 $order->add_order_note(sprintf(__('Multisafepay payment status %s', 'multisafepay'), $status));
@@ -533,7 +615,9 @@ class MultiSafepay_Gateways
                 $updated = true;
                 break;
             case 'shipped' :
-                $order->add_order_note(__('Klarna Invoice: ') . '<br /><a href="https://online.klarna.com/invoices/' . $transactie->payment_details->external_transaction_id . '.pdf">https://online.klarna.com/invoices/' . $transactie->payment_details->external_transaction_id . '.pdf</a>');
+                if ($gateway == 'KLARNA') {
+                    $order->add_order_note(__('Klarna Invoice: ') . '<br /><a href="https://online.klarna.com/invoices/' . $transactie->payment_details->external_transaction_id . '.pdf">https://online.klarna.com/invoices/' . $transactie->payment_details->external_transaction_id . '.pdf</a>');
+                }
                 break;
         }
 
@@ -566,13 +650,18 @@ class MultiSafepay_Gateways
         exit('OK');
     }
 
+
+
+
+
     public static function addFCO()
     {
         global $woocommerce;
 
-        if (!empty($woocommerce->fco_added))
+        if (!empty($woocommerce->fco_added)) {
             return;
-
+        }
+        
         if (get_option('multisafepay_fco_enabled') == "yes") {
             $woocommerce->fco_added = true;
             add_action('woocommerce_proceed_to_checkout', array(__CLASS__, 'getButtonFCO'), 12);
@@ -583,8 +672,9 @@ class MultiSafepay_Gateways
     public static function getButtonFCO()
     {
 
-        if (get_woocommerce_currency() != 'EUR')
+        if (get_woocommerce_currency() != 'EUR') {
             return;
+        }
 
 //        $button_locale_code = get_locale();
 //        $image = plugins_url('/Images/' . $button_locale_code . '/button.png', __FILE__);
@@ -648,9 +738,9 @@ class MultiSafepay_Gateways
             $helper->write_log(print_r($my_order, true));
             $helper->write_log('MSP->End debug');
 
-            if (strpos($msg, '1037') === 0)
+            if (strpos($msg, '1037') === 0) {
                 $msg = __('There are no shipping methods available. Please double check your address, or contact us if you need any help.', 'multisafepay');
-
+            }
             wc_add_notice($msg, 'error');
             wp_redirect(WC()->cart->get_checkout_url());
         } else {

@@ -184,6 +184,12 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
             'type'          => 'textarea',
             'default'       => sprintf(__('Pay with %s', 'multisafepay'), $this->getName()),
         );
+
+        $this->form_fields['gateway'] = array(
+            'type'          => 'hidden',
+            'default'       => $this->getGatewayCode(),
+        );
+        
         $this->form_fields  = array_merge($this->form_fields, $form_fields);
 
         parent::init_settings();
@@ -207,6 +213,8 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
         // Compatiblity Woocommerce 2.x and 3.x
         $orderID     = (method_exists($order,'get_id'))     ? $order->get_id()      : $order->id;
 
+        list ($this->shopping_cart, $this->checkout_options) = $this->getCart($order_id);
+
         $my_order = array(
             "type"                  => $this->getType(),
             "order_id"              => $order->get_order_number(),
@@ -221,6 +229,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
             "seconds_active"        => $this->getTimeActive(),
             "payment_options"       => array(
                 "notification_url"  => add_query_arg('type=initial', '', $this->getNurl()),
+//                "redirect_url"      => add_query_arg('type=redirect', '', $this->getNurl()),
                 "redirect_url"      => add_query_arg('utm_nooverride', '1', $this->get_return_url($order)),
                 "cancel_url"        => htmlspecialchars_decode(add_query_arg('key', $orderID, $order->get_cancel_order_url())),
                 "close_window"      => true
@@ -332,8 +341,9 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
         // Shipping
         foreach ($order->get_items('shipping') as $shipping) {
 
-            $taxes = unserialize($shipping['taxes']);
+            $taxes = $shipping['taxes']['total'];
             $taxes = array_shift($taxes);
+
             $cost  = $shipping['cost'];
 
             $tax_table_selector = 'shipping';
@@ -370,7 +380,11 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
         foreach ($order->get_items('coupon') as $coupon) {
 
             $tax_table_selector = $coupon['type'];
-            $tax_percentage     = round($coupon['discount_amount_tax'] / $coupon['discount_amount'], 2);
+            if ( $coupon['discount_amount'] > 0 ){
+                $tax_percentage     = round($coupon['discount_amount_tax'] / $coupon['discount_amount'], 2);
+            }else{
+                $tax_percentage = 0;
+            }
 
             $shopping_cart['items'][] = array(
                 'name'              => $coupon['type'],
@@ -396,7 +410,12 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
 
             $items .= "<li>".$item['qty'].' x : '.$item['name']."</li>\n";
 
-            $tax_percentage = round($item['line_subtotal_tax'] / $item['line_subtotal'], 2);
+            if ( $item['line_subtotal'] > 0 ){
+                $tax_percentage = round($item['line_subtotal_tax'] / $item['line_subtotal'], 2);
+            }else{
+                $tax_percentage = 0;
+            }
+
             $product_price  = round($item['line_subtotal'] / $item['qty'], 5);
 
             if ($item['line_subtotal_tax'] > 0) {
@@ -503,7 +522,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
                         "city"          => $shipping_city,
                         "state"         => $shipping_state,
                         "country"       => $shipping_country ));
-        }
+    }
 
     public function setCustomer($msp, $order)
     {
@@ -540,7 +559,7 @@ class Multisafepay_Gateway_Abstract extends WC_Payment_Gateway
 
     public function setGoogleAnalytics()
     {
-        return ( array("account" => "UA-XXXXXXXXX"));
+        return ( array("account" => get_option('multisafepay_ga')));
     }
 
     public function setPlugin()

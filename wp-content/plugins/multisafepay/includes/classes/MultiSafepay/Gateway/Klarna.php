@@ -23,6 +23,12 @@
 class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
 {
 
+    public function __construct()
+    {
+        add_action('woocommerce_order_status_completed', array($this, 'setToShipped'), 13);
+        parent::__construct();
+    }
+
     public static function getCode()
     {
         return "multisafepay_klarna";
@@ -166,7 +172,6 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
     {
         $this->type = $this->getType();
         $this->GatewayInfo = $this->getGatewayInfo($order_id);
-        list ($this->shopping_cart, $this->checkout_options) = $this->getCart($order_id);
 
         return parent::process_payment($order_id);
     }
@@ -193,7 +198,7 @@ class MultiSafepay_Gateway_Klarna extends MultiSafepay_Gateway_Abstract
             return new WP_Error('multisafepay', 'Can\'t receive transaction data to update correct information at MultiSafepay:' . $msp->error_code . ' - ' . $msp->error);
         }
 
-        $ext_trns_id = $transactie->payment_details->externaltransactionid;
+        $ext_trns_id = $transactie->payment_details->external_transaction_id;
 
         $endpoint = 'orders/' . $order_id;
         $setShipping = array("tracktrace_code" => null,
